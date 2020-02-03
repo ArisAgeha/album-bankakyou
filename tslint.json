@@ -4,7 +4,7 @@
   "jsRules": {},
   "rules": {
     "indent": [true, "spaces", 2],
-    "prettier": [true, null, { "editorconfig": false }],
+    "prettier": [true, ".prettierrc", { "editorconfig": false }],
     "no-empty": false,
     "trailing-comma": [
       true,
@@ -42,6 +42,12 @@
     "no-implicit-dependencies": false,
     "no-null-keyword": false,
     "no-any": false,
+    "linebreak-style": false,
+    "no-inferrable-types": false,
+
+    "prefer-function-over-method": false,
+    "completed-docs": false,
+    "file-name-casing": false,
 
     "no-import-side-effect": false,
     "no-var-requires": false,
