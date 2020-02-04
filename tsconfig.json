@@ -11,7 +11,18 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
-      "*": ["node_modules/*"]
+      "*": [
+        "node_modules/*"
+      ],
+      "@/*": [
+        "src/*"
+      ],
+      "workbench/*": [
+        "src/workbench/*"
+      ],
+      "services/*": [
+        "src/services/*"
+      ]
     },
     "jsx": "react",
     "plugins": [
@@ -24,5 +35,7 @@
       }
     ]
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }

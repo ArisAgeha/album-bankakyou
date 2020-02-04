@@ -51,7 +51,10 @@
 
     "no-import-side-effect": false,
     "no-var-requires": false,
-    "no-require-imports": false
+    "no-require-imports": false,
+    "no-submodule-imports": false,
+    "no-default-export": false,
+    "no-default-import": false
   },
   "rulesDirectory": ["tslint-plugin-prettier"],
   "linterOptions": {}
