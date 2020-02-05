@@ -1,4 +1,5 @@
 import React, { Component, SetStateAction } from 'react';
+import style from './fileBar.scss';
 
 export interface IFileBarProps {
   initPath?: string;
@@ -18,6 +19,6 @@ export class FileBar extends Component<IFileBarProps, IFileBarState> {
   };
 
   render(): JSX.Element {
-    return <div></div>;
+    return <div className={style.test}>123456</div>;
   }
 }

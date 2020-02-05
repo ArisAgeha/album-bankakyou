@@ -4,12 +4,12 @@ const path = require('path');
 
 rules.push({
   test: /\.css$/,
-  use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+  use: [{ loader: 'style-loader' }, { loader: 'css-loader', options: { modules: true } }],
 });
 
 rules.push({
   test: /\.scss$/,
-  use: [{ loader: "style-loader" }, { loader: "css-loader" }, { loader: "sass-loader" }],
+  use: [{ loader: "style-loader" }, { loader: "css-loader", options: { modules: true } }, { loader: "sass-loader" }],
 })
 
 module.exports = {
