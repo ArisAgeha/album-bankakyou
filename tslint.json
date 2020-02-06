@@ -1,10 +1,23 @@
 {
   "defaultSeverity": "error",
-  "extends": ["tslint:all", "tslint-plugin-prettier"],
+  "extends": [
+    "tslint:all",
+    "tslint-plugin-prettier"
+  ],
   "jsRules": {},
   "rules": {
-    "indent": [true, "spaces", 2],
-    "prettier": [true, ".prettierrc", { "editorconfig": false }],
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "prettier": [
+      true,
+      ".prettierrc",
+      {
+        "editorconfig": false
+      }
+    ],
     "no-empty": false,
     "trailing-comma": [
       true,
@@ -18,12 +31,25 @@
         }
       }
     ],
-    "quotemark": [true, "single"],
-    "no-console": [false],
-    "one-line": [true, "check-open-brace", "check-whitespace"],
-    "object-literal-sort-keys": [false],
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "no-console": [
+      false
+    ],
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-whitespace"
+    ],
+    "object-literal-sort-keys": [
+      false
+    ],
     "no-string-literal": false,
-    "triple-equals": [false],
+    "triple-equals": [
+      false
+    ],
     "curly": false,
     "ordered-imports": false,
     "arrow-parens": false,
@@ -44,11 +70,17 @@
     "no-any": false,
     "linebreak-style": false,
     "no-inferrable-types": false,
-
+    "strict-boolean-expressions": false,
+    "prefer-template": false,
+    "only-arrow-functions": false,
+    "strict-comparisons": false,
+    "no-for-in": false,
+    "ban-types": false,
+    "newline-before-return": false,
+    "no-unbound-method": false,
     "prefer-function-over-method": false,
     "completed-docs": false,
     "file-name-casing": false,
-
     "no-import-side-effect": false,
     "no-var-requires": false,
     "no-require-imports": false,
@@ -56,6 +88,8 @@
     "no-default-export": false,
     "no-default-import": false
   },
-  "rulesDirectory": ["tslint-plugin-prettier"],
+  "rulesDirectory": [
+    "tslint-plugin-prettier"
+  ],
   "linterOptions": {}
 }

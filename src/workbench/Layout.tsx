@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { FileBar } from './fileBar/fileBar';
-import { MainView } from './mainView/mainView';
-import { ManageBar } from './manageBar/manageBar';
+import { FileBar } from './parts/fileBar/fileBar';
+import { MainView } from './parts/mainView/mainView';
+import { ManageBar } from './parts/manageBar/manageBar';
 import './Layout.scss';
 
 class Layout extends React.Component {

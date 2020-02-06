@@ -19,6 +19,6 @@ export class FileBar extends Component<IFileBarProps, IFileBarState> {
   };
 
   render(): JSX.Element {
-    return <div className={style.test}>123456</div>;
+    return <div className={style.test}></div>;
   }
 }

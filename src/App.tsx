@@ -2,7 +2,7 @@ import { hot } from 'react-hot-loader';
 import React, { FC } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 
-import { Layout } from './workbench/parts/Layout';
+import { Layout } from './workbench/Layout';
 
 const App: FC = (): JSX.Element => (
   <HashRouter>
