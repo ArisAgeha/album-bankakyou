@@ -29,6 +29,13 @@ module.exports = [
   {
     test: /\.(js|jsx|ts|tsx)$/,
     exclude: /node_modules/,
-    use: "babel-loader"
+    use: {
+      loader: "babel-loader",
+      query: {
+        plugins: [
+          ['@babel/plugin-proposal-decorators', { "legacy": true }]
+        ]
+      }
+    }
   }
 ];

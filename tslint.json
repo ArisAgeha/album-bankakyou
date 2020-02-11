@@ -1,95 +1,99 @@
 {
-  "defaultSeverity": "error",
-  "extends": [
-    "tslint:all",
-    "tslint-plugin-prettier"
-  ],
-  "jsRules": {},
-  "rules": {
-    "indent": [
-      true,
-      "spaces",
-      2
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:all",
+        "tslint-plugin-prettier"
     ],
-    "prettier": [
-      true,
-      ".prettierrc",
-      {
-        "editorconfig": false
-      }
+    "jsRules": {},
+    "rules": {
+        "indent": [
+            true,
+            "spaces",
+            4
+        ],
+        "prettier": [
+            true,
+            ".prettierrc",
+            {
+                "editorconfig": false
+            }
+        ],
+        "no-empty": false,
+        "trailing-comma": [
+            true,
+            {
+                "singleline": "never",
+                "multiline": {
+                    "objects": "never",
+                    "arrays": "never",
+                    "functions": "never",
+                    "typeLiterals": "ignore"
+                }
+            }
+        ],
+        "quotemark": [
+            true,
+            "single"
+        ],
+        "no-console": [
+            false
+        ],
+        "one-line": [
+            true,
+            "check-open-brace",
+            "check-whitespace"
+        ],
+        "object-literal-sort-keys": [
+            false
+        ],
+        "no-string-literal": false,
+        "triple-equals": [
+            false
+        ],
+        "curly": false,
+        "ordered-imports": false,
+        "arrow-parens": false,
+        "interface-over-type-literal": false,
+        "eofline": false,
+        "member-access": false,
+        "member-ordering": false,
+        "max-line-length": false,
+        "no-shadowed-variable": false,
+        "radix": false,
+        "variable-name": false,
+        "jsdoc-format": false,
+        "comment-format": false,
+        "no-floating-promises": false,
+        "no-unsafe-any": false,
+        "no-implicit-dependencies": false,
+        "no-null-keyword": false,
+        "no-any": false,
+        "linebreak-style": false,
+        "no-inferrable-types": false,
+        "strict-boolean-expressions": false,
+        "prefer-template": false,
+        "only-arrow-functions": false,
+        "strict-comparisons": false,
+        "no-for-in": false,
+        "ban-types": false,
+        "newline-before-return": false,
+        "no-unbound-method": false,
+        "prefer-function-over-method": false,
+        "completed-docs": false,
+        "file-name-casing": false,
+        "no-import-side-effect": false,
+        "no-var-requires": false,
+        "no-require-imports": false,
+        "no-submodule-imports": false,
+        "no-default-export": false,
+        "no-default-import": false,
+        "no-async-without-await": false,
+        "align": false,
+        "no-non-null-assertion": false,
+        "no-magic-numbers": false
+    },
+    "rulesDirectory": [
+        "tslint-plugin-prettier"
     ],
-    "no-empty": false,
-    "trailing-comma": [
-      true,
-      {
-        "singleline": "never",
-        "multiline": {
-          "objects": "never",
-          "arrays": "never",
-          "functions": "never",
-          "typeLiterals": "ignore"
-        }
-      }
-    ],
-    "quotemark": [
-      true,
-      "single"
-    ],
-    "no-console": [
-      false
-    ],
-    "one-line": [
-      true,
-      "check-open-brace",
-      "check-whitespace"
-    ],
-    "object-literal-sort-keys": [
-      false
-    ],
-    "no-string-literal": false,
-    "triple-equals": [
-      false
-    ],
-    "curly": false,
-    "ordered-imports": false,
-    "arrow-parens": false,
-    "interface-over-type-literal": false,
-    "eofline": false,
-    "member-access": false,
-    "member-ordering": false,
-    "max-line-length": false,
-    "no-shadowed-variable": false,
-    "radix": false,
-    "variable-name": false,
-    "jsdoc-format": false,
-    "comment-format": false,
-    "no-floating-promises": false,
-    "no-unsafe-any": false,
-    "no-implicit-dependencies": false,
-    "no-null-keyword": false,
-    "no-any": false,
-    "linebreak-style": false,
-    "no-inferrable-types": false,
-    "strict-boolean-expressions": false,
-    "prefer-template": false,
-    "only-arrow-functions": false,
-    "strict-comparisons": false,
-    "no-for-in": false,
-    "ban-types": false,
-    "newline-before-return": false,
-    "no-unbound-method": false,
-    "prefer-function-over-method": false,
-    "completed-docs": false,
-    "file-name-casing": false,
-    "no-import-side-effect": false,
-    "no-var-requires": false,
-    "no-require-imports": false,
-    "no-submodule-imports": false,
-    "no-default-export": false,
-    "no-default-import": false
-  },
-  "rulesDirectory": [
-    "tslint-plugin-prettier"
-  ],
-  "linterOptions": {}
+    "linterOptions": {}
 }

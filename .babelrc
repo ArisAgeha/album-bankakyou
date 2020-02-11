@@ -3,5 +3,7 @@
     "@babel/preset-react",
     "@babel/preset-typescript"
   ],
-  "plugins": ["react-hot-loader/babel"]
+  "plugins": [
+    "react-hot-loader/babel"
+  ]
 }

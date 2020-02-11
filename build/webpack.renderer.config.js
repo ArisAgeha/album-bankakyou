@@ -21,7 +21,7 @@ module.exports = {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
     alias: {
       'services': path.resolve(__dirname, '../src/ph/services'),
-      '@': path.resolve(__dirname, '../src'),
+      'common': path.resolve(__dirname, '../src/common'),
       'workbench': path.resolve(__dirname, '../src/workbench'),
     }
   },

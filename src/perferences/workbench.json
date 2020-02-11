@@ -1,0 +1,13 @@
+{
+    "type": "Object",
+    "title": "workbench",
+    "properties": {
+        "workbench.fileBar.width": {
+            "type": [
+                "number"
+            ],
+            "default": 300,
+            "desc": "%workBenchFileWidth%"
+        }
+    }
+}

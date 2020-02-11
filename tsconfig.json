@@ -10,12 +10,13 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "experimentalDecorators": true,
     "paths": {
       "*": [
         "node_modules/*"
       ],
-      "@/*": [
-        "src/*"
+      "common/*": [
+        "src/common/*"
       ],
       "workbench/*": [
         "src/workbench/*"
