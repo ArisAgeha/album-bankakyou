@@ -34,3 +34,30 @@ export function debounce<T>(delay: number): Function {
         };
     });
 }
+
+export function throttle<T>(delay: number): Function {
+    return createDecorator((fn: Function, key: string) => {
+        const timerKey: string = `$throttle$timer$${key}`;
+        const lastRunKey: string = `$throttle$lastRun$${key}`;
+        const pendingKey: string = `$throttle$pending$${key}`;
+
+        return function(this: any, ...args: any[]): void {
+            if (this[pendingKey]) {
+                return;
+            }
+
+            const nextTime: number = (this[lastRunKey] as number) + delay;
+            if (nextTime <= Date.now()) {
+                this[lastRunKey] = Date.now();
+                fn.apply(this, args);
+            } else {
+                this[pendingKey] = true;
+                this[timerKey] = setTimeout(() => {
+                    this[pendingKey] = false;
+                    this[lastRunKey] = Date.now();
+                    fn.apply(this, args);
+                }, nextTime - Date.now());
+            }
+        };
+    });
+}

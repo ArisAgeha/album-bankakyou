@@ -1,6 +1,6 @@
 const rules = require('./webpack.rules');
 const plugins = require('./webpack.plugins');
-const path = require('path');
+const alias = require('./webpack.alias');
 
 rules.push({
   test: /\.css$/,
@@ -16,13 +16,9 @@ module.exports = {
   module: {
     rules,
   },
-  plugins: plugins,
+  plugins,
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
-    alias: {
-      'services': path.resolve(__dirname, '../src/ph/services'),
-      'common': path.resolve(__dirname, '../src/common'),
-      'workbench': path.resolve(__dirname, '../src/workbench'),
-    }
+    alias
   },
 };
