@@ -6,17 +6,8 @@ export class CodeMain {
     }
 
     private async startup(): Promise<void> {
-        this.createServices('aa', 'bb');
-        this.createServices('cc', 'dd');
-        this.createServices('ee', 'ff');
-
-        setTimeout(() => this.createServices('222', '3333'), 1200);
+        await this.createServices();
     }
 
-    @debounce(1000)
-    private async createServices(a: string, b: string): Promise<void> {
-        console.log('here is test');
-        console.log(a);
-        console.log(b);
-    }
+    private async createServices(): Promise<void> {}
 }

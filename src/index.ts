@@ -1,6 +1,5 @@
 import { app, BrowserWindow } from 'electron';
 import { CodeMain } from './code/electron-main/main';
-import { CodeMain2 } from './code/electron-main/main2';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
