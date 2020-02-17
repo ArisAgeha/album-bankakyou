@@ -1,1 +1,1 @@
-class EnvironmentService {}
+export class EnvironmentService {}

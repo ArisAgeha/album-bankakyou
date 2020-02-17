@@ -90,7 +90,12 @@
         "no-async-without-await": false,
         "align": false,
         "no-non-null-assertion": false,
-        "no-magic-numbers": false
+        "no-magic-numbers": false,
+        "typedef": false,
+        "newline-per-chained-call": false,
+        "no-dynamic-delete": false,
+        "increment-decrement": false,
+        "max-classes-per-file": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"

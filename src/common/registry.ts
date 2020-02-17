@@ -13,10 +13,7 @@ class RegistryImpl implements IRegistry {
     public add(id: string, data: any): void {
         Assert.ok(Types.isString(id));
         Assert.ok(Types.isObject(data));
-        Assert.ok(
-            !this.data.has(id),
-            'There is already an extension with this id'
-        );
+        Assert.ok(!this.data.has(id), 'There is already an extension with this id');
 
         this.data.set(id, data);
     }

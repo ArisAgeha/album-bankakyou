@@ -3,8 +3,6 @@
  */
 export function ok(value?: any, message?: string): void {
     if (!value) {
-        throw new Error(
-            message ? 'Assertion failed (' + message + ')' : 'Assertion Failed'
-        );
+        throw new Error(message ? 'Assertion failed (' + message + ')' : 'Assertion Failed');
     }
 }
