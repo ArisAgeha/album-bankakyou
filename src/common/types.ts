@@ -15,11 +15,7 @@ export function isArray(array: any): array is any[] {
         return Array.isArray(array);
     }
 
-    if (
-        array &&
-        typeof array.length === _typeof.number &&
-        array.constructor === Array
-    ) {
+    if (array && typeof array.length === _typeof.number && array.constructor === Array) {
         return true;
     }
 
@@ -39,20 +35,11 @@ export function isStringArray(value: any): value is string[] {
 }
 
 export function isObject(obj: any): obj is object {
-    return (
-        typeof obj === _typeof.object &&
-        obj !== null &&
-        !Array.isArray(obj) &&
-        !(obj instanceof RegExp) &&
-        !(obj instanceof Date)
-    );
+    return typeof obj === _typeof.object && obj !== null && !Array.isArray(obj) && !(obj instanceof RegExp) && !(obj instanceof Date);
 }
 
 export function isNumber(obj: any): obj is number {
-    if (
-        (typeof obj === _typeof.number || obj instanceof Number) &&
-        !isNaN(obj)
-    ) {
+    if ((typeof obj === _typeof.number || obj instanceof Number) && !isNaN(obj)) {
         return true;
     }
 
@@ -72,9 +59,7 @@ export function isUndefinedOrNull(obj: any): obj is undefined | null {
 }
 export function assertType(condition: any, type?: string): asserts condition {
     if (!condition) {
-        throw new Error(
-            type ? `Unexpected type, expected '${type}'` : 'Unexpected type'
-        );
+        throw new Error(type ? `Unexpected type, expected '${type}'` : 'Unexpected type');
     }
 }
 

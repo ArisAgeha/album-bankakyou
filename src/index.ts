@@ -1,6 +1,5 @@
 import { app, BrowserWindow } from 'electron';
 import { CodeMain } from './code/electron-main/main';
-import { CodeMain2 } from './code/electron-main/main2';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -15,9 +14,7 @@ let mainWindow: Electron.BrowserWindow;
 
 const onReady: () => void = (): void => {
     const codeMain: CodeMain = new CodeMain();
-    const codeMain2: CodeMain2 = new CodeMain2();
     codeMain.main();
-    codeMain2.main();
     // Create the browser window.
     mainWindow = new BrowserWindow({
         fullscreen: false,

@@ -1,4 +1,3 @@
-import { CodeMain2 } from './main2';
 import { ConfigurationService } from '@/services/configurationService';
 import { ServiceCollection, createServiceDecorator, IServiceIdentifier } from '@/common/serviceCollection';
 import { FileService } from '@/services/fileService';
@@ -19,8 +18,8 @@ export class CodeMain {
 
     private createServices(): void {
         const services: ServiceCollection = new ServiceCollection();
-        services.set(DConfigurationService, new ConfigurationService());
-        services.set(DEnvironmentService, new EnvironmentService());
-        services.set(DFileService, new FileService());
+        services.set(DConfigurationService, ConfigurationService);
+        services.set(DEnvironmentService, EnvironmentService);
+        services.set(DFileService, FileService);
     }
 }

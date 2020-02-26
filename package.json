@@ -99,6 +99,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-router-dom": "^5.1.2"
+    "react-router-dom": "^5.1.2",
+    "reflect-metadata": "^0.1.13"
   }
 }
