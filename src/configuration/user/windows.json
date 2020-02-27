@@ -2,7 +2,6 @@
     "id": "windows",
     "properties": {
         "ph.windows.fullscreen": true,
-        "ph.windows.width": 800,
         "ph.windows.height": 1500
     }
 }

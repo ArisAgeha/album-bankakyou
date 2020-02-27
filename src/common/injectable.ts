@@ -7,8 +7,6 @@ export function injectable(_constructor: Function) {
     if (classPool.indexOf(_constructor) !== -1) {
         return;
     }
-    console.log('=======paramsTypes=======');
-    console.log(paramsTypes);
     if (paramsTypes && paramsTypes.length) {
         paramsTypes.forEach((v, i) => {
             if (v === _constructor) throw new Error('the target can not dependent itself');
@@ -21,8 +19,6 @@ export function createInstance<T>(_constructor: new (...args: any[]) => T): T {
     const paramsTypes: Function[] = Reflect.getMetadata('design:paramtypes', _constructor);
     const paramInstances = paramsTypes.map((v, i) => {
         if (classPool.indexOf(v) === -1) throw new Error(`parameter ${i}[${(v as any).name}] can not be injected`);
-        console.log('==========v============');
-        console.log(v);
         if (v.length) return createInstance(v as any);
         return new (v as any)();
     });

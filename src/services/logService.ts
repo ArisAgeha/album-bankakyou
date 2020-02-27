@@ -4,9 +4,15 @@ import { injectable } from '@/common/injectable';
 export class LogService {
     constructor() {}
 
-    log(message: any): void {}
+    log(message: any): void {
+        console.log(message);
+    }
 
-    warn(message: any): void {}
+    warn(message: any): void {
+        console.warn(message);
+    }
 
-    error(message: any): void {}
+    error(message: any): void {
+        console.error(message);
+    }
 }

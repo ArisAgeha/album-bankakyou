@@ -1,10 +1,9 @@
+import 'reflect-metadata';
 import { ConfigurationService } from '@/services/configurationService';
 import { FileService } from '@/services/fileService';
 import { EnvironmentService } from '@/services/environmentService';
 import { createInstance } from '@/common/injectable';
 import { LogService } from '@/services/logService';
-
-import '../../services/test';
 
 export class CodeMain {
     main(): void {
@@ -22,6 +21,6 @@ export class CodeMain {
         const configurationService = createInstance(ConfigurationService);
 
         configurationService.initial();
-        console.log(configurationService.getConfigById('windows'));
+        configurationService.upadteUserConfig('windows', 'ph.windows.width', 900);
     }
 }

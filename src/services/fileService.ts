@@ -23,7 +23,7 @@ export class FileService {
     }
 
     writeJson(url: string, id: string, content: any) {
-        const absUrl: string = path.resolve(url, id);
+        const absUrl: string = path.resolve(url, id) + '.json';
         const writeString: string = typeof content === 'string' ? content : JSON.stringify(content, null, 4);
         fs.writeFile(absUrl, writeString, () => {
             this.logService.log('update successfully');

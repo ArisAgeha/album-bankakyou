@@ -1,4 +1,6 @@
 import { injectable } from '@/common/injectable';
 
 @injectable
-export class EnvironmentService {}
+export class EnvironmentService {
+    constructor() {}
+}
