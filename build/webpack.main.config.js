@@ -10,6 +10,7 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
+  devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
     alias

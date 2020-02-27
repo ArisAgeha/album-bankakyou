@@ -114,16 +114,23 @@ export function getAllMethodNames(obj: object): string[] {
     return methods;
 }
 
-/**
- * Converts null to undefined, passes all other values through.
- */
 export function withNullAsUndefined<T>(x: T | null): T | undefined {
     return x === null ? undefined : x;
 }
 
-/**
- * Converts undefined to null, passes all other values through.
- */
 export function withUndefinedAsNull<T>(x: T | undefined): T | null {
     return typeof x === 'undefined' ? null : x;
+}
+
+/**
+ * Get typeof value, instead of the origin 'typeof' API.
+ * Return 'array' while value is an Array.
+ */
+export function getTypeof<T>(value: T) {
+    switch (typeof value) {
+        case 'object':
+            return isObject(value) ? 'object' : 'array';
+        default:
+            return typeof value;
+    }
 }

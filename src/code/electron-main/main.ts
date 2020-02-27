@@ -1,11 +1,10 @@
 import { ConfigurationService } from '@/services/configurationService';
-import { ServiceCollection, createServiceDecorator, IServiceIdentifier } from '@/common/serviceCollection';
 import { FileService } from '@/services/fileService';
 import { EnvironmentService } from '@/services/environmentService';
+import { createInstance } from '@/common/injectable';
+import { LogService } from '@/services/logService';
 
-export const DConfigurationService = createServiceDecorator('configurationService');
-export const DEnvironmentService = createServiceDecorator('environmentService');
-export const DFileService = createServiceDecorator('fileService');
+import '../../services/test';
 
 export class CodeMain {
     main(): void {
@@ -17,9 +16,12 @@ export class CodeMain {
     }
 
     private createServices(): void {
-        const services: ServiceCollection = new ServiceCollection();
-        services.set(DConfigurationService, ConfigurationService);
-        services.set(DEnvironmentService, EnvironmentService);
-        services.set(DFileService, FileService);
+        const environmentService = createInstance(EnvironmentService);
+        const logService = createInstance(LogService);
+        const fileService = createInstance(FileService);
+        const configurationService = createInstance(ConfigurationService);
+
+        configurationService.initial();
+        console.log(configurationService.getConfigById('windows'));
     }
 }

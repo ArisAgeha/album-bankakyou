@@ -1,0 +1,26 @@
+{
+    "type": "Object",
+    "id": "workbench",
+    "properties": {
+        "workbench.fileBar.width": {
+            "type": [
+                "number"
+            ],
+            "default": 300,
+            "desc": "%workBenchFileBarWidth%"
+        },
+        "workbench.fileBar.show": {
+            "type": [
+                "boolean"
+            ],
+            "default": true
+        },
+        "workbench.manageBar.height": {
+            "type": [
+                "number"
+            ],
+            "default": 300,
+            "desc": "%workBenchManageBarHeight"
+        }
+    }
+}

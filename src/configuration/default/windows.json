@@ -1,6 +1,6 @@
 {
     "type": "Object",
-    "title": "windows",
+    "id": "windows",
     "properties": {
         "ph.windows.fullscreen": {
             "type": [

@@ -9,7 +9,9 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "tslint -c tslint.json -p tsconfig.json"
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+
+    "get-nls": "node ./bash/autoGetNlsModel.js"
   },
   "keywords": [],
   "author": "ArisAgeha",

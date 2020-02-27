@@ -95,7 +95,9 @@
         "newline-per-chained-call": false,
         "no-dynamic-delete": false,
         "increment-decrement": false,
-        "max-classes-per-file": false
+        "max-classes-per-file": false,
+        "no-parameter-properties": false,
+        "unnecessary-constructor": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"
