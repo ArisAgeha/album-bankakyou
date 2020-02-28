@@ -51,7 +51,6 @@ export class ConfigurationService {
 
             if (_config.value && _config.value !== _config.default) moduleConfig.properties[_key] = _config.value;
         });
-        console.log(moduleConfig);
         this.fileService.writeJson(this.userConfigDir, id, moduleConfig);
     }
 

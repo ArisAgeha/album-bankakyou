@@ -21,6 +21,5 @@ export class CodeMain {
         const configurationService = createInstance(ConfigurationService);
 
         configurationService.initial();
-        configurationService.upadteUserConfig('windows', 'ph.windows.width', 900);
     }
 }
