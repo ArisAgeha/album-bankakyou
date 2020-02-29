@@ -1,19 +1,15 @@
 import { isNumber } from '../types';
 
-/**
- * flagsPosition: if `flagsPosition` is defined and its value >= 0
- * the timeout will use the fn's args[flagsPosition] as key
- * and the debounce will only work with the function which has the same key
- */
 export function debounce<T>(delay: number, flagsPostition?: number): Function {
     return createDecorator((fn: Function, key: string) => {
         let timerKey: string = `$debounce$${key}`;
 
         return function(this: any, ...args: any[]): void {
             if (isNumber(flagsPostition) && flagsPostition >= 0) {
-                timerKey = `$debounce$${key}-${args[flagsPostition]}`;
+                timerKey += `-${args[flagsPostition]}`;
             }
 
+            console.log(this[timerKey]);
             clearTimeout(this[timerKey]);
 
             this[timerKey] = setTimeout(() => {

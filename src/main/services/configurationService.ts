@@ -37,11 +37,9 @@ export class ConfigurationService {
         // if input value is same with default value, delete key 'value' from this._config and file.
         if (this._config[id][key].default === value) delete this._config[id][key].value;
         else this._config[id][key].value = value;
-
-        this._writeConfigToFile(id);
     }
 
-    @debounce(300)
+    @debounce(300, 0)
     private _writeConfigToFile(id: string): void {
         const moduleConfig: IUserConfig = {
             id,
