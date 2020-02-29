@@ -15,12 +15,23 @@ export function injectable(_constructor: Function) {
     }
     classPool.push(_constructor);
 }
+
 export function createInstance<T>(_constructor: new (...args: any[]) => T): T {
     const paramsTypes: Function[] = Reflect.getMetadata('design:paramtypes', _constructor);
     const paramInstances = paramsTypes.map((v, i) => {
         if (classPool.indexOf(v) === -1) throw new Error(`parameter ${i}[${(v as any).name}] can not be injected`);
+
+        const instance = Reflect.getMetadata('serviceInstance', v);
+        if (instance) return instance;
         if (v.length) return createInstance(v as any);
         return new (v as any)();
     });
-    return new _constructor(...paramInstances);
+
+    // store the instance, and make sure that only single instance will exsist of one service.
+    let instance = Reflect.getMetadata('serviceInstance', _constructor);
+    if (!instance) {
+        instance = new _constructor(...paramInstances);
+        Reflect.defineMetadata('serviceInstance', instance, _constructor);
+    }
+    return instance;
 }

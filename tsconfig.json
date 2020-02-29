@@ -20,17 +20,14 @@
       "@/*": [
         "src/*"
       ],
-      "code/*": [
-        "src/code/*"
-      ],
       "common/*": [
         "src/common/*"
       ],
-      "workbench/*": [
-        "src/workbench/*"
+      "main/*": [
+        "src/main*"
       ],
-      "services/*": [
-        "src/services/*"
+      "renderer/*": [
+        "src/renderer*"
       ]
     },
     "jsx": "react",

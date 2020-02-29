@@ -1,7 +1,8 @@
-import { injectable } from '@/common/injectable';
+import { injectable } from '@/common/decorator/injectable';
 import { FileService } from './fileService';
 import { isObject, getTypeof } from '@/common/types';
 import { LogService } from './logService';
+import { throttle, debounce } from '@/common/decorator/decorator';
 
 @injectable
 export class ConfigurationService {
@@ -40,6 +41,7 @@ export class ConfigurationService {
         this._writeConfigToFile(id);
     }
 
+    @debounce(300)
     private _writeConfigToFile(id: string): void {
         const moduleConfig: IUserConfig = {
             id,

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { injectable } from '@/common/injectable';
+import { injectable } from '@/common/decorator/injectable';
 import { LogService } from './logService';
 
 @injectable

@@ -1,4 +1,3 @@
-import * as Assert from './assert';
 import * as Types from './types';
 
 export interface IRegistry {
@@ -11,9 +10,9 @@ class RegistryImpl implements IRegistry {
     private readonly data: Map<string, any> = new Map<string, any>();
 
     public add(id: string, data: any): void {
-        Assert.ok(Types.isString(id));
-        Assert.ok(Types.isObject(data));
-        Assert.ok(!this.data.has(id), 'There is already an extension with this id');
+        ok(Types.isString(id));
+        ok(Types.isObject(data));
+        ok(!this.data.has(id), 'There is already an extension with this id');
 
         this.data.set(id, data);
     }
@@ -28,3 +27,12 @@ class RegistryImpl implements IRegistry {
 }
 
 export const Registry: IRegistry = new RegistryImpl();
+
+/**
+ * Throws an error with the provided message if the provided value does not evaluate to a true Javascript value.
+ */
+export function ok(value?: any, message?: string): void {
+    if (!value) {
+        throw new Error(message ? 'Assertion failed (' + message + ')' : 'Assertion Failed');
+    }
+}
