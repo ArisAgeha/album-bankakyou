@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { ConfigurationService } from '@/main/services/configurationService';
-import { FileService } from '@/main/services/fileService';
-import { EnvironmentService } from '@/main/services/environmentService';
+import { ConfigurationService } from '@/main/services/configuration.service';
+import { FileService } from '@/main/services/file.service';
+import { EnvironmentService } from '@/main/services/environment.service';
 import { createInstance } from '@/common/decorator/injectable';
-import { LogService } from '@/main/services/logService';
+import { LogService } from '@/main/services/log.service';
 import { Registry } from '@/common/registry';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { app } from 'electron';

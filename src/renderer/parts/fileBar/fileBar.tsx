@@ -1,5 +1,8 @@
 import React, { Component, SetStateAction } from 'react';
-import style from './fileBar.scss';
+import { remote } from 'electron';
+import { ServiceCollection } from '@/common/serviceCollection';
+
+const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
 
 export interface IFileBarProps {
     initPath?: string;
@@ -19,6 +22,6 @@ export class FileBar extends Component<IFileBarProps, IFileBarState> {
     };
 
     render(): JSX.Element {
-        return <div className={style.test}></div>;
+        return <div style={{ height: '50%', width: '50%' }}></div>;
     }
 }

@@ -1,7 +1,7 @@
 import { injectable } from '@/common/decorator/injectable';
-import { FileService } from './fileService';
+import { FileService } from './file.service';
 import { isObject, getTypeof } from '@/common/types';
-import { LogService } from './logService';
+import { LogService } from './log.service';
 import { throttle, debounce } from '@/common/decorator/decorator';
 
 @injectable
@@ -22,21 +22,35 @@ export class ConfigurationService {
         return isObject(moduleConfig) ? moduleConfig : {};
     }
 
-    upadteUserConfig(id: string, key: string, value: any) {
-        const configItem = this._config[id][key];
-        if (!configItem) {
-            this.logService.warn(`cannot find config: '${key}' in ${id}`);
-            return;
-        }
-        const configType = configItem.type;
-        if (!configType.includes(getTypeof(value))) {
-            this.logService.warn(`value "${value}" has the wrong type, ${id}-${key} is required "${configType}"`);
-            return;
-        }
+    getValue(id: string, itemName: string): ConfigItemType {
+        const moduleConfig: ISingleConfigModule = this.getConfigById(id);
+        const item = moduleConfig[itemName];
+        return item?.value ? item.value : item.default;
+    }
 
-        // if input value is same with default value, delete key 'value' from this._config and file.
-        if (this._config[id][key].default === value) delete this._config[id][key].value;
-        else this._config[id][key].value = value;
+    upadteUserConfig(newConfigs: Array<{ id: string; key: string; value: any }>) {
+        newConfigs.forEach(config => {
+            const { id, key, value } = config;
+
+            const configItem = this._config[id][key];
+            if (!configItem) {
+                this.logService.warn(`cannot find config: '${key}' in ${id}`);
+                return;
+            }
+            const configType = configItem.type;
+            if (!configType.includes(getTypeof(value))) {
+                this.logService.warn(`value "${value}" has the wrong type, ${id}-${key} is required "${configType}"`);
+                return;
+            }
+
+            const item = this._config[id][key];
+            if (item.value === value || (!Object.hasOwnProperty(value) && item.default === value)) return;
+
+            // if input value is same with default value, delete key 'value' from this._config and file.
+            if (item.default === value) delete item.value;
+            else this._config[id][key].value = value;
+            this._writeConfigToFile(id);
+        });
     }
 
     @debounce(300, 0)

@@ -21,6 +21,12 @@
             ],
             "default": 300,
             "desc": "%workBenchManageBarHeight"
+        },
+        "workbench.manageBar.show": {
+            "type": [
+                "boolean"
+            ],
+            "default": true
         }
     }
 }
