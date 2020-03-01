@@ -17,6 +17,8 @@ const onReady: () => void = (): void => {
     codeMain.main();
     // Create the browser window.
     mainWindow = new BrowserWindow({
+        width: 1600,
+        height: 900,
         fullscreen: false,
         webPreferences: {
             nodeIntegration: true

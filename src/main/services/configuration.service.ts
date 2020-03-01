@@ -25,7 +25,8 @@ export class ConfigurationService {
     getValue(id: string, itemName: string): ConfigItemType {
         const moduleConfig: ISingleConfigModule = this.getConfigById(id);
         const item = moduleConfig[itemName];
-        return item?.value ? item.value : item.default;
+        if (!item) this.logService.error(`cant find value: ${id}-${itemName}`);
+        return item.hasOwnProperty('value') ? item.value : item.default;
     }
 
     upadteUserConfig(newConfigs: Array<{ id: string; key: string; value: any }>) {
@@ -44,7 +45,7 @@ export class ConfigurationService {
             }
 
             const item = this._config[id][key];
-            if (item.value === value || (!Object.hasOwnProperty(value) && item.default === value)) return;
+            if (item.value === value || (!item.hasOwnProperty('value') && item.default === value)) return;
 
             // if input value is same with default value, delete key 'value' from this._config and file.
             if (item.default === value) delete item.value;
@@ -63,7 +64,7 @@ export class ConfigurationService {
             const _key = item[0];
             const _config = item[1];
 
-            if (_config.value && _config.value !== _config.default) moduleConfig.properties[_key] = _config.value;
+            if (_config.hasOwnProperty('value') && _config.value !== _config.default) moduleConfig.properties[_key] = _config.value;
         });
         this.fileService.writeJson(this.userConfigDir, id, moduleConfig);
     }

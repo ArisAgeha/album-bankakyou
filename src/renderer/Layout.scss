@@ -1,7 +1,46 @@
 .layout {
-    .left {
-        .gridFileBar {
-            background-color: rgb(51,51,51);
+    height: 100%;
+    max-height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .body {
+        width: 100%;
+        display: flex;
+        flex: 1;
+
+        .left {
+            display: flex;
+
+            .toolsBar {
+                background-color: rgb(51, 51, 51);
+                height: 100%;
+            }
+
+            .gridFileBar {
+                background-color: rgb(37, 37, 38);
+                height: 100%;
+            }
         }
+
+        .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            .gridMainView {
+                flex: 1;
+                background-color: rgb(30, 30, 30);
+            }
+
+            .gridManageBar {
+                width: 100%;
+                background-color: rgb(65, 65, 65);
+            }
+        }
+    }
+
+    .footer {
+        background-color: rgb(0, 122, 204);
     }
 }

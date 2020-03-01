@@ -2,6 +2,8 @@ import * as React from 'react';
 import { FileBar } from './parts/fileBar/fileBar';
 import { MainView } from './parts/mainView/mainView';
 import { ManageBar } from './parts/manageBar/manageBar';
+import { ToolsBar } from './parts/toolsBar/toolsBar';
+import { InfoBar } from './parts/infoBar/infoBar';
 import style from './Layout.scss';
 import { Event, app, remote } from 'electron';
 import { ConfigurationService } from '@/main/services/configuration.service';
@@ -16,11 +18,18 @@ interface ILayoutState {
     fileBarCanDrag: boolean;
     manageBarCanDrag: boolean;
     isDragging: boolean;
+    toolsBarWidth: number;
+    infoBarHeight: number;
+}
+
+interface IConstant {
+    eventHandler: any;
 }
 
 class Layout extends React.Component<any, ILayoutState> {
     private readonly layoutRef: React.RefObject<HTMLDivElement>;
     private readonly configurationService: ConfigurationService;
+    private constant: IConstant;
 
     constructor(props: any) {
         super(props);
@@ -33,59 +42,105 @@ class Layout extends React.Component<any, ILayoutState> {
     }
 
     init(): void {
-        const state = {
+        // init state
+        const state: ILayoutState = {
             fileBarWidth: 300,
             fileBarIsShow: true,
             manageBarHeight: 200,
             manageBarIsShow: true,
             fileBarCanDrag: false,
             manageBarCanDrag: false,
-            isDragging: false
+            isDragging: false,
+            toolsBarWidth: 50,
+            infoBarHeight: 22
         };
 
         state.fileBarWidth = this.configurationService.getValue('workbench', workbenchConfig.FILE_BAR_WIDTH) as number;
         state.manageBarHeight = this.configurationService.getValue('workbench', workbenchConfig.MANAGE_BAR_HEIGHT) as number;
+        state.fileBarIsShow = this.configurationService.getValue('workbench', workbenchConfig.FILE_BAR_SHOW) as boolean;
+        state.manageBarIsShow = this.configurationService.getValue('workbench', workbenchConfig.MANAGE_BAR_SHOW) as boolean;
 
         this.state = state;
+
+        // init constant
+        this.constant = {
+            eventHandler: null
+        };
+
+        // init stop drag handler
+        this.constant.eventHandler = this.stopDrag.bind(this);
+    }
+
+    stopDrag() {
+        this.setState({
+            isDragging: false
+        });
     }
 
     handleMouseMove(e: React.MouseEvent) {
         let fileBarWidth = this.state.fileBarWidth;
+        let fileBarIsShow = this.state.fileBarIsShow;
         let manageBarHeight = this.state.manageBarHeight;
+        let manageBarIsShow = this.state.manageBarIsShow;
+
+        // while is dragging, compute and set the width/height of the bar which is dragging
         if (this.state.isDragging) {
-            if (this.state.fileBarCanDrag) fileBarWidth += e.movementX;
-            if (this.state.manageBarCanDrag) manageBarHeight += -e.movementY;
+            document.removeEventListener('mouseup', this.constant.eventHandler);
+            document.addEventListener('mouseup', this.constant.eventHandler, true);
+            if (this.state.fileBarCanDrag) {
+                const computedWidth = e.clientX - this.state.toolsBarWidth;
+                const distanceFromCursorToClientRight = this.layoutRef.current.clientWidth - e.clientX;
+                fileBarWidth =
+                    computedWidth <= 200
+                        ? 200
+                        : distanceFromCursorToClientRight <= 200
+                        ? this.layoutRef.current.clientWidth - this.state.toolsBarWidth - 200
+                        : computedWidth;
+                fileBarIsShow = computedWidth <= 100 ? false : true;
+            }
+
+            if (this.state.manageBarCanDrag) {
+                const height = this.layoutRef.current.clientHeight - this.state.infoBarHeight - e.clientY;
+                manageBarHeight = height <= 150 ? 150 : height;
+                manageBarIsShow = height <= 100 ? false : true;
+            }
+
             this.configurationService.upadteUserConfig([
                 { id: 'workbench', key: workbenchConfig.FILE_BAR_WIDTH, value: fileBarWidth },
-                { id: 'workbench', key: workbenchConfig.MANAGE_BAR_HEIGHT, value: manageBarHeight }
+                { id: 'workbench', key: workbenchConfig.FILE_BAR_SHOW, value: fileBarIsShow },
+                { id: 'workbench', key: workbenchConfig.MANAGE_BAR_HEIGHT, value: manageBarHeight },
+                { id: 'workbench', key: workbenchConfig.MANAGE_BAR_SHOW, value: manageBarIsShow }
             ]);
         }
 
+        // while is not dragging, check if bar could drag
         let fileBarCanDrag: boolean = this.state.fileBarCanDrag;
         let manageBarCanDrag: boolean = this.state.manageBarCanDrag;
 
         if (!this.state.isDragging) {
-            fileBarCanDrag = Math.abs(e.clientX - this.state.fileBarWidth) < 5 ? true : false;
-            manageBarCanDrag = Math.abs(this.layoutRef.current.clientHeight - this.state.manageBarHeight - e.clientY) < 5 ? true : false;
+            fileBarCanDrag = this.state.fileBarIsShow
+                ? Math.abs(e.clientX - this.state.toolsBarWidth - this.state.fileBarWidth) < 5
+                : Math.abs(e.clientX - this.state.toolsBarWidth) < 5;
+
+            manageBarCanDrag = this.state.manageBarIsShow
+                ? Math.abs(this.layoutRef.current.clientHeight - this.state.manageBarHeight - this.state.infoBarHeight - e.clientY) < 5
+                : Math.abs(this.layoutRef.current.clientHeight - this.state.infoBarHeight - e.clientY) < 5;
         }
 
+        // finally
         this.setState({
             fileBarCanDrag,
             manageBarCanDrag,
             fileBarWidth,
-            manageBarHeight
+            manageBarHeight,
+            fileBarIsShow,
+            manageBarIsShow
         });
     }
 
     startDrag(e: React.MouseEvent) {
         this.setState({
             isDragging: true
-        });
-    }
-
-    stopDrag(e: React.MouseEvent) {
-        this.setState({
-            isDragging: false
         });
     }
 
@@ -101,33 +156,41 @@ class Layout extends React.Component<any, ILayoutState> {
     render(): JSX.Element {
         const cursor: string = this.getCursorStyle();
 
-        const layoutStyle: React.CSSProperties = { cursor, height: '100%', width: '100%', display: 'flex' };
-        const fileBarStyle: React.CSSProperties = { width: this.state.fileBarWidth, backgroundColor: 'rgb(51, 51, 51)', height: '100%' };
-        const manageBarStyle: React.CSSProperties = { height: this.state.manageBarHeight, width: '100%', backgroundColor: 'rgb(65, 65, 65)' };
+        const layoutStyle: React.CSSProperties = { cursor };
+        const fileBarStyle: React.CSSProperties = { width: this.state.fileBarWidth, display: this.state.fileBarIsShow ? 'block' : 'none' };
+        const manageBarStyle: React.CSSProperties = { height: this.state.manageBarHeight, display: this.state.manageBarIsShow ? 'block' : 'none' };
 
         return (
             <div
                 ref={this.layoutRef}
-                className='layout'
+                className={style.layout}
                 style={layoutStyle}
                 onMouseMove={this.handleMouseMove.bind(this)}
                 onMouseDown={this.startDrag.bind(this)}
-                onMouseUp={this.stopDrag.bind(this)}
             >
-                <div className='left' style={{ height: '100vh' }}>
-                    <div className='grid-fileBar' style={fileBarStyle}>
-                        <FileBar></FileBar>
+                <div className={style.body}>
+                    <div className={style.left}>
+                        <div className={style.toolsBar} style={{ width: this.state.toolsBarWidth }}>
+                            <ToolsBar></ToolsBar>
+                        </div>
+                        <div className={style.gridFileBar} style={fileBarStyle}>
+                            <FileBar></FileBar>
+                        </div>
+                    </div>
+
+                    <div className={style.right}>
+                        <div className={style.gridMainView}>
+                            <MainView></MainView>
+                        </div>
+
+                        <div className={style.gridManageBar} style={manageBarStyle}>
+                            <ManageBar></ManageBar>
+                        </div>
                     </div>
                 </div>
 
-                <div className='right' style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div className='grid-mainView' style={{ flex: 1, backgroundColor: 'rgb(30, 30, 30)' }}>
-                        <MainView></MainView>
-                    </div>
-
-                    <div className='grid-manageBar' style={manageBarStyle}>
-                        <ManageBar></ManageBar>
-                    </div>
+                <div className={style.footer} style={{ height: this.state.infoBarHeight }}>
+                    <InfoBar></InfoBar>
                 </div>
             </div>
         );

@@ -9,7 +9,7 @@ rules.push({
 
 rules.push({
   test: /\.scss$/,
-  use: [{ loader: "style-loader" }, { loader: "css-loader", options: { modules: true } }, { loader: "sass-loader" }],
+  use: [{ loader: "style-loader" }, { loader: "css-loader", options: { modules: { localIdentName: "[local]---[hash:base64:5]" } } }, { loader: "sass-loader" }],
 })
 
 module.exports = {

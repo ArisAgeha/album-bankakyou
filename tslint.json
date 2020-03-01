@@ -98,7 +98,8 @@
         "max-classes-per-file": false,
         "no-parameter-properties": false,
         "unnecessary-constructor": false,
-        "no-unnecessary-class": false
+        "no-unnecessary-class": false,
+        "prefer-conditional-expression": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"
