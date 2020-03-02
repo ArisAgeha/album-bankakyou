@@ -5,12 +5,14 @@
   "description": "A simple and convinient picture manager/viewer",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "npm run get-nls && npm run build-constant && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "get-nls": "node ./bash/autoGetNlsModel.js"
+
+    "get-nls": "node ./bash/autoGetNlsModel.js",
+    "build-constant": "node ./bash/autoBuildConstantFile.js"
   },
   "keywords": [],
   "author": "ArisAgeha",

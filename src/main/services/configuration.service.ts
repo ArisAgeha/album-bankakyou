@@ -91,6 +91,7 @@ export class ConfigurationService {
         Object.entries(userConfig).forEach(item => {
             const key: string = item[0];
             const value: string | number | boolean | object | any[] = item[1];
+            if (!this._config[configId][key]) return;
             this._config[configId][key].value = value;
         });
     }

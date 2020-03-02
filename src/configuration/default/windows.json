@@ -2,21 +2,21 @@
     "type": "Object",
     "id": "windows",
     "properties": {
-        "ph.windows.fullscreen": {
+        "windows.size.fullscreen": {
             "type": [
                 "boolean"
             ],
             "default": false,
             "desc": "%phWindowsFullscreen%"
         },
-        "ph.windows.width": {
+        "windows.size.width": {
             "type": [
                 "number"
             ],
             "default": 900,
             "desc": "%phWindowsWidth%"
         },
-        "ph.windows.height": {
+        "windows.size.height": {
             "type": [
                 "number"
             ],

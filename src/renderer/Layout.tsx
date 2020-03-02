@@ -55,10 +55,10 @@ class Layout extends React.Component<any, ILayoutState> {
             infoBarHeight: 22
         };
 
-        state.fileBarWidth = this.configurationService.getValue('workbench', workbenchConfig.FILE_BAR_WIDTH) as number;
-        state.manageBarHeight = this.configurationService.getValue('workbench', workbenchConfig.MANAGE_BAR_HEIGHT) as number;
-        state.fileBarIsShow = this.configurationService.getValue('workbench', workbenchConfig.FILE_BAR_SHOW) as boolean;
-        state.manageBarIsShow = this.configurationService.getValue('workbench', workbenchConfig.MANAGE_BAR_SHOW) as boolean;
+        state.fileBarWidth = this.configurationService.getValue('workbench', workbenchConfig.FILEBAR_WIDTH) as number;
+        state.manageBarHeight = this.configurationService.getValue('workbench', workbenchConfig.MANAGEBAR_HEIGHT) as number;
+        state.fileBarIsShow = this.configurationService.getValue('workbench', workbenchConfig.FILEBAR_SHOW) as boolean;
+        state.manageBarIsShow = this.configurationService.getValue('workbench', workbenchConfig.MANAGEBAR_SHOW) as boolean;
 
         this.state = state;
 
@@ -106,10 +106,10 @@ class Layout extends React.Component<any, ILayoutState> {
             }
 
             this.configurationService.upadteUserConfig([
-                { id: 'workbench', key: workbenchConfig.FILE_BAR_WIDTH, value: fileBarWidth },
-                { id: 'workbench', key: workbenchConfig.FILE_BAR_SHOW, value: fileBarIsShow },
-                { id: 'workbench', key: workbenchConfig.MANAGE_BAR_HEIGHT, value: manageBarHeight },
-                { id: 'workbench', key: workbenchConfig.MANAGE_BAR_SHOW, value: manageBarIsShow }
+                { id: 'workbench', key: workbenchConfig.FILEBAR_WIDTH, value: fileBarWidth },
+                { id: 'workbench', key: workbenchConfig.FILEBAR_SHOW, value: fileBarIsShow },
+                { id: 'workbench', key: workbenchConfig.MANAGEBAR_HEIGHT, value: manageBarHeight },
+                { id: 'workbench', key: workbenchConfig.MANAGEBAR_SHOW, value: manageBarIsShow }
             ]);
         }
 

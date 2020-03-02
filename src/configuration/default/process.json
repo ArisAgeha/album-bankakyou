@@ -1,0 +1,12 @@
+{
+    "type": "Object",
+    "id": "process",
+    "properties": {
+        "process.locale.language": {
+            "type": [
+                "string"
+            ],
+            "default": "zh-cn"
+        }
+    }
+}
