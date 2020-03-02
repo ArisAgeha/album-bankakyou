@@ -11,9 +11,9 @@ import { processConfig } from './common/constant/config.constant';
 async function bootstrap() {
     const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
     const configurationService: ConfigurationService = serviceCollection.get('configurationService');
-    const languageSetting = configurationService.getValue('process', processConfig.LOCALE_LANGUAGE);
+    const languageSetting: string = configurationService.getValue('process', processConfig.LOCALE_LANGUAGE) as string;
 
-    await initI18n('zh-cn');
+    await initI18n(languageSetting);
     const App: FC = (): JSX.Element => <Layout></Layout>;
     hot(module)(App);
 
