@@ -54,7 +54,7 @@ export class FileBar extends Component<IFileBarProps, IFileBarState> {
         return (
             <div className={style.fileBar}>
                 <div className={style.dirTreeWrapper}>
-                    <DirectoryTree multiple defaultExpandAll onSelect={this.onSelect} onExpand={this.onExpand} treeData={treeData} />;
+                    <DirectoryTree multiple defaultExpandAll onSelect={this.onSelect} onExpand={this.onExpand} treeData={treeData} />
                 </div>
             </div>
         );

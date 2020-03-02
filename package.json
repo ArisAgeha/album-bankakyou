@@ -99,9 +99,11 @@
     "@types/react-router-dom": "^5.1.3",
     "antd": "^4.0.0",
     "electron-squirrel-startup": "^1.0.0",
+    "i18next": "^19.3.2",
     "rc-tree": "^3.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-i18next": "^11.3.3",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "reflect-metadata": "^0.1.13"
