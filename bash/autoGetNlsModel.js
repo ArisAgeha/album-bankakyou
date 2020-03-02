@@ -20,20 +20,17 @@ function autoGetNlsModel() {
 function buildModel(configFileName, stringModels) {
     const exportDir = fs.readdirSync(pr(exportPath));
     exportDir.forEach(languageDir => {
+        if (!fs.statSync(pr(exportPath, languageDir)).isDirectory()) return;
+
         const nlsFilePath = pr(exportPath, languageDir, configFileName);
         let nlsFileContent = {};
-        try {
-            const nlsFile = fs.readFileSync(nlsFilePath);
-            nlsFileContent = JSON.parse(nlsFile);
-        }
-        catch (err) { }
-        finally {
-            stringModels.forEach(item => {
-                if (!nlsFileContent[item]) nlsFileContent[item] = "";
-            })
-            const nlsJson = JSON.stringify(nlsFileContent, null, 4);
-            fs.writeFileSync(nlsFilePath, nlsJson);
-        }
+        const nlsFile = fs.readFileSync(nlsFilePath);
+        nlsFileContent = JSON.parse(nlsFile);
+        stringModels.forEach(item => {
+            if (!nlsFileContent[item]) nlsFileContent[item] = "";
+        })
+        const nlsJson = JSON.stringify(nlsFileContent, null, 4);
+        fs.writeFileSync(nlsFilePath, nlsJson);
     })
 }
 

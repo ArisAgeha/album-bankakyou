@@ -20,7 +20,7 @@
                 "number"
             ],
             "default": 300,
-            "desc": "%workBenchManageBarHeight"
+            "desc": "%workBenchManageBarHeight%"
         },
         "workbench.manageBar.show": {
             "type": [
