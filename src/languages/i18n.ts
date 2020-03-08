@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { toCamelCase } from '@/common/utls';
+import { toCamelCase } from '@/common/utils';
 
 const resourcesKey = ['windows', 'workbench'];
 const languages = ['zh-cn', 'en'];

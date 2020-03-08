@@ -100,7 +100,8 @@
         "unnecessary-constructor": false,
         "no-unnecessary-class": false,
         "prefer-conditional-expression": false,
-        "match-default-export-name": false
+        "match-default-export-name": false,
+        "no-void-expression": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"

@@ -9,6 +9,8 @@ import { Event, app, remote } from 'electron';
 import { ConfigurationService } from '@/main/services/configuration.service';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { workbenchConfig } from '@/common/constant/config.constant';
+import { debounce, throttle } from '@/common/decorator/decorator';
+import 'reflect-metadata';
 
 interface ILayoutState {
     fileBarWidth: number;
@@ -17,13 +19,13 @@ interface ILayoutState {
     manageBarIsShow: boolean;
     fileBarCanDrag: boolean;
     manageBarCanDrag: boolean;
-    isDragging: boolean;
     toolsBarWidth: number;
     infoBarHeight: number;
 }
 
 interface IConstant {
     eventHandler: any;
+    isDragging: boolean;
 }
 
 class Layout extends React.Component<any, ILayoutState> {
@@ -50,7 +52,6 @@ class Layout extends React.Component<any, ILayoutState> {
             manageBarIsShow: true,
             fileBarCanDrag: false,
             manageBarCanDrag: false,
-            isDragging: false,
             toolsBarWidth: 50,
             infoBarHeight: 22
         };
@@ -64,7 +65,8 @@ class Layout extends React.Component<any, ILayoutState> {
 
         // init constant
         this.constant = {
-            eventHandler: null
+            eventHandler: null,
+            isDragging: false
         };
 
         // init stop drag handler
@@ -72,11 +74,10 @@ class Layout extends React.Component<any, ILayoutState> {
     }
 
     stopDrag() {
-        this.setState({
-            isDragging: false
-        });
+        this.constant.isDragging = false;
     }
 
+    @throttle(15, { isEvent: true })
     handleMouseMove(e: React.MouseEvent) {
         let fileBarWidth = this.state.fileBarWidth;
         let fileBarIsShow = this.state.fileBarIsShow;
@@ -84,7 +85,7 @@ class Layout extends React.Component<any, ILayoutState> {
         let manageBarIsShow = this.state.manageBarIsShow;
 
         // while is dragging, compute and set the width/height of the bar which is dragging
-        if (this.state.isDragging) {
+        if (this.constant.isDragging) {
             document.removeEventListener('mouseup', this.constant.eventHandler);
             document.addEventListener('mouseup', this.constant.eventHandler, true);
             if (this.state.fileBarCanDrag) {
@@ -117,7 +118,7 @@ class Layout extends React.Component<any, ILayoutState> {
         let fileBarCanDrag: boolean = this.state.fileBarCanDrag;
         let manageBarCanDrag: boolean = this.state.manageBarCanDrag;
 
-        if (!this.state.isDragging) {
+        if (!this.constant.isDragging) {
             fileBarCanDrag = this.state.fileBarIsShow
                 ? Math.abs(e.clientX - this.state.toolsBarWidth - this.state.fileBarWidth) < 5
                 : Math.abs(e.clientX - this.state.toolsBarWidth) < 5;
@@ -128,20 +129,27 @@ class Layout extends React.Component<any, ILayoutState> {
         }
 
         // finally
-        this.setState({
-            fileBarCanDrag,
-            manageBarCanDrag,
-            fileBarWidth,
-            manageBarHeight,
-            fileBarIsShow,
-            manageBarIsShow
-        });
+        if (
+            fileBarCanDrag !== this.state.fileBarCanDrag ||
+            manageBarCanDrag !== this.state.manageBarCanDrag ||
+            fileBarWidth !== this.state.fileBarWidth ||
+            manageBarHeight !== this.state.manageBarHeight ||
+            fileBarIsShow !== this.state.fileBarIsShow ||
+            manageBarIsShow !== this.state.manageBarIsShow
+        ) {
+            this.setState({
+                fileBarCanDrag,
+                manageBarCanDrag,
+                fileBarWidth,
+                manageBarHeight,
+                fileBarIsShow,
+                manageBarIsShow
+            });
+        }
     }
 
     startDrag(e: React.MouseEvent) {
-        this.setState({
-            isDragging: true
-        });
+        this.constant.isDragging = true;
     }
 
     getCursorStyle(): string {
@@ -171,7 +179,7 @@ class Layout extends React.Component<any, ILayoutState> {
                 <div className={style.body}>
                     <div className={style.left}>
                         <div className={style.toolsBar} style={{ width: this.state.toolsBarWidth }}>
-                            <ToolsBar></ToolsBar>
+                            <ToolsBar toolsBarWidth={this.state.toolsBarWidth}></ToolsBar>
                         </div>
                         <div className={style.gridFileBar} style={fileBarStyle}>
                             <FileBar></FileBar>

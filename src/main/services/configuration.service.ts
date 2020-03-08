@@ -54,7 +54,7 @@ export class ConfigurationService {
         });
     }
 
-    @debounce(300, 0)
+    @debounce(300, { flagsPostition: 0 })
     private _writeConfigToFile(id: string): void {
         const moduleConfig: IUserConfig = {
             id,

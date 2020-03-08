@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { CodeMain } from './main/code/main';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -13,6 +13,7 @@ if (require('electron-squirrel-startup')) {
 let mainWindow: Electron.BrowserWindow;
 
 const onReady: () => void = (): void => {
+    Menu.setApplicationMenu(null);
     const codeMain: CodeMain = new CodeMain();
     codeMain.main();
     // Create the browser window.

@@ -5,16 +5,19 @@ import { isNumber } from '../types';
  * the timeout will use the fn's args[flagsPosition] as key
  * and the debounce will only work with the function which has the same key
  */
-export function debounce<T>(delay: number, flagsPostition?: number): Function {
+export function debounce<T>(delay: number, options: { flagsPostition?: number; isEvent?: boolean } = {}): Function {
     return createDecorator((fn: Function, key: string) => {
         let timerKey: string = `$debounce$${key}`;
 
         return function(this: any, ...args: any[]): void {
-            if (isNumber(flagsPostition) && flagsPostition >= 0) {
-                timerKey = `$debounce$${key}-${args[flagsPostition]}`;
+            if (isNumber(options?.flagsPostition) && options.flagsPostition >= 0) {
+                timerKey = `$debounce$${key}-${args[options.flagsPostition]}`;
             }
 
             clearTimeout(this[timerKey]);
+
+            // persist synthetic event
+            if (options?.isEvent) args[0].persist();
 
             this[timerKey] = setTimeout(() => {
                 fn.apply(this, args);
@@ -23,7 +26,7 @@ export function debounce<T>(delay: number, flagsPostition?: number): Function {
     });
 }
 
-export function throttle<T>(delay: number): Function {
+export function throttle<T>(delay: number, options: { isEvent?: boolean } = {}): Function {
     return createDecorator((fn: Function, key: string) => {
         const timerKey: string = `$throttle$timer$${key}`;
         const lastRunKey: string = `$throttle$lastRun$${key}`;
@@ -39,6 +42,7 @@ export function throttle<T>(delay: number): Function {
                 this[lastRunKey] = Date.now();
                 fn.apply(this, args);
             } else {
+                if (options?.isEvent) args[0].persist();
                 this[pendingKey] = true;
                 this[timerKey] = setTimeout(() => {
                     this[pendingKey] = false;
