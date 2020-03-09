@@ -11,6 +11,8 @@ import { ServiceCollection } from '@/common/serviceCollection';
 import { workbenchConfig } from '@/common/constant/config.constant';
 import { debounce, throttle } from '@/common/decorator/decorator';
 import 'reflect-metadata';
+import { FileService } from '@/main/services/file.service';
+import { ChokidarService } from '@/main/services/chokidar.service';
 
 interface ILayoutState {
     fileBarWidth: number;
@@ -43,7 +45,9 @@ class Layout extends React.Component<any, ILayoutState> {
         this.init();
     }
 
-    init(): void {
+    // insize
+
+    private init(): void {
         // init state
         const state: ILayoutState = {
             fileBarWidth: 300,
@@ -73,12 +77,12 @@ class Layout extends React.Component<any, ILayoutState> {
         this.constant.eventHandler = this.stopDrag.bind(this);
     }
 
-    stopDrag() {
+    private stopDrag() {
         this.constant.isDragging = false;
     }
 
     @throttle(15, { isEvent: true })
-    handleMouseMove(e: React.MouseEvent) {
+    private handleMouseMove(e: React.MouseEvent) {
         let fileBarWidth = this.state.fileBarWidth;
         let fileBarIsShow = this.state.fileBarIsShow;
         let manageBarHeight = this.state.manageBarHeight;
@@ -148,11 +152,11 @@ class Layout extends React.Component<any, ILayoutState> {
         }
     }
 
-    startDrag(e: React.MouseEvent) {
+    private startDrag(e: React.MouseEvent) {
         this.constant.isDragging = true;
     }
 
-    getCursorStyle(): string {
+    private getCursorStyle(): string {
         let cursor = 'default';
         if (this.state.fileBarCanDrag && this.state.manageBarCanDrag) cursor = 'nesw-resize';
         else if (this.state.fileBarCanDrag) cursor = 'e-resize';

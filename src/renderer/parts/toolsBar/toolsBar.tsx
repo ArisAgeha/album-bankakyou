@@ -3,6 +3,9 @@ import style from './toolsBar.scss';
 import { SettingOutlined, ProfileOutlined, BarsOutlined, ImportOutlined, TagsOutlined } from '@ant-design/icons';
 import 'reflect-metadata';
 import { remote } from 'electron';
+import { FileService } from '@/main/services/file.service';
+import { ServiceCollection } from '@/common/serviceCollection';
+import { ChokidarService } from '@/main/services/chokidar.service';
 
 export interface IToolsBarProps {
     toolsBarWidth: number;
@@ -19,6 +22,16 @@ export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
         this.state = {
             activeIndex: 0
         };
+    }
+
+    handleOpenMultipleDir(dirs: string[]) {
+        const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
+        const chokidarService: ChokidarService = serviceCollection.get('chokidarService');
+        const fileService: FileService = serviceCollection.get('fileService');
+
+        dirs.forEach(dir => {
+            fileService.openDirByImporter(dir);
+        });
     }
 
     buttonBox(props: { index: number; icon: JSX.Element; shouldActive: boolean; onClick: any }): JSX.Element {
@@ -72,6 +85,7 @@ export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
                 onClick: () => {
                     const dialog = remote.dialog;
                     const dirs = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections', 'showHiddenFiles'] });
+                    this.handleOpenMultipleDir(dirs);
                 }
             },
             // setting button

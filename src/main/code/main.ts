@@ -8,6 +8,7 @@ import { Registry } from '@/common/registry';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { app } from 'electron';
 import { isFunction } from '@/common/types';
+import { ChokidarService } from '../services/chokidar.service';
 
 export class CodeMain {
     main(): void {
@@ -26,12 +27,14 @@ export class CodeMain {
         const logService = createInstance(LogService);
         const fileService = createInstance(FileService);
         const configurationService = createInstance(ConfigurationService);
+        const chokidarService = createInstance(ChokidarService);
 
         // store service
         serviceCollection.set('environmentService', environmentService);
         serviceCollection.set('logService', logService);
         serviceCollection.set('fileService', fileService);
         serviceCollection.set('configurationService', configurationService);
+        serviceCollection.set('chokidarService', chokidarService);
 
         // auto initial service
         serviceCollection.forEach((id: string, instance: any): void => {

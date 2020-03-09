@@ -101,7 +101,9 @@
         "no-unnecessary-class": false,
         "prefer-conditional-expression": false,
         "match-default-export-name": false,
-        "no-void-expression": false
+        "no-void-expression": false,
+        "no-parameter-reassignment": false,
+        "no-object-literal-type-assertion": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"
