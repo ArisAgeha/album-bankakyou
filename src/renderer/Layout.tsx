@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FileBar } from './parts/fileBar/fileBar';
+import { FileBar, fileBarViewType } from './parts/fileBar/fileBar';
 import { MainView } from './parts/mainView/mainView';
 import { ManageBar } from './parts/manageBar/manageBar';
 import { ToolsBar } from './parts/toolsBar/toolsBar';
@@ -23,6 +23,7 @@ interface ILayoutState {
     manageBarCanDrag: boolean;
     toolsBarWidth: number;
     infoBarHeight: number;
+    filebarShowView: fileBarViewType;
 }
 
 interface IConstant {
@@ -57,7 +58,8 @@ class Layout extends React.Component<any, ILayoutState> {
             fileBarCanDrag: false,
             manageBarCanDrag: false,
             toolsBarWidth: 50,
-            infoBarHeight: 22
+            infoBarHeight: 22,
+            filebarShowView: 'directory'
         };
 
         state.fileBarWidth = this.configurationService.getValue('workbench', workbenchConfig.FILEBAR_WIDTH) as number;
@@ -165,6 +167,21 @@ class Layout extends React.Component<any, ILayoutState> {
         return cursor;
     }
 
+    showColelctionView() {
+        this.setState({
+            filebarShowView: 'collection'
+        });
+    }
+
+    changeFilebarView(view: fileBarViewType) {
+        // console.log(this);
+        // console.log(this.state);
+        // console.log(this.state.filebarShowView);
+        this.setState({
+            filebarShowView: view
+        });
+    }
+
     render(): JSX.Element {
         const cursor: string = this.getCursorStyle();
 
@@ -183,10 +200,10 @@ class Layout extends React.Component<any, ILayoutState> {
                 <div className={style.body}>
                     <div className={style.left}>
                         <div className={style.toolsBar} style={{ width: this.state.toolsBarWidth }}>
-                            <ToolsBar toolsBarWidth={this.state.toolsBarWidth}></ToolsBar>
+                            <ToolsBar toolsBarWidth={this.state.toolsBarWidth} changeFilebarView={this.changeFilebarView.bind(this)}></ToolsBar>
                         </div>
                         <div className={style.gridFileBar} style={fileBarStyle}>
-                            <FileBar></FileBar>
+                            <FileBar showView={this.state.filebarShowView}></FileBar>
                         </div>
                     </div>
 

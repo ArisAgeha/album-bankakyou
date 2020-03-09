@@ -8,6 +8,9 @@ import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { FileService } from '@/main/services/file.service';
 import { isArray } from '@/common/types';
 import { resolveOnChange } from 'antd/lib/input/Input';
+import { DirectoryView } from './directoryView/directoryView';
+import { TagView } from './tagView/tagView';
+import { CollectionView } from './collectionView/collectionView';
 
 const { DirectoryTree } = Tree;
 
@@ -20,68 +23,21 @@ export class FileBar extends Component<IFileBarProps, IFileBarState> {
         treeData: []
     };
 
-    componentDidMount() {
-        this.initIpc();
-    }
-
-    initIpc() {
-        ipcRenderer.on('open-dir-by-importer', (event: Electron.IpcRendererEvent, val: TreeNodeNormal) => {
-            console.log(val);
-            this.setState({
-                treeData: this.state.treeData.slice(0).concat(val)
-            });
-        });
-    }
-
-    onSelect(
-        keys: React.ReactText[],
-        event: {
-            event: 'select';
-            selected: boolean;
-            node: EventDataNode;
-            selectedNodes: DataNode[];
-            nativeEvent: MouseEvent;
-        }
-    ) {
-        // console.log('Trigger Select', keys, event);
-    }
-
-    async onLoadData(treeNode: any): Promise<void> {
-        return new Promise(resolve => {
-            if (treeNode.props.data.children) {
-                resolve();
-                return;
-            }
-            const node = treeNode.props;
-            const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-            const fileService: FileService = serviceCollection.get('fileService');
-
-            const loadedTree = fileService.recurseDir(node.data.key, 1);
-
-            treeNode.props.data.children = loadedTree.children;
-
-            this.setState({
-                treeData: [...this.state.treeData]
-            });
-            resolve();
-        });
-    }
-
     render(): JSX.Element {
+        const showDirView = this.props.showView === 'directory' ? 'block' : 'none';
+        const showCollectionView = this.props.showView === 'collection' ? 'block' : 'none';
+        const showTagView = this.props.showView === 'tag' ? 'block' : 'none';
+
         return (
             <div className={style.fileBar}>
-                <div className={`${style.dirTreeWrapper} medium-scrollbar text-ellipsis-1`}>
-                    <DirectoryTree
-                        className={style.dirTree}
-                        multiple
-                        defaultExpandAll
-                        onSelect={this.onSelect}
-                        treeData={this.state.treeData}
-                        blockNode={true}
-                        draggable={true}
-                        showIcon={false}
-                        loadData={this.onLoadData.bind(this) as (treeNode: EventDataNode) => Promise<void>}
-                    />
+                <div className={style.viewWrapper} style={{ display: showDirView }}>
+                    <DirectoryView></DirectoryView>
+                </div>
+                <div className={style.viewWrapper} style={{ display: showCollectionView }}>
+                    <CollectionView></CollectionView>
+                </div>
+                <div className={style.viewWrapper} style={{ display: showTagView }}>
+                    <TagView></TagView>
                 </div>
             </div>
         );
@@ -89,9 +45,9 @@ export class FileBar extends Component<IFileBarProps, IFileBarState> {
 }
 
 export interface IFileBarProps {
-    initPath?: string;
+    showView: fileBarViewType;
 }
 
-export interface IFileBarState {
-    treeData: TreeNodeNormal[];
-}
+export interface IFileBarState {}
+
+export type fileBarViewType = 'directory' | 'collection' | 'tag';

@@ -9,6 +9,7 @@ import { ChokidarService } from '@/main/services/chokidar.service';
 
 export interface IToolsBarProps {
     toolsBarWidth: number;
+    changeFilebarView: Function;
 }
 
 export interface IToolsBarState {
@@ -25,6 +26,7 @@ export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
     }
 
     handleOpenMultipleDir(dirs: string[]) {
+        if (!dirs) return;
         const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
         const chokidarService: ChokidarService = serviceCollection.get('chokidarService');
         const fileService: FileService = serviceCollection.get('fileService');
@@ -50,24 +52,33 @@ export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
         const ButtonBox = this.buttonBox.bind(this);
 
         const icons = [
-            // show content by directory tree
-            <ProfileOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-            // show content by collection list
-            <BarsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-            // show content by tags
-            <TagsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />
+            {
+                jsx: <ProfileOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+                view: 'directory'
+            },
+            {
+                jsx: <BarsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+                view: 'collection'
+            },
+            {
+                jsx: <TagsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+                view: 'tag'
+            }
         ];
 
         return (
             <div className={style.top}>
-                {icons.map((icon, index) => (
+                {icons.map((buttonObj, index) => (
                     <ButtonBox
-                        icon={icon}
+                        icon={buttonObj.jsx}
                         index={index}
                         key={index}
                         shouldActive={true}
                         onClick={() => {
-                            this.setState({ activeIndex: index });
+                            this.props.changeFilebarView(buttonObj.view);
+                            this.setState({
+                                activeIndex: index
+                            });
                         }}
                     ></ButtonBox>
                 ))}

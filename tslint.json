@@ -103,7 +103,8 @@
         "match-default-export-name": false,
         "no-void-expression": false,
         "no-parameter-reassignment": false,
-        "no-object-literal-type-assertion": false
+        "no-object-literal-type-assertion": false,
+        "promise-function-async": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"
