@@ -1,11 +1,12 @@
 import React, { Component, SetStateAction, MouseEventHandler } from 'react';
 import style from './toolsBar.scss';
-import { SettingOutlined, ProfileOutlined, BarsOutlined, ImportOutlined, TagsOutlined } from '@ant-design/icons';
+import { SettingOutlined, ProfileOutlined, BarsOutlined, ImportOutlined, TagsOutlined, ToolOutlined } from '@ant-design/icons';
 import 'reflect-metadata';
 import { remote } from 'electron';
 import { FileService } from '@/main/services/file.service';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { ChokidarService } from '@/main/services/chokidar.service';
+import { db } from '@/common/nedb';
 
 export interface IToolsBarProps {
     toolsBarWidth: number;
@@ -28,11 +29,11 @@ export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
     handleOpenMultipleDir(dirs: string[]) {
         if (!dirs) return;
         const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-        const chokidarService: ChokidarService = serviceCollection.get('chokidarService');
         const fileService: FileService = serviceCollection.get('fileService');
 
-        dirs.forEach(dir => {
-            fileService.openDirByImporter(dir);
+        dirs.forEach(async dir => {
+            const dirsInStore = await db.directory.find({ url: dir }).exec();
+            if (dirsInStore.length === 0) fileService.openDirByImport(dir, false);
         });
     }
 
@@ -90,6 +91,16 @@ export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
         const ButtonBox = this.buttonBox.bind(this);
 
         const buttons = [
+            // dev
+            {
+                jsx: <ToolOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+                onClick: async () => {
+                    console.log(await db.directory.find({}).exec());
+                    console.log(await db.collection.find({}).exec());
+                    console.log(await db.tag.find({}).exec());
+                    db.directory.remove({}, { multi: true });
+                }
+            },
             // import directory button
             {
                 jsx: <ImportOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,

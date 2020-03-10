@@ -15,3 +15,11 @@ export function emptyCall(): void {}
 export function isPicture(fileOrDirUrl: string): boolean {
     return ['bmp', 'jpg', 'png', 'jpeg', 'exif', 'psd', 'webp', 'tif', 'tiff', 'gif'].some(suffix => fileOrDirUrl.endsWith(suffix));
 }
+
+export function extractDirUrlFromKey(key: string): string {
+    return key.slice(0, key.lastIndexOf('|'));
+}
+
+export function extractSuffixFromKey(key: string): string {
+    return key.slice(key.lastIndexOf('|'));
+}

@@ -18,27 +18,39 @@ export class FileService {
     /** directory tree methods */
 
     // invoke in import
-    loadDir(dir: string, level: number = 0, time: number = 0): Promise<TreeNodeNormal> {
+    loadDir(
+        dir: string,
+        options: {
+            level: number;
+            time?: number;
+            keySuffix?: string;
+        } = {
+            level: 0,
+            time: 0
+        }
+    ): Promise<TreeNodeNormal> {
+        if (!options.time) options.time = 0;
         return new Promise(resolveTop => {
             const dirInfo = fs.readdirSync(dir);
 
             const dirTitle = (dir.match(/[^\\/]+$/) || []).pop();
+            const suffix = options.keySuffix || `|${dirTitle}`;
             const tree: TreeNodeNormal = {
                 title: dirTitle,
-                key: dir
+                key: `${dir}${suffix}`
             };
 
             let index: number = 0;
             const childrenDir: TreeNodeNormal[] = [];
 
-            if (level < this.MAX_RECURSIVE_DEPTH) {
+            if (options.level < this.MAX_RECURSIVE_DEPTH) {
                 const promises = dirInfo.map(
                     fileOrDirName =>
                         new Promise(resolve => {
                             const fileOrDirUrl = this.pr(dir, fileOrDirName);
                             fs.stat(fileOrDirUrl, (err, stats) => {
                                 if (stats.isDirectory()) {
-                                    this.loadDir(fileOrDirUrl, level + 1, index++).then(val => {
+                                    this.loadDir(fileOrDirUrl, { level: options.level + 1, time: index++, keySuffix: suffix }).then(val => {
                                         childrenDir.push(val);
                                     });
                                 }
@@ -59,10 +71,14 @@ export class FileService {
         });
     }
 
-    async openDirByImporter(dir: string): Promise<void> {
+    async openDirByImport(dir: string, auto: boolean): Promise<void> {
         const tree = await this.loadDir(dir);
-        mainWindow.webContents.send('open-dir-by-importer', tree);
+        mainWindow.webContents.send('open-dir-by-import', {
+            autoImport: auto,
+            tree
+        });
     }
+
     /** configuration methods */
     getDirInfoSync(url: string): string[] {
         return fs.readdirSync(this.pr(url));

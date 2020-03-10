@@ -6,6 +6,8 @@ import { Tree } from 'antd';
 import { EventDataNode, DataNode } from 'rc-tree/lib/interface';
 import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { FileService } from '@/main/services/file.service';
+import { db } from '@/common/nedb';
+import { extractDirUrlFromKey, extractSuffixFromKey } from '@/common/utils';
 
 const { DirectoryTree } = Tree;
 
@@ -15,6 +17,10 @@ export interface IDirectoryViewProps {
 
 export interface IDirectoryViewState {
     treeData: TreeNodeNormal[];
+}
+
+export interface IDirectoryStore {
+    url: string;
 }
 
 export class DirectoryView extends Component<any, IDirectoryViewState> {
@@ -28,13 +34,25 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
 
     componentDidMount() {
         this.initIpc();
+        this.autoImportDir();
     }
 
     initIpc() {
-        ipcRenderer.on('open-dir-by-importer', (event: Electron.IpcRendererEvent, val: TreeNodeNormal) => {
+        ipcRenderer.on('open-dir-by-import', (event: Electron.IpcRendererEvent, data: { autoImport: boolean; tree: TreeNodeNormal }) => {
+            if (!data.autoImport) db.directory.insert({ url: extractDirUrlFromKey(data.tree.key) });
             this.setState({
-                treeData: this.state.treeData.slice(0).concat(val)
+                treeData: this.state.treeData.slice(0).concat(data.tree)
             });
+        });
+    }
+
+    async autoImportDir() {
+        const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
+        const fileService: FileService = serviceCollection.get('fileService');
+
+        const dirs: string[] = (await db.directory.find({}).exec()).map((item: any) => item.url);
+        dirs.forEach(dir => {
+            fileService.openDirByImport(dir, true);
         });
     }
 
@@ -61,14 +79,16 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
             const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
             const fileService: FileService = serviceCollection.get('fileService');
 
-            fileService.loadDir(node.data.key, 1).then(loadedTree => {
-                treeNode.props.data.children = loadedTree.children;
+            fileService
+                .loadDir(extractDirUrlFromKey(node.data.key), { level: 1, keySuffix: extractSuffixFromKey(node.data.key) })
+                .then(loadedTree => {
+                    treeNode.props.data.children = loadedTree.children;
 
-                this.setState({
-                    treeData: [...this.state.treeData]
+                    this.setState({
+                        treeData: [...this.state.treeData]
+                    });
+                    resolve();
                 });
-                resolve();
-            });
         });
     }
 

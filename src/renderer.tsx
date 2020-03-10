@@ -7,17 +7,35 @@ import { remote } from 'electron';
 import { ServiceCollection } from './common/serviceCollection';
 import { ConfigurationService } from './main/services/configuration.service';
 import { processConfig } from './common/constant/config.constant';
+import { db } from './common/nedb';
+import { isDev } from './common/utils';
+
+bootstrap();
 
 async function bootstrap() {
+    // init i18n
     const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
     const configurationService: ConfigurationService = serviceCollection.get('configurationService');
     const languageSetting: string = configurationService.getValue('process', processConfig.LOCALE_LANGUAGE) as string;
-
     await initI18n(languageSetting);
+
+    //init nedb
+    let initCount = 0;
+    const dbs = Object.values(db);
+    dbs.forEach(db =>
+        db.load().then(() => {
+            initCount++;
+            if (initCount === dbs.length) initApp();
+        })
+    );
+}
+
+function initApp() {
+    // init app
     const App: FC = (): JSX.Element => <Layout></Layout>;
-    hot(module)(App);
+
+    // init hot module if NODE_ENV is in dev
+    if (isDev) hot(module)(App);
 
     ReactDOM.render(<App />, document.getElementById('app'));
 }
-
-bootstrap();
