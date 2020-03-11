@@ -8,6 +8,7 @@ import { ipcMain, ipcRenderer } from 'electron';
 import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { mainWindow } from '@/main';
 import { isArray } from '@/common/types';
+import { command } from '@/common/constant/command.constant';
 
 @injectable
 export class FileService {
@@ -71,9 +72,27 @@ export class FileService {
         });
     }
 
+    async loadPictureInDir(dir: string) {
+        let dirInfo = fs.readdirSync(dir);
+        dirInfo = dirInfo.filter(isPicture);
+
+        const promises = dirInfo.map(
+            (fileOrDirName: string) =>
+                new Promise(resolve => {
+                    const fileOrDirUrl = this.pr(dir, fileOrDirName);
+                    fs.stat(fileOrDirUrl, (err, stats) => {
+                        if (stats.isFile()) {
+
+                        }
+                        resolve();
+                    });
+                })
+        );
+    }
+
     async openDirByImport(dir: string, auto: boolean): Promise<void> {
         const tree = await this.loadDir(dir);
-        mainWindow.webContents.send('open-dir-by-import', {
+        mainWindow.webContents.send(command.OPEN_DIR_BY_IMPORT, {
             autoImport: auto,
             tree
         });

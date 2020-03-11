@@ -1,4 +1,4 @@
-import * as Types from './types';
+import { isString, isObject } from './types';
 
 export interface IRegistry {
     add(id: string, data: any): void;
@@ -10,8 +10,8 @@ class RegistryImpl implements IRegistry {
     private readonly data: Map<string, any> = new Map<string, any>();
 
     public add(id: string, data: any): void {
-        ok(Types.isString(id));
-        ok(Types.isObject(data));
+        ok(isString(id));
+        ok(isObject(data));
         ok(!this.data.has(id), 'There is already an extension with this id');
 
         this.data.set(id, data);

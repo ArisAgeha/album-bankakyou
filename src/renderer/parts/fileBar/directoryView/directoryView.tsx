@@ -8,6 +8,9 @@ import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { FileService } from '@/main/services/file.service';
 import { db } from '@/common/nedb';
 import { extractDirUrlFromKey, extractSuffixFromKey } from '@/common/utils';
+import { command } from '@/common/constant/command.constant';
+import { eventConstant } from '@/common/constant/event.constant';
+import { EventHub } from '@/common/eventHub';
 
 const { DirectoryTree } = Tree;
 
@@ -17,6 +20,7 @@ export interface IDirectoryViewProps {
 
 export interface IDirectoryViewState {
     treeData: TreeNodeNormal[];
+    lastSelectedNode: string;
 }
 
 export interface IDirectoryStore {
@@ -29,7 +33,8 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
     }
 
     state: IDirectoryViewState = {
-        treeData: []
+        treeData: [],
+        lastSelectedNode: ''
     };
 
     componentDidMount() {
@@ -38,7 +43,7 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
     }
 
     initIpc() {
-        ipcRenderer.on('open-dir-by-import', (event: Electron.IpcRendererEvent, data: { autoImport: boolean; tree: TreeNodeNormal }) => {
+        ipcRenderer.on(command.OPEN_DIR_BY_IMPORT, (event: Electron.IpcRendererEvent, data: { autoImport: boolean; tree: TreeNodeNormal }) => {
             if (!data.autoImport) db.directory.insert({ url: extractDirUrlFromKey(data.tree.key) });
             this.setState({
                 treeData: this.state.treeData.slice(0).concat(data.tree)
@@ -66,7 +71,14 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
             nativeEvent: MouseEvent;
         }
     ) {
-        // console.log('Trigger Select', keys, event);
+        const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
+        const fileService: FileService = serviceCollection.get('fileService');
+
+        const key: string = keys[0] as string;
+        this.setState({ lastSelectedNode: key });
+
+        const url = extractDirUrlFromKey(key);
+        EventHub.emit(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, url);
     }
 
     async onLoadData(treeNode: any): Promise<void> {
@@ -82,7 +94,7 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
             fileService
                 .loadDir(extractDirUrlFromKey(node.data.key), { level: 1, keySuffix: extractSuffixFromKey(node.data.key) })
                 .then(loadedTree => {
-                    treeNode.props.data.children = loadedTree.children;
+                    treeNode.props.data.children = loadedTree.children || [];
 
                     this.setState({
                         treeData: [...this.state.treeData]
@@ -94,12 +106,10 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
 
     render(): JSX.Element {
         return (
-            <div className={`${style.dirTreeWrapper} medium-scrollbar text-ellipsis-1`}>
+            <div className={`${style.dirTreeWrapper} medium-scrollbar`}>
                 <DirectoryTree
                     className={style.dirTree}
-                    multiple
-                    defaultExpandAll
-                    onSelect={this.onSelect}
+                    onSelect={this.onSelect.bind(this)}
                     treeData={this.state.treeData}
                     blockNode={true}
                     draggable={true}
