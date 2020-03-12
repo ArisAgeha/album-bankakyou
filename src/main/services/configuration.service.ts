@@ -3,14 +3,18 @@ import { FileService } from './file.service';
 import { isObject, getTypeof } from '@/common/types';
 import { LogService } from './log.service';
 import { throttle, debounce } from '@/common/decorator/decorator';
+import { isDev } from '@/common/utils';
 
 @injectable
 export class ConfigurationService {
-    constructor(private readonly fileService: FileService, private readonly logService: LogService) {}
-
     private _config: IConfig = {};
-    private readonly defaultConfigDir: string = 'src/configuration/default';
-    private readonly userConfigDir: string = 'src/configuration/user';
+    private readonly defaultConfigDir: string;
+    private readonly userConfigDir: string;
+
+    constructor(private readonly fileService: FileService, private readonly logService: LogService) {
+        this.defaultConfigDir = isDev ? 'src/configuration/default' : 'resources/app/configuration/default';
+        this.userConfigDir = isDev ? 'src/configuration/user' : 'resources/app/configuration/user';
+    }
 
     initial(): void {
         this._loadDefaultConfigs();

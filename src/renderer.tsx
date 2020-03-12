@@ -15,8 +15,6 @@ bootstrap();
 
 async function bootstrap() {
     // init i18n
-    console.log(remote);
-
     const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
     const configurationService: ConfigurationService = serviceCollection.get(serviceConstant.CONFIGURATION);
     const languageSetting: string = configurationService.getValue('process', processConfig.LOCALE_LANGUAGE) as string;

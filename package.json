@@ -9,11 +9,12 @@
     "start:dev": "electron-forge start",
     "start:prod": "cross-env NODE_ENV=production npm run get-nls && npm run build-constant && electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
+    "make": "electron-forge make && npm run create-cfg-file",
     "publish": "electron-forge publish",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "get-nls": "node ./bash/autoGetNlsModel.js",
-    "build-constant": "node ./bash/autoBuildConstantFile.js"
+    "build-constant": "node ./bash/autoBuildConstantFile.js",
+    "create-cfg-file": "node ./bash/createConfigurationFile.js"
   },
   "keywords": [],
   "author": "ArisAgeha",
