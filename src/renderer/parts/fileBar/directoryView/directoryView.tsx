@@ -2,24 +2,21 @@ import React, { Component, SetStateAction } from 'react';
 import { remote, ipcMain, ipcRenderer } from 'electron';
 import { ServiceCollection } from '@/common/serviceCollection';
 import style from './directoryView.scss';
-import { Tree } from 'antd';
-import { EventDataNode, DataNode } from 'rc-tree/lib/interface';
-import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { FileService } from '@/main/services/file.service';
 import { db } from '@/common/nedb';
 import { extractDirUrlFromKey, extractSuffixFromKey } from '@/common/utils';
 import { command } from '@/common/constant/command.constant';
 import { eventConstant } from '@/common/constant/event.constant';
 import { EventHub } from '@/common/eventHub';
-
-const { DirectoryTree } = Tree;
+import { ITreeDataNode, DirectoryTree } from './directoryTree/directoryTree';
+import { serviceConstant } from '@/common/constant/service.constant';
 
 export interface IDirectoryViewProps {
     initPath?: string;
 }
 
 export interface IDirectoryViewState {
-    treeData: TreeNodeNormal[];
+    treeData: ITreeDataNode[];
     lastSelectedNode: string;
 }
 
@@ -43,7 +40,7 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
     }
 
     initIpc() {
-        ipcRenderer.on(command.OPEN_DIR_BY_IMPORT, (event: Electron.IpcRendererEvent, data: { autoImport: boolean; tree: TreeNodeNormal }) => {
+        ipcRenderer.on(command.OPEN_DIR_BY_IMPORT, (event: Electron.IpcRendererEvent, data: { autoImport: boolean; tree: ITreeDataNode }) => {
             if (!data.autoImport) db.directory.insert({ url: extractDirUrlFromKey(data.tree.key) });
             this.setState({
                 treeData: this.state.treeData.slice(0).concat(data.tree)
@@ -52,8 +49,8 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
     }
 
     async autoImportDir() {
-        const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-        const fileService: FileService = serviceCollection.get('fileService');
+        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+        const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
 
         const dirs: string[] = (await db.directory.find({}).exec()).map((item: any) => item.url);
         dirs.forEach(dir => {
@@ -62,45 +59,43 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
     }
 
     onSelect(
-        keys: React.ReactText[],
+        keys: string[],
         event: {
             event: 'select';
             selected: boolean;
-            node: EventDataNode;
-            selectedNodes: DataNode[];
+            node: ITreeDataNode;
+            selectedNodes: ITreeDataNode[];
             nativeEvent: MouseEvent;
         }
     ) {
-        const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-        const fileService: FileService = serviceCollection.get('fileService');
+        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+        const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
 
-        const key: string = keys[0] as string;
+        const key: string = keys[0];
         this.setState({ lastSelectedNode: key });
 
         const url = extractDirUrlFromKey(key);
         EventHub.emit(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, url);
     }
 
-    async onLoadData(treeNode: any): Promise<void> {
+    async onLoadData(treeNode: ITreeDataNode): Promise<void> {
         return new Promise(resolve => {
-            if (treeNode.props.data.children) {
+            if (treeNode.children) {
                 resolve();
                 return;
             }
-            const node = treeNode.props;
-            const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-            const fileService: FileService = serviceCollection.get('fileService');
+            const node = treeNode;
+            const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+            const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
 
-            fileService
-                .loadDir(extractDirUrlFromKey(node.data.key), { level: 1, keySuffix: extractSuffixFromKey(node.data.key) })
-                .then(loadedTree => {
-                    treeNode.props.data.children = loadedTree.children || [];
+            fileService.loadDir(extractDirUrlFromKey(node.key), { level: 1, keySuffix: extractSuffixFromKey(node.key) }).then(loadedTree => {
+                treeNode.children = loadedTree.children || [];
 
-                    this.setState({
-                        treeData: [...this.state.treeData]
-                    });
-                    resolve();
+                this.setState({
+                    treeData: [...this.state.treeData]
                 });
+                resolve();
+            });
         });
     }
 
@@ -111,10 +106,7 @@ export class DirectoryView extends Component<any, IDirectoryViewState> {
                     className={style.dirTree}
                     onSelect={this.onSelect.bind(this)}
                     treeData={this.state.treeData}
-                    blockNode={true}
-                    draggable={true}
-                    showIcon={false}
-                    loadData={this.onLoadData.bind(this) as (treeNode: EventDataNode) => Promise<void>}
+                    loadData={this.onLoadData.bind(this) as (treeNode: ITreeDataNode) => Promise<void>}
                 />
             </div>
         );

@@ -9,13 +9,14 @@ import { ServiceCollection } from '@/common/serviceCollection';
 import { app } from 'electron';
 import { isFunction } from '@/common/types';
 import { ChokidarService } from '../services/chokidar.service';
+import { serviceConstant } from '@/common/constant/service.constant';
 
 export class CodeMain {
     main(): void {
         this.startup();
     }
 
-    private async startup(): Promise<void> {
+    private startup() {
         this.createServices();
     }
 
@@ -30,11 +31,11 @@ export class CodeMain {
         const chokidarService = createInstance(ChokidarService);
 
         // store service
-        serviceCollection.set('environmentService', environmentService);
-        serviceCollection.set('logService', logService);
-        serviceCollection.set('fileService', fileService);
-        serviceCollection.set('configurationService', configurationService);
-        serviceCollection.set('chokidarService', chokidarService);
+        serviceCollection.set(serviceConstant.ENVIRONMENT, environmentService);
+        serviceCollection.set(serviceConstant.LOG, logService);
+        serviceCollection.set(serviceConstant.FILE, fileService);
+        serviceCollection.set(serviceConstant.CONFIGURATION, configurationService);
+        serviceCollection.set(serviceConstant.CHOKIDAR, chokidarService);
 
         // auto initial service
         serviceCollection.forEach((id: string, instance: any): void => {
@@ -42,6 +43,11 @@ export class CodeMain {
         });
 
         // mount service to electron.app.remote
+        (global as any)['serviceCollection'] = serviceCollection;
         (app as any).serviceCollection = serviceCollection;
+        logService.log('serviceCollection');
+        logService.log(serviceConstant);
+        logService.log('app');
+        logService.log(app);
     }
 }

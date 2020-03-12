@@ -9,13 +9,16 @@ import { ConfigurationService } from './main/services/configuration.service';
 import { processConfig } from './common/constant/config.constant';
 import { db } from './common/nedb';
 import { isDev } from './common/utils';
+import { serviceConstant } from './common/constant/service.constant';
 
 bootstrap();
 
 async function bootstrap() {
     // init i18n
-    const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-    const configurationService: ConfigurationService = serviceCollection.get('configurationService');
+    console.log(remote);
+
+    const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+    const configurationService: ConfigurationService = serviceCollection.get(serviceConstant.CONFIGURATION);
     const languageSetting: string = configurationService.getValue('process', processConfig.LOCALE_LANGUAGE) as string;
     await initI18n(languageSetting);
 

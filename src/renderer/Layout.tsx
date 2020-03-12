@@ -13,6 +13,7 @@ import { debounce, throttle } from '@/common/decorator/decorator';
 import 'reflect-metadata';
 import { FileService } from '@/main/services/file.service';
 import { ChokidarService } from '@/main/services/chokidar.service';
+import { serviceConstant } from '@/common/constant/service.constant';
 
 interface ILayoutState {
     fileBarWidth: number;
@@ -40,8 +41,8 @@ class Layout extends React.Component<any, ILayoutState> {
         super(props);
         this.layoutRef = React.createRef();
 
-        const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-        this.configurationService = serviceCollection.get('configurationService');
+        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+        this.configurationService = serviceCollection.get(serviceConstant.CONFIGURATION);
 
         this.init();
     }

@@ -7,6 +7,7 @@ import { FileService } from '@/main/services/file.service';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { ChokidarService } from '@/main/services/chokidar.service';
 import { db } from '@/common/nedb';
+import { serviceConstant } from '@/common/constant/service.constant';
 
 export interface IToolsBarProps {
     toolsBarWidth: number;
@@ -28,8 +29,8 @@ export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
 
     handleOpenMultipleDir(dirs: string[]) {
         if (!dirs) return;
-        const serviceCollection: ServiceCollection = (remote.app as any).serviceCollection;
-        const fileService: FileService = serviceCollection.get('fileService');
+        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+        const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
 
         dirs.forEach(async dir => {
             const dirsInStore = await db.directory.find({ url: dir }).exec();

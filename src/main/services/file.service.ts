@@ -9,6 +9,7 @@ import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { mainWindow } from '@/main';
 import { isArray } from '@/common/types';
 import { command } from '@/common/constant/command.constant';
+import { ITreeDataNode } from '@/renderer/parts/fileBar/directoryView/directoryTree/directoryTree';
 
 @injectable
 export class FileService {
@@ -29,20 +30,20 @@ export class FileService {
             level: 0,
             time: 0
         }
-    ): Promise<TreeNodeNormal> {
+    ): Promise<ITreeDataNode> {
         if (!options.time) options.time = 0;
         return new Promise(resolveTop => {
             const dirInfo = fs.readdirSync(dir);
 
             const dirTitle = (dir.match(/[^\\/]+$/) || []).pop();
             const suffix = options.keySuffix || `|${dirTitle}`;
-            const tree: TreeNodeNormal = {
+            const tree: ITreeDataNode = {
                 title: dirTitle,
                 key: `${dir}${suffix}`
             };
 
             let index: number = 0;
-            const childrenDir: TreeNodeNormal[] = [];
+            const childrenDir: ITreeDataNode[] = [];
 
             if (options.level < this.MAX_RECURSIVE_DEPTH) {
                 const promises = dirInfo.map(
@@ -82,7 +83,6 @@ export class FileService {
                     const fileOrDirUrl = this.pr(dir, fileOrDirName);
                     fs.stat(fileOrDirUrl, (err, stats) => {
                         if (stats.isFile()) {
-
                         }
                         resolve();
                     });
