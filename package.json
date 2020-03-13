@@ -1,14 +1,14 @@
 {
-  "name": "project-r",
-  "productName": "project-r",
+  "name": "album-bankakyou",
+  "productName": "album-bankakyou",
   "version": "1.0.0",
   "description": "A simple and convinient picture manager/viewer",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "cross-env NODE_ENV=production electron-forge start",
     "start:dev": "electron-forge start",
     "start:prod": "cross-env NODE_ENV=production npm run get-nls && npm run build-constant && electron-forge start",
-    "package": "electron-forge package",
+    "package": "electron-forge package && npm run create-cfg-file",
     "make": "electron-forge make && npm run create-cfg-file",
     "publish": "electron-forge publish",
     "lint": "tslint -c tslint.json -p tsconfig.json",
@@ -26,7 +26,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "project-r"
+            "name": "album-bankakyou"
           }
         },
         {

@@ -36,7 +36,6 @@ export class DirectoryTree extends Component<IDirectoryTreeProps, IDirectoryTree
 
         // invoke loadData callback function.
         if (shouldInvokeLoadData) {
-            console.log(';here');
             if (onSelectCb && this.props.selectAwaitLoad) await loadDataCb(node);
             else loadDataCb(node);
             this.setState({ loadingKeys: [] });

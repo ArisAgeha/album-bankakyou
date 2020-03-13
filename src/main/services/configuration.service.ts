@@ -4,16 +4,15 @@ import { isObject, getTypeof } from '@/common/types';
 import { LogService } from './log.service';
 import { throttle, debounce } from '@/common/decorator/decorator';
 import { isDev } from '@/common/utils';
+import { app } from 'electron';
 
 @injectable
 export class ConfigurationService {
     private _config: IConfig = {};
-    private readonly defaultConfigDir: string;
     private readonly userConfigDir: string;
 
     constructor(private readonly fileService: FileService, private readonly logService: LogService) {
-        this.defaultConfigDir = isDev ? 'src/configuration/default' : 'resources/app/configuration/default';
-        this.userConfigDir = isDev ? 'src/configuration/user' : 'resources/app/configuration/user';
+        this.userConfigDir = 'configuration/user';
     }
 
     initial(): void {
@@ -75,16 +74,19 @@ export class ConfigurationService {
 
     private _loadDefaultConfigs(): void {
         const config: IConfig = {};
-        const dirInfo: string[] = this.fileService.getDirInfoSync(this.defaultConfigDir);
-        dirInfo.forEach((filename: string) => {
-            const fileContent: IDefaultConfigItem = this.fileService.loadJsonSync(this.defaultConfigDir, filename);
+        const configBundleName = ['process', 'windows', 'workbench'];
+
+        configBundleName.forEach((filename: string) => {
+            const fileContent = require(`@/configuration/default/${filename}.json`);
             config[fileContent.id] = fileContent.properties;
         });
+
         this._config = config;
     }
 
     private _loadUserConfigs(): void {
         const dirInfo: string[] = this.fileService.getDirInfoSync(this.userConfigDir);
+        if (!dirInfo) return;
         dirInfo.forEach((filename: string) => {
             const fileContent: IUserConfig = this.fileService.loadJsonSync(this.userConfigDir, filename) as IUserConfig;
             this._insertUserConfig(fileContent.id, fileContent.properties);

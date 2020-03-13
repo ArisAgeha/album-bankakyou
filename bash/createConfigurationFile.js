@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const from = pr('src/configuration');
-const to = pr('out/project-r-win32-x64/resources/app/configuration')
+const to = pr('out/album-bankakyou-win32-x64/resources/app/configuration')
 const rootDirName = 'configuration'
 
 copyDir(from, to);

@@ -38,16 +38,10 @@ export class CodeMain {
         serviceCollection.set(serviceConstant.CHOKIDAR, chokidarService);
 
         // auto initial service
-        serviceCollection.forEach((id: string, instance: any): void => {
-            if (isFunction(instance.initial)) instance.initial();
-        });
+        environmentService.initial();
+        configurationService.initial();
 
         // mount service to electron.app.remote
         (global as any)['serviceCollection'] = serviceCollection;
-        (app as any).serviceCollection = serviceCollection;
-        logService.log('serviceCollection');
-        logService.log(serviceConstant);
-        logService.log('app');
-        logService.log(app);
     }
 }

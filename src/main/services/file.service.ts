@@ -100,7 +100,8 @@ export class FileService {
 
     /** configuration methods */
     getDirInfoSync(url: string): string[] {
-        return fs.readdirSync(this.pr(url));
+        if (fs.existsSync(this.pr(url))) return fs.readdirSync(this.pr(url));
+        return null;
     }
 
     loadJsonSync(...url: string[]): any {
