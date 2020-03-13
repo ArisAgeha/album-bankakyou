@@ -1,4 +1,4 @@
-import React, { Component, SetStateAction } from 'react';
+import React, { Component, SetStateAction, PureComponent } from 'react';
 import { remote, ipcMain, ipcRenderer } from 'electron';
 import { ServiceCollection } from '@/common/serviceCollection';
 import style from './collectionView.scss';
@@ -9,7 +9,7 @@ export interface ICollectionViewProps {}
 
 export interface ICollectionViewState {}
 
-export class CollectionView extends Component<any, ICollectionViewState> {
+export class CollectionView extends PureComponent<any, ICollectionViewState> {
     constructor(props: any) {
         super(props);
     }

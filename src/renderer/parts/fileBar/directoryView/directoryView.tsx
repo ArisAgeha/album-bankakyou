@@ -1,4 +1,4 @@
-import React, { Component, SetStateAction } from 'react';
+import React, { Component, SetStateAction, PureComponent } from 'react';
 import { remote, ipcMain, ipcRenderer } from 'electron';
 import { ServiceCollection } from '@/common/serviceCollection';
 import style from './directoryView.scss';
@@ -24,7 +24,7 @@ export interface IDirectoryStore {
     url: string;
 }
 
-export class DirectoryView extends Component<any, IDirectoryViewState> {
+export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
     constructor(props: any) {
         super(props);
     }

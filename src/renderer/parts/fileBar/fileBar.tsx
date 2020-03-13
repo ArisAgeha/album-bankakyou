@@ -1,4 +1,4 @@
-import React, { Component, SetStateAction } from 'react';
+import React, { Component, SetStateAction, PureComponent } from 'react';
 import { remote, ipcMain, ipcRenderer } from 'electron';
 import { ServiceCollection } from '@/common/serviceCollection';
 import style from './FileBar.scss';
@@ -14,7 +14,7 @@ import { CollectionView } from './collectionView/collectionView';
 
 const { DirectoryTree } = Tree;
 
-export class FileBar extends Component<IFileBarProps, IFileBarState> {
+export class FileBar extends PureComponent<IFileBarProps, IFileBarState> {
     constructor(props: IFileBarProps) {
         super(props);
     }

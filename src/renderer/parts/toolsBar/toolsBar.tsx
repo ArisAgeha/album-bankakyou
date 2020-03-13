@@ -1,4 +1,4 @@
-import React, { Component, SetStateAction, MouseEventHandler } from 'react';
+import React, { Component, SetStateAction, MouseEventHandler, PureComponent } from 'react';
 import style from './toolsBar.scss';
 import { SettingOutlined, ProfileOutlined, BarsOutlined, ImportOutlined, TagsOutlined, ToolOutlined } from '@ant-design/icons';
 import 'reflect-metadata';
@@ -18,7 +18,7 @@ export interface IToolsBarState {
     activeIndex: number;
 }
 
-export class ToolsBar extends Component<IToolsBarProps, IToolsBarState> {
+export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
     constructor(props: IToolsBarProps) {
         super(props);
 

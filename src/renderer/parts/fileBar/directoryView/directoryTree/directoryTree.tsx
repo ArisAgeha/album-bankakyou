@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined } from '@ant-design/icons';
 import { isUndefinedOrNull, isArray } from '@/common/types';
 import style from './directoryTree.scss';
+import { IDirectoryViewState, IDirectoryViewProps } from '../directoryView';
 
-export class DirectoryTree extends Component<IDirectoryTreeProps, IDirectoryTreeState> {
+export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     constructor(props: any) {
         super(props);
         this.state = {
@@ -25,20 +26,25 @@ export class DirectoryTree extends Component<IDirectoryTreeProps, IDirectoryTree
         // 1. expand/fold root node
         // 2. select node
         // 3. set node to loading status
+        let expandedKeys;
         if (keyPosInRecord === -1) {
-            const expandedKeys = [...this.state.expandedKeys, node.key];
+            expandedKeys = [...this.state.expandedKeys, node.key];
             this.setState({ expandedKeys, selectedNodes, loadingKeys });
         } else {
-            const expandedKeys = [...this.state.expandedKeys];
+            expandedKeys = [...this.state.expandedKeys];
             expandedKeys.splice(keyPosInRecord, 1);
             this.setState({ expandedKeys, selectedNodes, loadingKeys });
         }
 
         // invoke loadData callback function.
         if (shouldInvokeLoadData) {
-            if (onSelectCb && this.props.selectAwaitLoad) await loadDataCb(node);
-            else loadDataCb(node);
-            this.setState({ loadingKeys: [] });
+            if (onSelectCb && this.props.selectAwaitLoad) {
+                await loadDataCb(node);
+                this.setState({ loadingKeys: [] });
+            } else
+                loadDataCb(node).then(() => {
+                    this.setState({ loadingKeys: [] });
+                });
         }
 
         //  invoke onSelect callback function.

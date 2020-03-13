@@ -1,4 +1,4 @@
-import React, { Component, SetStateAction } from 'react';
+import React, { Component, SetStateAction, PureComponent } from 'react';
 import { remote, ipcMain, ipcRenderer } from 'electron';
 import { ServiceCollection } from '@/common/serviceCollection';
 import style from './tagView.scss';
@@ -12,7 +12,7 @@ export interface ITagViewProps {
 
 export interface ITagViewState {}
 
-export class TagView extends Component<any, ITagViewState> {
+export class TagView extends PureComponent<any, ITagViewState> {
     constructor(props: any) {
         super(props);
     }

@@ -1,10 +1,10 @@
-import React, { Component, SetStateAction } from 'react';
+import React, { Component, SetStateAction, PureComponent } from 'react';
 
 export interface IInfoBarProps {}
 
 export interface IInfoBarState {}
 
-export class InfoBar extends Component<IInfoBarProps, IInfoBarState> {
+export class InfoBar extends PureComponent<IInfoBarProps, IInfoBarState> {
     state: IInfoBarState = {};
 
     render(): JSX.Element {
