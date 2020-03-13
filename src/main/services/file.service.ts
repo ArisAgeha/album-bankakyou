@@ -7,7 +7,7 @@ import { isPicture } from '@/common/utils';
 import { ipcMain, ipcRenderer } from 'electron';
 import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { mainWindow } from '@/main';
-import { isArray } from '@/common/types';
+import { isArray, isUndefinedOrNull } from '@/common/types';
 import { command } from '@/common/constant/command.constant';
 import { ITreeDataNode } from '@/renderer/parts/fileBar/directoryView/directoryTree/directoryTree';
 
@@ -42,18 +42,18 @@ export class FileService {
                 key: `${dir}${suffix}`
             };
 
-            let index: number = 0;
+            const index: number = 0;
             const childrenDir: ITreeDataNode[] = [];
 
             if (options.level < this.MAX_RECURSIVE_DEPTH) {
                 const promises = dirInfo.map(
-                    fileOrDirName =>
+                    (fileOrDirName, index) =>
                         new Promise(resolve => {
                             const fileOrDirUrl = this.pr(dir, fileOrDirName);
                             fs.stat(fileOrDirUrl, (err, stats) => {
                                 if (stats.isDirectory()) {
                                     this.loadDir(fileOrDirUrl, { level: options.level + 1, time: index++, keySuffix: suffix }).then(val => {
-                                        childrenDir.push(val);
+                                        childrenDir[index] = val;
                                     });
                                 }
                                 resolve();
@@ -61,9 +61,10 @@ export class FileService {
                         })
                 );
                 Promise.all(promises).then(() => {
-                    if (childrenDir.length > 0) {
-                        if (tree.children && isArray(tree.children)) tree.children.splice(0, 0, ...childrenDir);
-                        else tree.children = childrenDir;
+                    const childrenDirWithoutNullAndUndefined = childrenDir.filter(item => !isUndefinedOrNull(item));
+                    if (childrenDirWithoutNullAndUndefined.length > 0) {
+                        if (tree.children && isArray(tree.children)) tree.children.splice(0, 0, ...childrenDirWithoutNullAndUndefined);
+                        else tree.children = childrenDirWithoutNullAndUndefined;
                     }
                     resolveTop(tree);
                 });
