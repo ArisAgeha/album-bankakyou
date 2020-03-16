@@ -10,7 +10,8 @@ import { mainWindow } from '@/main';
 import { isArray, isUndefinedOrNull } from '@/common/types';
 import { command } from '@/common/constant/command.constant';
 import { ITreeDataNode } from '@/renderer/parts/fileBar/directoryView/directoryTree/directoryTree';
-import { page, requestPictureData } from '@/renderer/parts/mainView/mainView';
+import { page } from '@/renderer/parts/mainView/mainView';
+import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
 
 @injectable
 export class FileService {
@@ -19,21 +20,29 @@ export class FileService {
     MAX_RECURSIVE_DEPTH: number = 2;
 
     initial() {
-        ipcMain.on(command.SELECT_DIR_IN_TREE, (event, data: requestPictureData) => {
-            const { id, title, url } = data;
+        ipcMain.on(command.SELECT_DIR_IN_TREE, (event, data: page) => {
+            const { id, type, title } = data;
+            const url = id;
             const resolvedUrl = this.pr(url);
             const dirIsExists = fs.existsSync(resolvedUrl);
             if (!dirIsExists) return;
 
             let dirInfo = fs.readdirSync(resolvedUrl);
-            dirInfo = dirInfo.filter(isPicture);
-            dirInfo.forEach((fileOrDirName, index) => {
-                const fileOrDirUrl = this.pr(url, fileOrDirName);
-                if (fs.statSync(fileOrDirUrl).isDirectory()) return;
+            dirInfo = dirInfo.filter(fileOrDirName => {
+                if (!isPicture(fileOrDirName)) return false;
 
-                const base64 = fs.readFileSync(fileOrDirUrl).toString('base64');
-                event.reply(command.RECEIVE_PICTURE, { id, pictureData: [{ title: fileOrDirName, data: base64 }] });
+                const fileOrDirUrl = this.pr(url, fileOrDirName);
+                if (fs.statSync(fileOrDirUrl).isDirectory()) return false;
+
+                return true;
             });
+            const pictureData: picture[] = dirInfo.map((filename, index) => ({
+                id: index,
+                url: this.pr(url, filename),
+                title: filename
+            }));
+
+            event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
         });
     }
 

@@ -22,7 +22,8 @@ const onReady: () => void = (): void => {
         height: 900,
         fullscreen: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            webSecurity: false
         }
     });
 
