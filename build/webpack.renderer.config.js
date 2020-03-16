@@ -1,3 +1,4 @@
+const path = require('path');
 const rules = require('./webpack.rules');
 const plugins = require('./webpack.plugins');
 const alias = require('./webpack.alias');
@@ -9,7 +10,18 @@ rules.push({
 
 rules.push({
   test: /\.scss$/,
-  use: [{ loader: "style-loader" }, { loader: "css-loader", options: { modules: { localIdentName: "[local]---[hash:base64:5]" } } }, { loader: "sass-loader" }],
+  use: [
+    { loader: "style-loader" },
+    { loader: "css-loader", options: { modules: { localIdentName: "[local]---[hash:base64:5]" } } },
+    { loader: "sass-loader" },
+    {
+      loader: 'sass-resources-loader',
+      options: {
+        // Provide path to the file with resources
+        resources: [path.resolve(__dirname, '../src/renderer/themes/variable.scss')],
+      },
+    }
+  ]
 })
 
 module.exports = {

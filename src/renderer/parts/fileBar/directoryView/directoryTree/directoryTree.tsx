@@ -79,10 +79,12 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
             </div>
         );
 
+        const isSelected = this.state.selectedNodes.findIndex(nodeInState => nodeInState.key === node.key) !== -1;
+
         return (
             <div className={style.nodeRoot} key={node.key}>
                 <div
-                    className={style.nodeRootTitleWrapper}
+                    className={`${style.nodeRootTitleWrapper} ${isSelected ? style.selected : ''}`}
                     onClick={(e: React.MouseEvent) => {
                         this.handleClickNode(e, node);
                     }}

@@ -40,6 +40,7 @@ export class CodeMain {
         // auto initial service
         environmentService.initial();
         configurationService.initial();
+        fileService.initial();
 
         // mount service to electron.app.remote
         (global as any)['serviceCollection'] = serviceCollection;

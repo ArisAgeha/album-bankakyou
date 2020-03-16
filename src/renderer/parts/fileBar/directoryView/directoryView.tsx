@@ -68,14 +68,14 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
             nativeEvent: MouseEvent;
         }
     ) {
-        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
-        const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
-
         const key: string = keys[0];
         this.setState({ lastSelectedNode: key });
 
         const url = extractDirUrlFromKey(key);
-        EventHub.emit(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, url);
+        EventHub.emit(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, {
+            url,
+            type: 'NEW'
+        });
     }
 
     async onLoadData(treeNode: ITreeDataNode): Promise<void> {

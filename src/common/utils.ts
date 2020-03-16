@@ -25,3 +25,9 @@ export function extractDirUrlFromKey(key: string): string {
 export function extractSuffixFromKey(key: string): string {
     return key.slice(key.lastIndexOf('|'));
 }
+
+export function extractDirNameFromKey(key: string): string {
+    const url = extractDirUrlFromKey(key);
+    return (url.match(/[^\\/]+$/) || []).pop();
+}
+

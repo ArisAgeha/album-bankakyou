@@ -20,7 +20,13 @@
             }
         }
         .nodeRootTitleWrapper:hover {
-            background-color: rgba(34, 165, 241, 0.7);
+            background-color: $themeColor3;
+            color: #fff;
+        }
+
+        .nodeRootTitleWrapper.selected {
+            background-color: $themeColor4;
+            color: #fff;
         }
 
         .nodeRootChildren {

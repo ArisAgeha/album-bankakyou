@@ -116,6 +116,7 @@
     "react-i18next": "^11.3.3",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "sass-resources-loader": "^2.0.1"
   }
 }

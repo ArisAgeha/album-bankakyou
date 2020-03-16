@@ -14,12 +14,12 @@
             display: flex;
 
             .toolsBar {
-                background-color: rgb(34, 165, 241);
                 height: 100%;
             }
 
             .gridFileBar {
                 height: 100%;
+                border-right: 1px solid #ddd;
             }
         }
 
@@ -29,19 +29,18 @@
             flex-direction: column;
             .gridMainView {
                 flex: 1;
-                background-color: rgb(30, 30, 30);
+                // background-color: rgb(30, 30, 30);
             }
 
             .gridManageBar {
                 width: 100%;
-                background-color: rgb(30, 30, 30);
+                // background-color: rgb(30, 30, 30);
                 border-top: 1px solid rgb(65, 65, 65);
             }
         }
     }
 
     .footer {
-        background-color: rgb(0, 122, 204);
     }
 }
 
