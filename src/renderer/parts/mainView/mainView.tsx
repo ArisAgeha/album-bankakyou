@@ -9,7 +9,7 @@ import { ServiceCollection } from '@/common/serviceCollection';
 import { remote, ipcRenderer } from 'electron';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { FileService } from '@/main/services/file.service';
-import { extractDirNameFromKey } from '@/common/utils';
+import { extractDirNameFromUrl } from '@/common/utils';
 import { command } from '@/common/constant/command.constant';
 
 export interface IMainViewProps {}
@@ -70,7 +70,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
 
                 const newTabData: page = {
                     id: url,
-                    title: extractDirNameFromKey(url),
+                    title: extractDirNameFromUrl(url),
                     type: 'picture',
                     data: [] as picture[]
                 };
@@ -85,27 +85,37 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         });
     }
 
+    switchTab(id: string | number) {
+        this.setState({
+            currentPage: id
+        });
+    }
+
     render(): JSX.Element {
-        const Tags = this.state.pages.map(page => (
-            <div key={page.id}>
-                <div className={style.left}>{page.title}</div>
-                <div className={style.right}>
-                    <CloseOutlined />>
+        const Tabs = this.state.pages.map(page => {
+            const isSelected = this.state.currentPage === page.id;
+            return (
+                <div className={`${style.tabsItem} ${isSelected ? style.isSelected : ''}`} key={page.id} onClick={() => this.switchTab(page.id)}>
+                    <div className={`${style.left} text-ellipsis-1`}>{page.title}</div>
+                    <div className={style.right}>
+                        <CloseOutlined />
+                    </div>
                 </div>
-            </div>
-        ));
+            );
+        });
 
         const page = this.state.pages.find(page => page.id === this.state.currentPage);
 
         const DisplayArea = page?.data && (
-            <div style={style.displayArea}>{page?.type === 'gallery' ? <GalleryView /> : <PictureView album={page.data} />}</div>
+            <div className={`${style.displayArea} medium-scrollbar`}>
+                {page?.type === 'gallery' ? <GalleryView /> : <PictureView album={page.data} />}
+            </div>
         );
 
         return (
-            <div>
-                <div className={style.TagsWrapper}>{Tags}</div>
-                ------===
-                <div className={style.displayArea}>{DisplayArea}</div>
+            <div className={`${style.mainView} medium-scrollbar`}>
+                <div className={`${style.tabsWrapper} no-scrollbar`}>{Tabs}</div>
+                {DisplayArea}
             </div>
         );
     }

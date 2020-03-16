@@ -7,6 +7,7 @@
 
     .body {
         width: 100%;
+        height: 100vh;
         display: flex;
         flex: 1;
 
@@ -27,8 +28,13 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            width: 0;
+            height: 100%;
+            user-select: none;
+
             .gridMainView {
                 flex: 1;
+                height: 100%;
                 // background-color: rgb(30, 30, 30);
             }
 
@@ -45,6 +51,19 @@
 }
 
 :global {
+    .no-scrollbar {
+        &::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+        }
+        &::-webkit-scrollbar-thumb {
+            border-radius: 0px;
+        }
+        &::-webkit-scrollbar-track {
+            border-radius: 0;
+        }
+    }
+
     .mini-scrollbar {
         &::-webkit-scrollbar {
             width: 2px;
@@ -52,7 +71,7 @@
         }
         &::-webkit-scrollbar-thumb {
             border-radius: 2px;
-            background: rgb(34,165,241);
+            background: $themeColor4;
         }
         &::-webkit-scrollbar-track {
             border-radius: 0;
@@ -67,7 +86,7 @@
         }
         &::-webkit-scrollbar-thumb {
             border-radius: 4px;
-            background: rgb(34,165,241);
+            background: $themeColor4;
         }
         &::-webkit-scrollbar-track {
             border-radius: 0;
@@ -82,7 +101,7 @@
         }
         &::-webkit-scrollbar-thumb {
             border-radius: 6px;
-            background: rgb(34,165,241);
+            background: $themeColor4;
         }
         &::-webkit-scrollbar-track {
             border-radius: 0;

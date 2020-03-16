@@ -31,3 +31,6 @@ export function extractDirNameFromKey(key: string): string {
     return (url.match(/[^\\/]+$/) || []).pop();
 }
 
+export function extractDirNameFromUrl(url: string): string {
+    return (url.match(/[^\\/]+$/) || []).pop();
+}

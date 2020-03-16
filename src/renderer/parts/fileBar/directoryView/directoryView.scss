@@ -9,15 +9,3 @@
         height: 0px;
     }
 }
-
-:global {
-    .ant-tree-title {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        word-break: break-all;
-        padding-bottom: 1px;
-    }
-}

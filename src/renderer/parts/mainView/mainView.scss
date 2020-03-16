@@ -1,0 +1,44 @@
+.mainView {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .tabsWrapper {
+        height: 35px;
+        display: flex;
+        width: 100%;
+        background-color: $themeColor3;
+        overflow: auto;
+
+        .tabsItem {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            background-color: $themeColor3;
+            color: #fff;
+            border-right: 1px solid $themeColor2;
+            min-width: 120px;
+            max-width: 300px;
+
+            .left {
+                padding-right: 10px;
+            }
+        }
+
+        .tabsItem:hover {
+            background-color: $themeColor4;
+            cursor: pointer;
+        }
+
+        .tabsItem.isSelected {
+            background-color: $themeColor5;
+        }
+    }
+
+    .displayArea {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+    }
+}
