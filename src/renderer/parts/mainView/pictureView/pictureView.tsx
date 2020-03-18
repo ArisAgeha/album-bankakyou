@@ -92,7 +92,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         });
     }
 
-    renderPageDetail() {
+    renderPageDetail = () => {
         const { t, i18n } = useTranslation();
         const page = this.props.page;
         const album: picture[] = this.props.page.data as picture[];
@@ -163,9 +163,9 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 </div>
             </div>
         );
-    }
+    };
 
-    renderContent() {
+    renderContent = () => {
         let Album = null;
 
         switch (this.state.viewMode) {
@@ -200,7 +200,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         }
 
         return Album;
-    }
+    };
 
     handleKeyDown(e: React.KeyboardEvent) {
         if (e.ctrlKey) {
@@ -235,8 +235,8 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
     }
 
     render(): JSX.Element {
-        const PageDetail = this.renderPageDetail.bind(this);
-        const Content = this.renderContent.bind(this);
+        const PageDetail = this.renderPageDetail;
+        const Content = this.renderContent;
 
         return (
             <div

@@ -6,7 +6,7 @@ import { eventConstant } from '@/common/constant/event.constant';
 import LazyLoad from 'react-lazyload';
 import { page } from '../../mainView';
 
-export interface IPreviewState {}
+export interface IPreviewState { }
 
 export interface IPreviewProps {
     album: picture[];
@@ -23,7 +23,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     }
 
     handleClick(e: React.MouseEvent, picture: picture, index: number) {
-        this.props.onClickPage(e, { targetIndex: index, picture });
+        // this.props.onClickPage(e, { targetIndex: index, picture });
     }
 
     render(): JSX.Element {
@@ -33,12 +33,12 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
         zoomLevel = zoomLevel === 11 ? 10 : zoomLevel;
         const boxWidth: string = String(100 / this.props.zoomLevel) + '%';
-        const boxMaxHeight: string = String(1000 / this.props.zoomLevel) + 'px';
+        const boxMaxHeight: string = String(2000 / this.props.zoomLevel) + 'px';
 
         const scrollContainer = `#pictureViewScrollWrapper${this.props.index}`;
 
         return (
-            <div className={style.preview}>
+            <div className={style.preview} >
                 {album.map((picture, index) => (
                     <div className={style.pictureBox} style={{ width: boxWidth }} key={picture.title}>
                         <div
@@ -47,13 +47,13 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                                 this.handleClick(e, picture, index);
                             }}
                         >
-                            <LazyLoad height={200} scrollContainer={scrollContainer}>
-                                {picture.url.endsWith('.webm') ? (
-                                    <video src={picture.url} autoPlay muted loop></video>
-                                ) : (
+                            {/* <LazyLoad height={150} scrollContainer={scrollContainer}> */}
+                            {picture.url.endsWith('.webm') ? (
+                                <video src={picture.url} autoPlay muted loop></video>
+                            ) : (
                                     <img src={picture.url} alt='' style={{ maxHeight: boxMaxHeight }} />
                                 )}
-                            </LazyLoad>
+                            {/* </LazyLoad> */}
                         </div>
                         <div className={`${style.title} text-ellipsis-2`} style={{ display: showTitle ? '-webkit-box' : 'none' }}>
                             {picture.title}

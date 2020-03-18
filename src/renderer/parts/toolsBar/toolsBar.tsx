@@ -50,20 +50,18 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
         });
     }
 
-    buttonBox(props: { index: number; icon: JSX.Element; shouldActive: boolean; onClick: any }): JSX.Element {
-        return (
-            <div
-                className={`${style.item} ${props.shouldActive && this.state.activeIndex === props.index ? style.isActive : ''}`}
-                style={{ width: this.props.toolsBarWidth, height: this.props.toolsBarWidth }}
-                onClick={props.onClick}
-            >
-                {props.icon}
-            </div>
-        );
-    }
+    buttonBox = (props: { index: number; icon: JSX.Element; shouldActive: boolean; onClick: any }): JSX.Element => (
+        <div
+            className={`${style.item} ${props.shouldActive && this.state.activeIndex === props.index ? style.isActive : ''}`}
+            style={{ width: this.props.toolsBarWidth, height: this.props.toolsBarWidth }}
+            onClick={props.onClick}
+        >
+            {props.icon}
+        </div>
+    )
 
-    topButton(): JSX.Element {
-        const ButtonBox = this.buttonBox.bind(this);
+    topButton = (): JSX.Element => {
+        const ButtonBox = this.buttonBox;
 
         const icons = [
             {
@@ -100,8 +98,8 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
         );
     }
 
-    bottomButton(props: any): JSX.Element {
-        const ButtonBox = this.buttonBox.bind(this);
+    bottomButton = (props: any): JSX.Element => {
+        const ButtonBox = this.buttonBox;
 
         const buttons = [
             // dev
@@ -154,8 +152,8 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
     }
 
     render(): JSX.Element {
-        const TopButton = this.topButton.bind(this);
-        const BottomButton = this.bottomButton.bind(this);
+        const TopButton = this.topButton;
+        const BottomButton = this.bottomButton;
         return (
             <div className={style.toolsBarWrapper}>
                 <TopButton></TopButton>

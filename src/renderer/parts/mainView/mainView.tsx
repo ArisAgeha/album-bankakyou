@@ -106,11 +106,15 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         });
     }
 
+    handleMouseUp(e: React.MouseEvent, id: string) {
+        if (e.button === 1) this.closeTab(e, id);
+    }
+
     render(): JSX.Element {
         const Tabs = this.state.pages.map(page => {
             const isSelected = this.state.currentPage === page.id;
             return (
-                <div className={`${style.tabsItem} ${isSelected ? style.isSelected : ''}`} key={page.id} onClick={() => this.switchTab(page.id)}>
+                <div className={`${style.tabsItem} ${isSelected ? style.isSelected : ''}`} key={page.id} onClick={() => this.switchTab(page.id)} onMouseUp={(e: React.MouseEvent) => { this.handleMouseUp(e, page.id); }}>
                     <div className={`${style.left} text-ellipsis-1`}>{page.title}</div>
                     <div className={style.right} onClick={e => this.closeTab(e, page.id)}>
                         <div className={style.closeWrapper}>
@@ -121,29 +125,26 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             );
         });
 
-        // const currentPageId = this.state.pages.find(page => page.id === this.state.currentPage)?.id;
+        const currentPageId = this.state.pages.find(page => page.id === this.state.currentPage)?.id;
 
-        // const pages = this.state.pages;
+        const pages = this.state.pages;
 
-        // const Pages = pages.map(
-        //     (page, index) =>
-        //         page?.data &&
-        //         (page?.type === 'gallery' ? (
-        //             <GalleryView />
-        //         ) : (
-        //             <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
-        //         ))
-        // );
+        const Pages = pages.map(
+            (page, index) =>
+                page?.data &&
+                (page?.type === 'gallery' ? (
+                    <GalleryView />
+                ) : (
+                    <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
+                ))
+        );
 
-        const page = this.state.pages.find(page => page.id === this.state.currentPage);
         return (
             <div className={`${style.mainView}`}>
                 <div className={`${style.tabsWrapper} no-scrollbar`} style={{ display: Tabs.length > 0 ? 'flex' : 'none' }}>
                     {Tabs}
                 </div>
-                <div className={`${style.displayArea}`}>
-                    {page?.data && (page?.type === 'gallery' ? <GalleryView /> : <PictureView key={page.id} page={page} isShow={true} index={0} />)}
-                </div>
+                <div className={`${style.displayArea}`}> {Pages}</div>
             </div>
         );
     }

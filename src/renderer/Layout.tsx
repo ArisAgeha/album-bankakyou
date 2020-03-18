@@ -195,7 +195,7 @@ class Layout extends React.Component<any, ILayoutState> {
         });
     }
 
-    changeFilebarView(view: fileBarViewType) {
+    changeFilebarView = (view: fileBarViewType) => {
         this.setState({
             filebarShowView: view
         });
@@ -222,7 +222,7 @@ class Layout extends React.Component<any, ILayoutState> {
                 <div className={style.body}>
                     <div className={style.left}>
                         <div className={style.toolsBar} style={{ width: this.state.toolsBarWidth }}>
-                            <ToolsBar toolsBarWidth={this.state.toolsBarWidth} changeFilebarView={this.changeFilebarView.bind(this)}></ToolsBar>
+                            <ToolsBar toolsBarWidth={this.state.toolsBarWidth} changeFilebarView={this.changeFilebarView}></ToolsBar>
                         </div>
                         <div className={style.gridFileBar} style={fileBarStyle} ref={this.fileBarRef}>
                             <FileBar showView={this.state.filebarShowView}></FileBar>
