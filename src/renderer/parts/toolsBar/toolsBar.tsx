@@ -1,6 +1,15 @@
 import React, { Component, SetStateAction, MouseEventHandler, PureComponent } from 'react';
 import style from './toolsBar.scss';
-import { SettingOutlined, ProfileOutlined, BarsOutlined, ImportOutlined, TagsOutlined, ToolOutlined } from '@ant-design/icons';
+import {
+    SettingOutlined,
+    ProfileOutlined,
+    BarsOutlined,
+    ImportOutlined,
+    TagsOutlined,
+    ToolOutlined,
+    DeleteOutlined,
+    SwapOutlined
+} from '@ant-design/icons';
 import 'reflect-metadata';
 import { remote } from 'electron';
 import { FileService } from '@/main/services/file.service';
@@ -8,6 +17,9 @@ import { ServiceCollection } from '@/common/serviceCollection';
 import { ChokidarService } from '@/main/services/chokidar.service';
 import { db } from '@/common/nedb';
 import { serviceConstant } from '@/common/constant/service.constant';
+import { EventHub } from '@/common/eventHub';
+import { eventConstant } from '@/common/constant/event.constant';
+import { isDev } from '@/common/utils';
 
 export interface IToolsBarProps {
     toolsBarWidth: number;
@@ -94,12 +106,26 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
         const buttons = [
             // dev
             {
+                isDev: true,
+                jsx: <DeleteOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+                onClick: async () => {
+                    db.directory.remove({}, { multi: true });
+                }
+            },
+            {
+                isDev: true,
                 jsx: <ToolOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
                 onClick: async () => {
                     console.log(await db.directory.find({}).exec());
                     console.log(await db.collection.find({}).exec());
                     console.log(await db.tag.find({}).exec());
-                    db.directory.remove({}, { multi: true });
+                }
+            },
+            // swap view mode.
+            {
+                jsx: <SwapOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+                onClick: () => {
+                    EventHub.emit(eventConstant.SWITCH_PICTURE_MODE);
                 }
             },
             // import directory button
@@ -118,13 +144,13 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
             }
         ];
 
-        return (
-            <div className={style.top}>
-                {buttons.map((buttonObj, index) => (
-                    <ButtonBox icon={buttonObj.jsx} index={index} key={index} shouldActive={false} onClick={buttonObj.onClick}></ButtonBox>
-                ))}
-            </div>
-        );
+        const buttonsJSX = buttons
+            .filter(buttonObj => isDev || !buttonObj.isDev)
+            .map((buttonObj, index) => (
+                <ButtonBox icon={buttonObj.jsx} index={index} key={index} shouldActive={false} onClick={buttonObj.onClick}></ButtonBox>
+            ));
+
+        return <div className={style.top}>{buttonsJSX}</div>;
     }
 
     render(): JSX.Element {

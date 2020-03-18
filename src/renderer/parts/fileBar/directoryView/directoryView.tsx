@@ -11,6 +11,15 @@ import { EventHub } from '@/common/eventHub';
 import { ITreeDataNode, DirectoryTree } from './directoryTree/directoryTree';
 import { serviceConstant } from '@/common/constant/service.constant';
 
+export interface IDirectoryData {
+    url: string;
+    title: string;
+    tags: string[];
+    author: string[];
+    read_time: number;
+    delay_time: number;
+}
+
 export interface IDirectoryViewProps {
     initPath?: string;
 }

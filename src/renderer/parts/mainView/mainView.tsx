@@ -44,7 +44,8 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             const newPages = [...this.state.pages, page];
 
             this.setState({
-                pages: newPages
+                pages: newPages,
+                currentPage: page.id
             });
         });
     }
@@ -53,9 +54,6 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         EventHub.on(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, (data: { url: string; type: 'NEW' | 'REPLACE' }) => {
             const { url, type } = data;
             if (type === 'NEW') {
-                this.setState({
-                    currentPage: url
-                });
                 if (this.state.pages.findIndex(pageInState => pageInState.id === url) !== -1) return;
 
                 const newTabData: page = {
@@ -117,7 +115,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         });
 
         const page = this.state.pages.find(page => page.id === this.state.currentPage);
-        const DisplayArea = page?.data && (page?.type === 'gallery' ? <GalleryView /> : <PictureView album={page.data as picture[]} />);
+        const DisplayArea = page?.data && (page?.type === 'gallery' ? <GalleryView /> : <PictureView page={page} />);
 
         return (
             <div className={`${style.mainView} medium-scrollbar`}>
