@@ -104,7 +104,8 @@
         "no-void-expression": false,
         "no-parameter-reassignment": false,
         "no-object-literal-type-assertion": false,
-        "promise-function-async": false
+        "promise-function-async": false,
+        "restrict-plus-operands": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"

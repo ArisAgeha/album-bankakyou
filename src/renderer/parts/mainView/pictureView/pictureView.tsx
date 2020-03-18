@@ -14,6 +14,8 @@ import { IDirectoryData } from '../../fileBar/directoryView/directoryView';
 import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 
+export type zoomEvent = 'ZOOM_IN' | 'ZOOM_OUT';
+
 export type picture = {
     title: string;
     url: string;
@@ -23,11 +25,11 @@ export type picture = {
 export interface IPictureViewState {
     viewMode: 'preview' | 'scroll_list' | 'single_page' | 'double_page';
     currentShowIndex: number;
-    size: {
-        preview: number;
-        scroll_list: number;
-        double_page: number;
+    preview: {
+        zoomLevel: number;
     };
+    scrollList: number;
+    doublePage: number;
     pageDetail: {
         tags: string[];
         author: string[];
@@ -36,6 +38,8 @@ export interface IPictureViewState {
 
 export interface IPictureViewProps {
     page: page;
+    isShow: boolean;
+    index: number;
 }
 
 export class PictureView extends React.PureComponent<IPictureViewProps, IPictureViewState> {
@@ -45,11 +49,11 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         this.state = {
             viewMode: 'preview',
             currentShowIndex: 0,
-            size: {
-                preview: 1 / 6,
-                scroll_list: 0.6,
-                double_page: 1
+            preview: {
+                zoomLevel: 6
             },
+            scrollList: 0.6,
+            doublePage: 1,
             pageDetail: {
                 tags: [],
                 author: []
@@ -67,10 +71,10 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         });
     }
 
-    handleDoubleClickPreview(e: React.MouseEvent, data: any) {
-        const { currentShowIndex } = data;
+    handleClickPage(e: React.MouseEvent, data: { targetIndex: number }) {
+        const { targetIndex } = data;
         this.setState({
-            currentShowIndex,
+            currentShowIndex: targetIndex,
             viewMode: 'single_page'
         });
     }
@@ -129,17 +133,17 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             </div>
         );
 
-        const PageNumber = <h2 className={style.mainTitle}>{page.title}</h2>;
+        const PageNumber = <h4>{`${t('%pageNumberTotal%')} ${album.length.toString()} ${t('%pageNumberPage%')}`}</h4>;
 
         const Buttons = (
             <div className={style.buttons}>
-                <Button className={style.button} type='primary' icon={<ProfileOutlined />}>
+                <Button className={style.button} type='primary' icon={<ProfileOutlined />} tabIndex={-1}>
                     {t('%scrollMode%')}
                 </Button>
-                <Button className={style.button} type='primary' icon={<BookOutlined />}>
+                <Button className={style.button} type='primary' icon={<BookOutlined />} tabIndex={-1}>
                     {t('%singlePageMode%')}
                 </Button>
-                <Button className={style.button} type='primary' icon={<ReadOutlined />}>
+                <Button className={style.button} type='primary' icon={<ReadOutlined />} tabIndex={-1}>
                     {t('%doublePageMode%')}
                 </Button>
             </div>
@@ -166,12 +170,15 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         switch (this.state.viewMode) {
             case 'preview':
+                const r = Math.random();
                 Album = (
                     <Preview
+                        index={this.props.index}
                         album={this.props.page.data as picture[]}
-                        onDbClick={(e: React.MouseEvent, data: any) => {
-                            this.handleDoubleClickPreview(e, data);
+                        onClickPage={(e: React.MouseEvent, data: { targetIndex: number; picture: picture }) => {
+                            this.handleClickPage(e, data);
                         }}
+                        zoomLevel={this.state.preview.zoomLevel}
                     />
                 );
                 break;
@@ -195,12 +202,51 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         return Album;
     }
 
+    handleKeyDown(e: React.KeyboardEvent) {
+        if (e.ctrlKey) {
+            let zoom: zoomEvent = null;
+            if (e.keyCode === 38) zoom = 'ZOOM_IN';
+            else if (e.keyCode === 40) zoom = 'ZOOM_OUT';
+            if (zoom) this.handleZoom(zoom);
+        }
+    }
+
+    handleWheel(e: React.WheelEvent) {
+        if (e.ctrlKey) {
+            let zoom: zoomEvent = null;
+            if (e.deltaY < 0) zoom = 'ZOOM_IN';
+            else if (e.deltaY > 0) zoom = 'ZOOM_OUT';
+            if (zoom) this.handleZoom(zoom);
+        }
+    }
+
+    handleZoom(zoom: zoomEvent) {
+        if (this.state.viewMode === 'preview') {
+            let zoomLevel = this.state.preview.zoomLevel;
+            if (zoom === 'ZOOM_OUT') zoomLevel = zoomLevel >= 11 ? 11 : zoomLevel + 1;
+            else zoomLevel = zoomLevel <= 1 ? 1 : zoomLevel - 1;
+
+            this.setState({
+                preview: {
+                    zoomLevel
+                }
+            });
+        }
+    }
+
     render(): JSX.Element {
         const PageDetail = this.renderPageDetail.bind(this);
         const Content = this.renderContent.bind(this);
 
         return (
-            <div className={style.pictureViewWrapper}>
+            <div
+                id={`pictureViewScrollWrapper${this.props.index}`}
+                className={`${style.pictureViewWrapper} medium-scrollbar`}
+                style={{ display: this.props.isShow ? 'block' : 'none' }}
+                tabIndex={1}
+                onKeyDown={this.handleKeyDown.bind(this)}
+                onWheel={this.handleWheel.bind(this)}
+            >
                 {this.state.viewMode === 'preview' ? <PageDetail /> : ''}
                 <Content />
             </div>

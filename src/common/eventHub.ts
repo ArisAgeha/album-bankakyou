@@ -19,8 +19,10 @@ export class EventHub {
     }
 
     static cancel(key: string, fn: Function) {
+        console.log(EventHub.events[key]);
         const cbsInHub = EventHub.events[key];
         const fnIndex = cbsInHub.indexOf(fn);
         cbsInHub.splice(fnIndex, 1);
+        console.log(EventHub.events[key]);
     }
 }

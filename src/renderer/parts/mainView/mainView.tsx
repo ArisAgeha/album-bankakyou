@@ -11,6 +11,7 @@ import { serviceConstant } from '@/common/constant/service.constant';
 import { FileService } from '@/main/services/file.service';
 import { extractDirNameFromUrl } from '@/common/utils';
 import { command } from '@/common/constant/command.constant';
+import { isUndefinedOrNull, isObject } from '@/common/types';
 
 export interface IMainViewProps {}
 
@@ -54,7 +55,13 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         EventHub.on(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, (data: { url: string; type: 'NEW' | 'REPLACE' }) => {
             const { url, type } = data;
             if (type === 'NEW') {
-                if (this.state.pages.findIndex(pageInState => pageInState.id === url) !== -1) return;
+                const targetPage = this.state.pages.find(pageInState => pageInState.id === url);
+                if (isObject(targetPage)) {
+                    this.setState({
+                        currentPage: targetPage.id
+                    });
+                    return;
+                }
 
                 const newTabData: page = {
                     id: url,
@@ -114,15 +121,29 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             );
         });
 
-        const page = this.state.pages.find(page => page.id === this.state.currentPage);
-        const DisplayArea = page?.data && (page?.type === 'gallery' ? <GalleryView /> : <PictureView page={page} />);
+        // const currentPageId = this.state.pages.find(page => page.id === this.state.currentPage)?.id;
 
+        // const pages = this.state.pages;
+
+        // const Pages = pages.map(
+        //     (page, index) =>
+        //         page?.data &&
+        //         (page?.type === 'gallery' ? (
+        //             <GalleryView />
+        //         ) : (
+        //             <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
+        //         ))
+        // );
+
+        const page = this.state.pages.find(page => page.id === this.state.currentPage);
         return (
-            <div className={`${style.mainView} medium-scrollbar`}>
+            <div className={`${style.mainView}`}>
                 <div className={`${style.tabsWrapper} no-scrollbar`} style={{ display: Tabs.length > 0 ? 'flex' : 'none' }}>
                     {Tabs}
                 </div>
-                <div className={`${style.displayArea} medium-scrollbar`}> {DisplayArea}</div>
+                <div className={`${style.displayArea}`}>
+                    {page?.data && (page?.type === 'gallery' ? <GalleryView /> : <PictureView key={page.id} page={page} isShow={true} index={0} />)}
+                </div>
             </div>
         );
     }

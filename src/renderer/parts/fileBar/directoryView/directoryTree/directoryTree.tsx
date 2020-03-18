@@ -5,7 +5,7 @@ import style from './directoryTree.scss';
 import { IDirectoryViewState, IDirectoryViewProps } from '../directoryView';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
-    constructor(props: any) {
+    constructor(props: IDirectoryTreeProps) {
         super(props);
         this.state = {
             expandedKeys: [],
@@ -70,6 +70,8 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         );
     }
 
+    handleKeyDown(e: React.KeyboardEvent) {}
+
     renderRoot(node: ITreeDataNode) {
         const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
 
@@ -101,7 +103,11 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
 
     render() {
         const treeData = this.props.treeData;
-        return <div className={style.treeRoot}>{treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}</div>;
+        return (
+            <div className={style.treeRoot} onKeyDown={this.handleKeyDown.bind(this)} tabIndex={2}>
+                {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
+            </div>
+        );
     }
 }
 

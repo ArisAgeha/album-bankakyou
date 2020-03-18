@@ -15,7 +15,7 @@ export function isProd() {
 export function emptyCall(): void {}
 
 export function isPicture(fileOrDirUrl: string): boolean {
-    return ['bmp', 'jpg', 'png', 'jpeg', 'exif', 'psd', 'webp', 'tif', 'tiff', 'gif'].some(suffix => fileOrDirUrl.endsWith(suffix));
+    return ['bmp', 'jpg', 'png', 'jpeg', 'exif', 'psd', 'webp', 'tif', 'tiff', 'gif', 'webm'].some(suffix => fileOrDirUrl.endsWith(suffix));
 }
 
 export function extractDirUrlFromKey(key: string): string {
