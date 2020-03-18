@@ -63,12 +63,24 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         this.initEvent();
     }
 
+    componentWillUnmount() {
+        this.removeEvent();
+    }
+
     initEvent() {
-        EventHub.on(eventConstant.SWITCH_PICTURE_MODE, (mode: IPictureViewState['viewMode']) => {
-            this.setState({
-                viewMode: mode
-            });
+        EventHub.on(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
+        window.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    switchPictureMode = (mode: IPictureViewState['viewMode']) => {
+        this.setState({
+            viewMode: mode
         });
+    }
+
+    removeEvent() {
+        EventHub.cancel(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
+        window.removeEventListener('keydown', this.handleKeyDown);
     }
 
     handleClickPage(e: React.MouseEvent, data: { targetIndex: number }) {
@@ -163,7 +175,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 </div>
             </div>
         );
-    };
+    }
 
     renderContent = () => {
         let Album = null;
@@ -200,18 +212,16 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         }
 
         return Album;
-    };
-
-    handleKeyDown(e: React.KeyboardEvent) {
-        if (e.ctrlKey) {
-            let zoom: zoomEvent = null;
-            if (e.keyCode === 38) zoom = 'ZOOM_IN';
-            else if (e.keyCode === 40) zoom = 'ZOOM_OUT';
-            if (zoom) this.handleZoom(zoom);
-        }
     }
 
-    handleWheel(e: React.WheelEvent) {
+    handleKeyDown = (e: KeyboardEvent) => {
+        let zoom: zoomEvent = null;
+        if (e.key === '+') zoom = 'ZOOM_IN';
+        else if (e.key === '-') zoom = 'ZOOM_OUT';
+        if (zoom) this.handleZoom(zoom);
+    }
+
+    handleWheel = (e: React.WheelEvent) => {
         if (e.ctrlKey) {
             let zoom: zoomEvent = null;
             if (e.deltaY < 0) zoom = 'ZOOM_IN';
@@ -220,7 +230,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         }
     }
 
-    handleZoom(zoom: zoomEvent) {
+    handleZoom = (zoom: zoomEvent) => {
         if (this.state.viewMode === 'preview') {
             let zoomLevel = this.state.preview.zoomLevel;
             if (zoom === 'ZOOM_OUT') zoomLevel = zoomLevel >= 11 ? 11 : zoomLevel + 1;
@@ -244,8 +254,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 className={`${style.pictureViewWrapper} medium-scrollbar`}
                 style={{ display: this.props.isShow ? 'block' : 'none' }}
                 tabIndex={1}
-                onKeyDown={this.handleKeyDown.bind(this)}
-                onWheel={this.handleWheel.bind(this)}
+                onWheel={this.handleWheel}
             >
                 {this.state.viewMode === 'preview' ? <PageDetail /> : ''}
                 <Content />

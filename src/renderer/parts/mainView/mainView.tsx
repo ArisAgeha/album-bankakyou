@@ -13,7 +13,7 @@ import { extractDirNameFromUrl } from '@/common/utils';
 import { command } from '@/common/constant/command.constant';
 import { isUndefinedOrNull, isObject } from '@/common/types';
 
-export interface IMainViewProps {}
+export interface IMainViewProps { }
 
 export interface IMainViewState {
     pages: page[];
@@ -52,42 +52,61 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     }
 
     initEvent() {
-        EventHub.on(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, (data: { url: string; type: 'NEW' | 'REPLACE' }) => {
-            const { url, type } = data;
-            if (type === 'NEW') {
-                const targetPage = this.state.pages.find(pageInState => pageInState.id === url);
-                if (isObject(targetPage)) {
-                    this.setState({
-                        currentPage: targetPage.id
-                    });
-                    return;
-                }
-
-                const newTabData: page = {
-                    id: url,
-                    title: extractDirNameFromUrl(url),
-                    type: 'picture',
-                    data: [] as picture[]
-                };
-
-                // this.setState({
-                //     pages: [...this.state.pages, newTabData]
-                // });
-
-                const { data, ...sendData } = { ...newTabData, url };
-                ipcRenderer.send(command.SELECT_DIR_IN_TREE, newTabData);
-            }
-        });
+        EventHub.on(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, this.loadPictureBySelectDir);
+        window.addEventListener('keydown', this.handleKeyDown);
     }
 
-    switchTab(id: string) {
+    componentWillUnmount() {
+        EventHub.cancel(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, this.loadPictureBySelectDir);
+        window.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    loadPictureBySelectDir = (data: { url: string; type: 'NEW' | 'REPLACE' }) => {
+        const { url, type } = data;
+        if (type === 'NEW') {
+            const targetPage = this.state.pages.find(pageInState => pageInState.id === url);
+            if (isObject(targetPage)) {
+                this.setState({
+                    currentPage: targetPage.id
+                });
+                return;
+            }
+
+            const newTabData: page = {
+                id: url,
+                title: extractDirNameFromUrl(url),
+                type: 'picture',
+                data: [] as picture[]
+            };
+
+            const { data, ...sendData } = { ...newTabData, url };
+            ipcRenderer.send(command.SELECT_DIR_IN_TREE, newTabData);
+        }
+    }
+
+    handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Tab' && e.ctrlKey) {
+            if (!this.state.currentPage) return;
+            const currentPageIndex = this.state.pages.findIndex((page) => page.id === this.state.currentPage);
+            const nextPageIndex = currentPageIndex >= this.state.pages.length - 1 ? 0 : currentPageIndex + 1;
+            const nextPageId = this.state.pages[nextPageIndex].id;
+            this.switchToTab(nextPageId);
+        }
+
+        if (e.key === 'w' || e.key === 'W' && e.ctrlKey) {
+            if (!this.state.currentPage) return;
+            this.closeTab(this.state.currentPage);
+        }
+    }
+
+    switchToTab(id: string) {
         this.setState({
             currentPage: id
         });
     }
 
-    closeTab(event: React.MouseEvent, id: string) {
-        event.stopPropagation();
+    closeTab(id: string, event?: React.MouseEvent) {
+        if (event) event.stopPropagation();
 
         let currentPage = this.state.currentPage;
         const closeIndex = this.state.pages.findIndex(page => page.id === id);
@@ -107,16 +126,22 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     }
 
     handleMouseUp(e: React.MouseEvent, id: string) {
-        if (e.button === 1) this.closeTab(e, id);
+        if (e.button === 1) this.closeTab(id, e);
     }
 
     render(): JSX.Element {
         const Tabs = this.state.pages.map(page => {
             const isSelected = this.state.currentPage === page.id;
             return (
-                <div className={`${style.tabsItem} ${isSelected ? style.isSelected : ''}`} key={page.id} onClick={() => this.switchTab(page.id)} onMouseUp={(e: React.MouseEvent) => { this.handleMouseUp(e, page.id); }}>
+                <div
+                    onClick={() => this.switchToTab(page.id)}
+                    className={`${style.tabsItem} ${isSelected ? style.isSelected : ''}`}
+                    key={page.id}
+                    onMouseUp={(e: React.MouseEvent) => {
+                        this.handleMouseUp(e, page.id);
+                    }}>
                     <div className={`${style.left} text-ellipsis-1`}>{page.title}</div>
-                    <div className={style.right} onClick={e => this.closeTab(e, page.id)}>
+                    <div className={style.right} onClick={e => this.closeTab(page.id, e)}>
                         <div className={style.closeWrapper}>
                             <CloseOutlined />
                         </div>
@@ -132,11 +157,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         const Pages = pages.map(
             (page, index) =>
                 page?.data &&
-                (page?.type === 'gallery' ? (
-                    <GalleryView />
-                ) : (
-                    <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
-                ))
+                (page?.type === 'gallery' ? <GalleryView /> : <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />)
         );
 
         return (

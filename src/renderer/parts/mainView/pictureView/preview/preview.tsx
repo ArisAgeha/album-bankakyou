@@ -23,7 +23,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     }
 
     handleClick(e: React.MouseEvent, picture: picture, index: number) {
-        // this.props.onClickPage(e, { targetIndex: index, picture });
+        this.props.onClickPage(e, { targetIndex: index, picture });
     }
 
     render(): JSX.Element {
@@ -47,13 +47,13 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                                 this.handleClick(e, picture, index);
                             }}
                         >
-                            {/* <LazyLoad height={150} scrollContainer={scrollContainer}> */}
-                            {picture.url.endsWith('.webm') ? (
-                                <video src={picture.url} autoPlay muted loop></video>
-                            ) : (
-                                    <img src={picture.url} alt='' style={{ maxHeight: boxMaxHeight }} />
-                                )}
-                            {/* </LazyLoad> */}
+                            <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={300}>
+                                {picture.url.endsWith('.webm') ? (
+                                    <video src={picture.url} autoPlay muted loop></video>
+                                ) : (
+                                        <img src={picture.url} alt='' style={{ maxHeight: boxMaxHeight }} />
+                                    )}
+                            </LazyLoad>
                         </div>
                         <div className={`${style.title} text-ellipsis-2`} style={{ display: showTitle ? '-webkit-box' : 'none' }}>
                             {picture.title}
