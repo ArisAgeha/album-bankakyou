@@ -93,7 +93,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             this.switchToTab(nextPageId);
         }
 
-        if (e.key === 'w' || e.key === 'W' && e.ctrlKey) {
+        if (e.ctrlKey && e.key === 'w' || e.key === 'W') {
             if (!this.state.currentPage) return;
             this.closeTab(this.state.currentPage);
         }

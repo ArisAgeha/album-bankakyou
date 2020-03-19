@@ -3,7 +3,7 @@ import style from './pictureView.scss';
 import LazyLoad from 'react-lazyload';
 import { ScrollList } from './scrollList/scrollList';
 import { Preview } from './preview/preview';
-import { SinglePage } from './singlePage/singlePage';
+import { SinglePage, ISwitchPageEvent } from './singlePage/singlePage';
 import { DoublePage } from './doublePage/doublePage';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
@@ -13,6 +13,7 @@ import { db } from '@/common/nedb';
 import { IDirectoryData } from '../../fileBar/directoryView/directoryView';
 import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
+import { isNumber } from '@/common/types';
 
 export type zoomEvent = 'ZOOM_IN' | 'ZOOM_OUT';
 
@@ -177,6 +178,27 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         );
     }
 
+    handleSwitchPage: (e: ISwitchPageEvent) => void = (e) => {
+        const pageNum = this.props.page.data.length;
+        let nextIndex = this.state.currentShowIndex;
+
+        if (e.delta) {
+            nextIndex += e.delta;
+            if (nextIndex > pageNum - 1) nextIndex = 0;
+            if (nextIndex < 0) nextIndex = pageNum - 1;
+        }
+        else if (isNumber(e.goto)) {
+            nextIndex = e.goto;
+            if (nextIndex > pageNum - 1) nextIndex = pageNum - 1;
+            if (nextIndex < 0) nextIndex = 0;
+        }
+
+        console.log(nextIndex);
+        this.setState({
+            currentShowIndex: nextIndex
+        });
+    }
+
     renderContent = () => {
         let Album = null;
 
@@ -200,7 +222,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 break;
 
             case 'single_page':
-                Album = <SinglePage />;
+                Album = <SinglePage page={this.props.page} currentShowIndex={this.state.currentShowIndex} onSwitchPage={this.handleSwitchPage} />;
                 break;
 
             case 'double_page':
@@ -215,6 +237,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
     }
 
     handleKeyDown = (e: KeyboardEvent) => {
+        if (!this.props.isShow) return;
         let zoom: zoomEvent = null;
         if (e.key === '+') zoom = 'ZOOM_IN';
         else if (e.key === '-') zoom = 'ZOOM_OUT';
