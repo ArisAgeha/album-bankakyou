@@ -8,6 +8,7 @@ export interface ISinglePageState {
     x: number;
     y: number;
     zoomLevel: number;
+    isDragging: boolean;
 }
 
 export interface ISinglePageProps {
@@ -23,7 +24,6 @@ export interface ISwitchPageEvent {
 
 export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePageState> {
     input: string;
-    isDragging: boolean;
 
     constructor(props: ISinglePageProps) {
         super(props);
@@ -31,10 +31,10 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         this.state = {
             x: 0,
             y: 0,
-            zoomLevel: -1
+            zoomLevel: -1,
+            isDragging: false
         };
         this.input = '';
-        this.isDragging = false;
     }
 
     componentDidMount() {
@@ -46,14 +46,16 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
     }
 
     stopDrag = () => {
-        this.isDragging = false;
+        this.setState({
+            isDragging: false
+        });
     }
 
     resetSize = () => {
         this.setState({
             x: 0,
             y: 0,
-            zoomLevel: 0
+            zoomLevel: -1
         });
     }
 
@@ -118,7 +120,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
     }
 
     handleMouseMove = (e: React.MouseEvent) => {
-        if (this.isDragging) {
+        if (this.state.isDragging) {
             const newX = this.state.x + e.movementX;
             const newY = this.state.y + e.movementY;
 
@@ -137,12 +139,12 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         console.log(imgZoom);
 
         return <div className={style.singlePageWrapper}
-            style={{ cursor: this.isDragging ? 'grabbing' : 'grab' }}
-            onMouseDown={() => { this.isDragging = true; }}
+            style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
+            onMouseDown={() => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
             onWheel={this.handleWheel}
             onKeyDown={this.handleKeydown} tabIndex={3}>
-                <img src={imgSrc} alt='' draggable={false} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }} />
+            <img src={imgSrc} alt='' draggable={false} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }} />
         </div>;
     }
 }
