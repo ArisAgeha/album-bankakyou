@@ -13,7 +13,7 @@ import { db } from '@/common/nedb';
 import { IDirectoryData } from '../../fileBar/directoryView/directoryView';
 import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
-import { isNumber } from '@/common/types';
+import { isNumber, isUndefinedOrNull } from '@/common/types';
 
 export type zoomEvent = 'ZOOM_IN' | 'ZOOM_OUT';
 
@@ -35,6 +35,7 @@ export interface IPictureViewState {
         tags: string[];
         author: string[];
     };
+    fullScreen: boolean;
 }
 
 export interface IPictureViewProps {
@@ -58,7 +59,8 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             pageDetail: {
                 tags: [],
                 author: []
-            }
+            },
+            fullScreen: false
         };
 
         this.initEvent();
@@ -203,20 +205,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         let Album = null;
 
         switch (this.state.viewMode) {
-            case 'preview':
-                const r = Math.random();
-                Album = (
-                    <Preview
-                        index={this.props.index}
-                        album={this.props.page.data as picture[]}
-                        onClickPage={(e: React.MouseEvent, data: { targetIndex: number; picture: picture }) => {
-                            this.handleClickPage(e, data);
-                        }}
-                        zoomLevel={this.state.preview.zoomLevel}
-                    />
-                );
-                break;
-
             case 'scroll_list':
                 Album = <ScrollList />;
                 break;
@@ -227,10 +215,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
             case 'double_page':
                 Album = <DoublePage />;
-                break;
-
-            default:
-                Album = <ScrollList />;
         }
 
         return Album;
@@ -267,6 +251,23 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         }
     }
 
+    switchFullScreen = (e: React.MouseEvent) => {
+        e.preventDefault();
+        console.log(e.button);
+        if (e.button === 1) {
+            const fullScreen = !this.state.fullScreen;
+            this.setState({
+                fullScreen
+            });
+        }
+    }
+
+    exitViewer = () => {
+        this.setState({
+            viewMode: 'preview'
+        });
+    }
+
     render(): JSX.Element {
         const PageDetail = this.renderPageDetail;
         const Content = this.renderContent;
@@ -279,8 +280,25 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 tabIndex={1}
                 onWheel={this.handleWheel}
             >
-                {this.state.viewMode === 'preview' ? <PageDetail /> : ''}
-                <Content />
+                <PageDetail />
+                <Preview
+                    index={this.props.index}
+                    album={this.props.page.data as picture[]}
+                    onClickPage={(e: React.MouseEvent, data: { targetIndex: number; picture: picture }) => {
+                        this.handleClickPage(e, data);
+                    }}
+                    zoomLevel={this.state.preview.zoomLevel}
+                />
+                {this.state.viewMode !== 'preview'
+                    && <div
+                        className={style.contentWrapper}
+                        style={{ position: this.state.fullScreen ? 'fixed' : 'absolute' }}
+                        onMouseDown={this.switchFullScreen}
+                        onDoubleClick={this.exitViewer}
+                    >
+                        <Content />
+                    </div>
+                }
             </div>
         );
     }

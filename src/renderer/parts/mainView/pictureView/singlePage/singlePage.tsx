@@ -31,7 +31,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         this.state = {
             x: 0,
             y: 0,
-            zoomLevel: 0
+            zoomLevel: -1
         };
         this.input = '';
         this.isDragging = false;
@@ -132,8 +132,9 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
     render(): JSX.Element {
         const imgSrc = (this.props.page.data as picture[])[this.props.currentShowIndex].url;
         const zoomLevel = this.state.zoomLevel;
-        let imgZoom = (2 ** (zoomLevel - 1)) * 2;
+        let imgZoom = Math.sqrt((2 ** (zoomLevel - 1))) * 2;
         imgZoom = imgZoom <= 0 ? 0 : imgZoom;
+        console.log(imgZoom);
 
         return <div className={style.singlePageWrapper}
             style={{ cursor: this.isDragging ? 'grabbing' : 'grab' }}
@@ -141,9 +142,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             onMouseMove={this.handleMouseMove}
             onWheel={this.handleWheel}
             onKeyDown={this.handleKeydown} tabIndex={3}>
-            <div className={style.translateWrapper} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px)` }}>
-                <img src={imgSrc} alt='' draggable={false} style={{ transform: `scale(${imgZoom})` }} />
-            </div>
+                <img src={imgSrc} alt='' draggable={false} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }} />
         </div>;
     }
 }
