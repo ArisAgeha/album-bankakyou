@@ -136,7 +136,6 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         const zoomLevel = this.state.zoomLevel;
         let imgZoom = Math.sqrt((2 ** (zoomLevel - 1))) * 2;
         imgZoom = imgZoom <= 0 ? 0 : imgZoom;
-        console.log(imgZoom);
 
         return <div className={style.singlePageWrapper}
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}

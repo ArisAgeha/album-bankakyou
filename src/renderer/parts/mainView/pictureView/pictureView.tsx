@@ -15,8 +15,6 @@ import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 import { isNumber, isUndefinedOrNull } from '@/common/types';
 
-export type zoomEvent = 'ZOOM_IN' | 'ZOOM_OUT';
-
 export type picture = {
     title: string;
     url: string;
@@ -26,9 +24,6 @@ export type picture = {
 export interface IPictureViewState {
     viewMode: 'preview' | 'scroll_list' | 'single_page' | 'double_page';
     currentShowIndex: number;
-    preview: {
-        zoomLevel: number;
-    };
     scrollList: number;
     doublePage: number;
     pageDetail: {
@@ -51,9 +46,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         this.state = {
             viewMode: 'preview',
             currentShowIndex: 0,
-            preview: {
-                zoomLevel: 6
-            },
             scrollList: 0.6,
             doublePage: 1,
             pageDetail: {
@@ -72,7 +64,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
     initEvent() {
         EventHub.on(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
-        window.addEventListener('keydown', this.handleKeyDown);
+        // window.addEventListener('keydown', this.handleKeyDown);
     }
 
     switchPictureMode = (mode: IPictureViewState['viewMode']) => {
@@ -83,7 +75,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
     removeEvent() {
         EventHub.cancel(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
-        window.removeEventListener('keydown', this.handleKeyDown);
+        // window.removeEventListener('keydown', this.handleKeyDown);
     }
 
     handleClickPage(e: React.MouseEvent, data: { targetIndex: number }) {
@@ -195,7 +187,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             if (nextIndex < 0) nextIndex = 0;
         }
 
-        console.log(nextIndex);
         this.setState({
             currentShowIndex: nextIndex
         });
@@ -220,40 +211,8 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         return Album;
     }
 
-    handleKeyDown = (e: KeyboardEvent) => {
-        if (!this.props.isShow) return;
-        let zoom: zoomEvent = null;
-        if (e.key === '+') zoom = 'ZOOM_IN';
-        else if (e.key === '-') zoom = 'ZOOM_OUT';
-        if (zoom) this.handleZoom(zoom);
-    }
-
-    handleWheel = (e: React.WheelEvent) => {
-        if (e.ctrlKey) {
-            let zoom: zoomEvent = null;
-            if (e.deltaY < 0) zoom = 'ZOOM_IN';
-            else if (e.deltaY > 0) zoom = 'ZOOM_OUT';
-            if (zoom) this.handleZoom(zoom);
-        }
-    }
-
-    handleZoom = (zoom: zoomEvent) => {
-        if (this.state.viewMode === 'preview') {
-            let zoomLevel = this.state.preview.zoomLevel;
-            if (zoom === 'ZOOM_OUT') zoomLevel = zoomLevel >= 11 ? 11 : zoomLevel + 1;
-            else zoomLevel = zoomLevel <= 1 ? 1 : zoomLevel - 1;
-
-            this.setState({
-                preview: {
-                    zoomLevel
-                }
-            });
-        }
-    }
-
     switchFullScreen = (e: React.MouseEvent) => {
         e.preventDefault();
-        console.log(e.button);
         if (e.button === 1) {
             const fullScreen = !this.state.fullScreen;
             this.setState({
@@ -278,16 +237,15 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 className={`${style.pictureViewWrapper} medium-scrollbar`}
                 style={{ display: this.props.isShow ? 'block' : 'none' }}
                 tabIndex={1}
-                onWheel={this.handleWheel}
             >
                 <PageDetail />
                 <Preview
+                    isShow={this.props.isShow}
                     index={this.props.index}
                     album={this.props.page.data as picture[]}
                     onClickPage={(e: React.MouseEvent, data: { targetIndex: number; picture: picture }) => {
                         this.handleClickPage(e, data);
                     }}
-                    zoomLevel={this.state.preview.zoomLevel}
                 />
                 {this.state.viewMode !== 'preview'
                     && <div

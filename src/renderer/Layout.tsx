@@ -34,7 +34,7 @@ interface ILayoutValue {
     manageBarHeight: number;
 }
 
-class Layout extends React.Component<any, ILayoutState> {
+class Layout extends React.PureComponent<any, ILayoutState> {
     private readonly layoutRef: React.RefObject<HTMLDivElement>;
     private readonly fileBarRef: React.RefObject<HTMLDivElement>;
     private readonly manageBarRef: React.RefObject<HTMLDivElement>;
