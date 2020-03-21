@@ -40,14 +40,16 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         return (
             <div className={style.preview} >
                 {album.map((picture, index) => (
-                    <div className={style.pictureBox} style={{ width: boxWidth }} key={picture.title}>
-                        <div
-                            className={style.imgBox}
-                            onClick={(e: React.MouseEvent) => {
-                                this.handleClick(e, picture, index);
-                            }}
-                        >
-                            <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={300}>
+                    <div
+                        onClick={(e: React.MouseEvent) => {
+                            this.handleClick(e, picture, index);
+                        }}
+                        className={style.pictureBox}
+                        style={{ width: boxWidth }}
+                        key={picture.title}
+                    >
+                        <div className={style.imgBox} >
+                            <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={150}>
                                 {picture.url.endsWith('.webm') ? (
                                     <video src={picture.url} autoPlay muted loop></video>
                                 ) : (

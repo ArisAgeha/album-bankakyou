@@ -150,13 +150,13 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         const Buttons = (
             <div className={style.buttons}>
-                <Button className={style.button} type='primary' icon={<ProfileOutlined />} tabIndex={-1}>
+                <Button className={style.button} type='primary' icon={<ProfileOutlined />} tabIndex={-1} onClick={() => { this.switchPictureMode('scroll_list'); }}>
                     {t('%scrollMode%')}
                 </Button>
-                <Button className={style.button} type='primary' icon={<BookOutlined />} tabIndex={-1}>
+                <Button className={style.button} type='primary' icon={<BookOutlined />} tabIndex={-1} onClick={() => { this.switchPictureMode('single_page'); }}>
                     {t('%singlePageMode%')}
                 </Button>
-                <Button className={style.button} type='primary' icon={<ReadOutlined />} tabIndex={-1}>
+                <Button className={style.button} type='primary' icon={<ReadOutlined />} tabIndex={-1} onClick={() => { this.switchPictureMode('double_page'); }}>
                     {t('%doublePageMode%')}
                 </Button>
             </div>

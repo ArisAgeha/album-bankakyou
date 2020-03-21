@@ -2,6 +2,16 @@
     width: 100%;
     height: 100%;
     overflow: auto;
+
+    .contentWrapper {
+        width: 100%;
+        height: 100%;
+
+        .previewWrapper {
+            width: 100%;
+            height: 100%;
+        }
+    }
 }
 
 .pageDetail {

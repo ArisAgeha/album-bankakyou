@@ -1,13 +1,21 @@
 .singlePageWrapper {
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background-color: $themeColor1;
+    overflow: hidden;
 
-    img {
-        max-width: 100%;
-        max-height: 100%;
+    .translateWrapper {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+
+        img {
+            transition: 0.1s ease-in-out;
+            max-width: 100%;
+            max-height: 100%;
+        }
     }
 }
