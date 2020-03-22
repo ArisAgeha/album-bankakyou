@@ -1,7 +1,7 @@
 import * as React from 'react';
 import style from './singlePage.scss';
 import { page } from '../../mainView';
-import { picture } from '../pictureView';
+import { picture, ISwitchPageEvent } from '../pictureView';
 import { isNumber } from '@/common/types';
 
 export interface ISinglePageState {
@@ -15,11 +15,6 @@ export interface ISinglePageProps {
     page: page;
     currentShowIndex: number;
     onSwitchPage(e: ISwitchPageEvent): void;
-}
-
-export interface ISwitchPageEvent {
-    delta?: number;
-    goto?: number;
 }
 
 export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePageState> {
@@ -142,7 +137,8 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             onMouseDown={() => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
             onWheel={this.handleWheel}
-            onKeyDown={this.handleKeydown} tabIndex={3}>
+            onKeyDown={this.handleKeydown}
+            tabIndex={3}>
             <img src={imgSrc} alt='' draggable={false} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }} />
         </div>;
     }

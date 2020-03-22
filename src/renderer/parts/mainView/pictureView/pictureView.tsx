@@ -3,7 +3,7 @@ import style from './pictureView.scss';
 import LazyLoad from 'react-lazyload';
 import { ScrollList } from './scrollList/scrollList';
 import { Preview } from './preview/preview';
-import { SinglePage, ISwitchPageEvent } from './singlePage/singlePage';
+import { SinglePage } from './singlePage/singlePage';
 import { DoublePage } from './doublePage/doublePage';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
@@ -14,6 +14,11 @@ import { IDirectoryData } from '../../fileBar/directoryView/directoryView';
 import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 import { isNumber, isUndefinedOrNull } from '@/common/types';
+
+export interface ISwitchPageEvent {
+    delta?: number;
+    goto?: number;
+}
 
 export type picture = {
     title: string;
@@ -64,18 +69,16 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
     initEvent() {
         EventHub.on(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
-        // window.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    removeEvent() {
+        EventHub.cancel(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
     }
 
     switchPictureMode = (mode: IPictureViewState['viewMode']) => {
         this.setState({
             viewMode: mode
         });
-    }
-
-    removeEvent() {
-        EventHub.cancel(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
-        // window.removeEventListener('keydown', this.handleKeyDown);
     }
 
     handleClickPage(e: React.MouseEvent, data: { targetIndex: number }) {
@@ -205,7 +208,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 break;
 
             case 'double_page':
-                Album = <DoublePage />;
+                Album = <DoublePage page={this.props.page} currentShowIndex={this.state.currentShowIndex} onSwitchPage={this.handleSwitchPage}  />;
         }
 
         return Album;
@@ -240,7 +243,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             >
                 <PageDetail />
                 <Preview
-                    isShow={this.props.isShow}
+                    isShow={this.props.isShow && this.state.viewMode === 'preview'}
                     index={this.props.index}
                     album={this.props.page.data as picture[]}
                     onClickPage={(e: React.MouseEvent, data: { targetIndex: number; picture: picture }) => {
