@@ -102,7 +102,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         const { targetIndex } = data;
         this.setState({
             currentShowIndex: targetIndex,
-            viewMode: 'single_page'
+            viewMode: 'double_page'
         });
     }
 
@@ -204,7 +204,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         switch (this.state.viewMode) {
             case 'scroll_list':
-                Album = <ScrollList />;
+                Album = <ScrollList page={this.props.page} currentShowIndex={this.state.currentShowIndex} />;
                 break;
 
             case 'single_page':

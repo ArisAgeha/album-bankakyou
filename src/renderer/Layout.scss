@@ -109,6 +109,21 @@
         }
     }
 
+    .large-scrollbar {
+        &::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        &::-webkit-scrollbar-thumb {
+            border-radius: 6px;
+            background: $themeColor4;
+        }
+        &::-webkit-scrollbar-track {
+            border-radius: 0;
+            background: $themeColor2;
+        }
+    }
+
     .text-ellipsis-1 {
         overflow: hidden;
         text-overflow: ellipsis;

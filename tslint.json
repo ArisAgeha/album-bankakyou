@@ -107,7 +107,8 @@
         "promise-function-async": false,
         "restrict-plus-operands": false,
         "prefer-switch": false,
-        "switch-default": false
+        "switch-default": false,
+        "unnecessary-else": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"

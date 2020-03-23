@@ -1,0 +1,20 @@
+.scrollListWrapper {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    background-color: $themeColor1;
+
+    .scaleContainer {
+        height: 100%;
+        width: 100%;
+        margin: auto;
+        transition: 0.15s ease-in-out;
+
+        .scrollListViewer {
+            display: flex;
+
+            img {
+            }
+        }
+    }
+}
