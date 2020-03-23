@@ -34,6 +34,9 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             pages: [],
             currentPage: null
         };
+    }
+
+    componentDidMount() {
         this.initIpc();
         this.initEvent();
     }

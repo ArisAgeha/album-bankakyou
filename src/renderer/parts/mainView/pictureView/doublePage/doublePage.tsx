@@ -10,6 +10,7 @@ export interface IDoublePageState {
     zoomLevel: number;
     shouldFirstSingleShow: boolean;
     shouldLastSingleShow: boolean;
+    pageReAlign: boolean;
 }
 
 export interface IDoublePageProps {
@@ -28,17 +29,65 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
             imgLast: '',
             zoomLevel: -1,
             shouldFirstSingleShow: false,
-            shouldLastSingleShow: false
+            shouldLastSingleShow: false,
+            pageReAlign: false
         };
     }
 
     componentDidMount() {
         this.initImgInfo();
+        this.initEvent();
+    }
+
+    initEvent() {
+        document.addEventListener('keydown', this.handleKeydown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeydown);
+    }
+
+    handleKeydown = (e: KeyboardEvent) => {
+        const isSingleShow = this.state.shouldFirstSingleShow || this.state.shouldLastSingleShow;
+        if (e.key === 'ArrowRight') {
+            const delta = isSingleShow ? 1 : 2;
+            this.props.onSwitchPage({ delta });
+            this.resetSize();
+        }
+        else if (e.key === 'ArrowLeft') {
+            const delta = isSingleShow ? -1 : -2;
+            this.props.onSwitchPage({ delta });
+            this.resetSize();
+        }
+        else if (e.key === '+') {
+            const zoomLevel = this.state.zoomLevel + 1;
+            this.setState({
+                zoomLevel
+            });
+        }
+        else if (e.key === '-') {
+            const zoomLevel = this.state.zoomLevel - 1;
+            this.setState({
+                zoomLevel
+            });
+        }
+        else if (e.key === '0') {
+            const delta = this.state.pageReAlign ? 1 : -1;
+            this.setState({
+                pageReAlign: !this.state.pageReAlign
+            });
+            this.props.onSwitchPage({ delta });
+        }
+        else if (e.key === '5') {
+            const mode = this.state.mode === 'RL' ? 'LR' : 'RL';
+            this.setState({
+                mode
+            });
+        }
     }
 
     componentDidUpdate(prev: any) {
         if (prev.currentShowIndex !== this.props.currentShowIndex) {
-            console.log(prev);
             this.initImgInfo();
         }
     }
@@ -106,32 +155,6 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         }
     }
 
-    handleKeydown = (e: React.KeyboardEvent) => {
-        const isSingleShow = this.state.shouldFirstSingleShow || this.state.shouldLastSingleShow;
-        if (e.key === 'ArrowRight') {
-            const delta = isSingleShow ? 1 : 2;
-            this.props.onSwitchPage({ delta });
-            this.resetSize();
-        }
-        else if (e.key === 'ArrowLeft') {
-            const delta = isSingleShow ? -1 : -2;
-            this.props.onSwitchPage({ delta });
-            this.resetSize();
-        }
-        else if (e.key === '+') {
-            const zoomLevel = this.state.zoomLevel + 1;
-            this.setState({
-                zoomLevel
-            });
-        }
-        else if (e.key === '-') {
-            const zoomLevel = this.state.zoomLevel - 1;
-            this.setState({
-                zoomLevel
-            });
-        }
-    }
-
     render(): JSX.Element {
         let imgLeft = this.state.imgLast;
         let imgRight = this.state.imgFirst;
@@ -160,11 +183,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
             </React.Fragment>
         );
 
-        return <div className={style.doublePageWrapper}
-            onWheel={this.handleWheel}
-            onKeyDown={this.handleKeydown}
-            tabIndex={4}
-        >
+        return <div className={style.doublePageWrapper} onWheel={this.handleWheel}>
             <div className={style.scaleContainer} style={{ transform: `scale(${imgZoom})` }}>
                 {this.state.shouldFirstSingleShow || this.state.shouldLastSingleShow ? MainContainer : DoublePageContainer}
             </div>

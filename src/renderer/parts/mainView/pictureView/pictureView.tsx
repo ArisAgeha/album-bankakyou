@@ -60,11 +60,28 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             fullScreen: false
         };
 
+    }
+
+    componentDidMount() {
         this.initEvent();
+        this.fetchPageDetail();
     }
 
     componentWillUnmount() {
         this.removeEvent();
+    }
+
+    async fetchPageDetail() {
+        const url = this.props.page.id;
+        const dir: IDirectoryData = await db.directory.findOne({ url });
+        const tags = dir?.tags || ['test', 'aaa', 'bbb', 'ddd', 'eee', 'fff', 'gggggggggg', 'wefewfewfwef', 'dfdsfsdfdsf', 'dsfdsfsdfsdfsdfds'];
+        const author = dir?.author || ['test', 'aaa', 'bbb', 'ddd'];
+        this.setState({
+            pageDetail: {
+                tags,
+                author
+            }
+        });
     }
 
     initEvent() {
@@ -86,19 +103,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         this.setState({
             currentShowIndex: targetIndex,
             viewMode: 'single_page'
-        });
-    }
-
-    async componentDidMount() {
-        const url = this.props.page.id;
-        const dir: IDirectoryData = await db.directory.findOne({ url });
-        const tags = dir?.tags || ['test', 'aaa', 'bbb', 'ddd', 'eee', 'fff', 'gggggggggg', 'wefewfewfwef', 'dfdsfsdfdsf', 'dsfdsfsdfsdfsdfds'];
-        const author = dir?.author || ['test', 'aaa', 'bbb', 'ddd'];
-        this.setState({
-            pageDetail: {
-                tags,
-                author
-            }
         });
     }
 
@@ -208,7 +212,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 break;
 
             case 'double_page':
-                Album = <DoublePage page={this.props.page} currentShowIndex={this.state.currentShowIndex} onSwitchPage={this.handleSwitchPage}  />;
+                Album = <DoublePage page={this.props.page} currentShowIndex={this.state.currentShowIndex} onSwitchPage={this.handleSwitchPage} />;
         }
 
         return Album;

@@ -70,7 +70,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         );
     }
 
-    handleKeyDown(e: React.KeyboardEvent) {}
+    handleKeyDown = (e: React.KeyboardEvent) => {};
 
     renderRoot(node: ITreeDataNode) {
         const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
@@ -104,7 +104,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     render() {
         const treeData = this.props.treeData;
         return (
-            <div className={style.treeRoot} onKeyDown={this.handleKeyDown.bind(this)} tabIndex={2}>
+            <div className={style.treeRoot} onKeyDown={this.handleKeyDown}>
                 {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
             </div>
         );

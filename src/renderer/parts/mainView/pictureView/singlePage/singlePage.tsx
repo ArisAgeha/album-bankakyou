@@ -30,13 +30,20 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             isDragging: false
         };
         this.input = '';
+
     }
 
     componentDidMount() {
+        this.initEvent();
         document.addEventListener('mouseup', this.stopDrag);
     }
 
+    initEvent() {
+        document.addEventListener('keydown', this.handleKeydown);
+    }
+
     componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeydown);
         document.removeEventListener('mouseup', this.stopDrag);
     }
 
@@ -81,7 +88,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         }
     }
 
-    handleKeydown = (e: React.KeyboardEvent) => {
+    handleKeydown = (e: KeyboardEvent) => {
         if ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(Number(e.key))) {
             this.input += e.key;
         }
@@ -94,7 +101,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             this.resetSize();
         }
         else if (e.key === 'Enter') {
-            const nextPage = Number(this.input);
+            const nextPage = parseInt(this.input);
             if (!isNumber(nextPage)) return;
             this.input = '';
             this.props.onSwitchPage({ goto: nextPage });
@@ -136,9 +143,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
             onMouseDown={() => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
-            onWheel={this.handleWheel}
-            onKeyDown={this.handleKeydown}
-            tabIndex={3}>
+            onWheel={this.handleWheel} >
             <img src={imgSrc} alt='' draggable={false} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }} />
         </div>;
     }

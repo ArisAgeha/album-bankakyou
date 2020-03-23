@@ -8,7 +8,8 @@ import {
     TagsOutlined,
     ToolOutlined,
     DeleteOutlined,
-    SwapOutlined
+    SwapOutlined,
+    TeamOutlined
 } from '@ant-design/icons';
 import 'reflect-metadata';
 import { remote } from 'electron';
@@ -74,6 +75,10 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
             },
             {
                 jsx: <TagsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+                view: 'tag'
+            },
+            {
+                jsx: <TeamOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
                 view: 'tag'
             }
         ];

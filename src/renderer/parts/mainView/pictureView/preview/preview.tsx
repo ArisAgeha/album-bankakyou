@@ -26,6 +26,9 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.state = {
             zoomLevel: 6
         };
+    }
+
+    componentDidMount() {
         this.initEvent();
     }
 

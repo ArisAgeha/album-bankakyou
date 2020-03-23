@@ -3,7 +3,7 @@ import path from 'path';
 import { injectable } from '@/common/decorator/injectable';
 import { LogService } from './log.service';
 import chokidar from 'chokidar';
-import { isPicture } from '@/common/utils';
+import { isPicture, naturalCompare } from '@/common/utils';
 import { ipcMain, ipcRenderer } from 'electron';
 import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { mainWindow } from '@/main';
@@ -15,7 +15,7 @@ import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
 
 @injectable
 export class FileService {
-    constructor(private readonly logService: LogService) {}
+    constructor(private readonly logService: LogService) { }
 
     MAX_RECURSIVE_DEPTH: number = 2;
 
@@ -40,7 +40,8 @@ export class FileService {
                 id: index,
                 url: this.pr(url, filename),
                 title: filename
-            }));
+            })).sort((a, b) =>
+                naturalCompare(a.title, b.title));
 
             event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
         });
@@ -56,9 +57,9 @@ export class FileService {
             time?: number;
             keySuffix?: string;
         } = {
-            level: 0,
-            time: 0
-        }
+                level: 0,
+                time: 0
+            }
     ): Promise<ITreeDataNode> {
         if (!options.time) options.time = 0;
         return new Promise(resolveTop => {
