@@ -1,7 +1,24 @@
 import * as React from 'react';
 import style from './doublePage.scss';
 import { page } from '../../mainView';
-import { picture, ISwitchPageEvent } from '../pictureView';
+import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
+
+type delta = 1 | 2 | -1 | -2;
+
+interface IImgData {
+    firstImgDirection: 'horizontal' | 'vertical';
+    lastImgDirection: 'horizontal' | 'vertical';
+    moveDirection: 'L' | 'R';
+    imgFirst: string;
+    imgLast: string;
+}
+
+interface IHistoryState {
+    imgFirst: string;
+    imgLast: string;
+    shouldFirstSingleShow: boolean;
+    shouldLastSingleShow: boolean;
+}
 
 export interface IDoublePageState {
     mode: 'LR' | 'RL';
@@ -20,8 +37,16 @@ export interface IDoublePageProps {
 }
 
 export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePageState> {
+    prevDirection: 'L' | 'R';
+    lastStep: 1 | 2 | -1 | -2 | 0;
+    fallback: boolean;
+
     constructor(props: IDoublePageProps) {
         super(props);
+
+        this.prevDirection = 'R';
+        this.lastStep = 0;
+        this.fallback = false;
 
         this.state = {
             mode: 'RL',
@@ -50,12 +75,14 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
     handleKeydown = (e: KeyboardEvent) => {
         const isSingleShow = this.state.shouldFirstSingleShow || this.state.shouldLastSingleShow;
         if (e.key === 'ArrowRight') {
+            this.prevDirection = 'R';
             const delta = isSingleShow ? 1 : 2;
             this.props.onSwitchPage({ delta });
             this.resetSize();
         }
         else if (e.key === 'ArrowLeft') {
-            const delta = isSingleShow ? -1 : -2;
+            this.prevDirection = 'L';
+            const delta = this.state.shouldFirstSingleShow ? -1 : -2;
             this.props.onSwitchPage({ delta });
             this.resetSize();
         }
@@ -86,13 +113,29 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         }
     }
 
-    componentDidUpdate(prev: any) {
-        if (prev.currentShowIndex !== this.props.currentShowIndex) {
-            this.initImgInfo();
+    componentDidUpdate(prevProps: any, prevState: any) {
+        const historyState: IHistoryState = {
+            imgFirst: prevState.imgFirst,
+            imgLast: prevState.imgLast,
+            shouldFirstSingleShow: prevState.shouldFirstSingleShow,
+            shouldLastSingleShow: prevState.shouldLastSingleShow
+        };
+        if (prevState.currentShowIndex !== this.props.currentShowIndex) {
+            this.initImgInfo(historyState);
         }
     }
 
-    initImgInfo = () => {
+    initImgInfo = (historyState?: IHistoryState) => {
+        if (this.fallback && historyState) {
+            this.setState({
+                shouldFirstSingleShow: historyState.shouldFirstSingleShow,
+                shouldLastSingleShow: historyState.shouldLastSingleShow,
+                imgFirst: historyState.imgFirst,
+                imgLast: historyState.imgLast
+            });
+            return;
+        }
+
         const urlFirst = (this.props.page.data as picture[])[this.props.currentShowIndex]?.url;
         const urlLast = (this.props.page.data as picture[])[this.props.currentShowIndex + 1]?.url;
 
@@ -101,23 +144,73 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         imgFirst.src = urlFirst;
         imgLast.src = urlLast;
 
-        imgFirst.onload = (ev: any) => {
-            const shouldFirstSingleShow = (ev.target.width > ev.target.height) || (this.props.currentShowIndex + 1 >= this.props.page.data.length);
+        let isloadCount = 0;
 
-            this.setState({
-                imgFirst: urlFirst,
-                shouldFirstSingleShow
-            });
+        const imgData: IImgData = {
+            firstImgDirection: null,
+            lastImgDirection: null,
+            moveDirection: this.prevDirection,
+            imgFirst: null,
+            imgLast: null
+        };
+
+        imgFirst.onload = (ev: any) => {
+            const firstImgDirection = ev.target.width > ev.target.height ? 'horizontal' : 'vertical';
+            imgData.imgFirst = urlFirst;
+            imgData.firstImgDirection = firstImgDirection;
+            isloadCount++;
+            if (isloadCount === 2) this.handleOnLoad(imgData);
         };
 
         imgLast.onload = (ev: any) => {
-            const shouldLastSingleShow = (ev.target.width > ev.target.height) || (this.props.currentShowIndex + 1 >= this.props.page.data.length);
-
-            this.setState({
-                imgLast: urlLast,
-                shouldLastSingleShow
-            });
+            const lastImgDirection = ev.target.width > ev.target.height ? 'horizontal' : 'vertical';
+            imgData.imgLast = urlLast;
+            imgData.lastImgDirection = lastImgDirection;
+            isloadCount++;
+            if (isloadCount === 2) this.handleOnLoad(imgData);
         };
+
+        imgFirst.onerror = () => {
+            isloadCount++;
+            if (isloadCount === 2) this.handleOnLoad(imgData);
+        };
+
+        imgLast.onerror = () => {
+            isloadCount++;
+            if (isloadCount === 2) this.handleOnLoad(imgData);
+        };
+    }
+
+    handleOnLoad(imgData: IImgData) {
+        const newState = {
+            imgFirst: imgData.imgFirst,
+            imgLast: imgData.imgLast,
+            shouldFirstSingleShow: false,
+            shouldLastSingleShow: false
+        };
+
+        if (imgData.moveDirection === 'R') {
+            if (imgData.firstImgDirection === 'vertical' && imgData.lastImgDirection === 'vertical') {
+                newState.shouldFirstSingleShow = true;
+                newState.shouldLastSingleShow = true;
+            }
+            else {
+                newState.shouldFirstSingleShow = true;
+                newState.shouldLastSingleShow = false;
+            }
+        }
+        else {
+            if (imgData.firstImgDirection === 'vertical' && imgData.lastImgDirection === 'vertical') {
+                newState.shouldFirstSingleShow = true;
+                newState.shouldLastSingleShow = true;
+            }
+            else {
+                newState.shouldFirstSingleShow = false;
+                newState.shouldLastSingleShow = true;
+            }
+        }
+
+        this.setState(newState);
     }
 
     resetSize = () => {
@@ -135,7 +228,19 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 });
             }
             else {
-                const delta = this.state.shouldFirstSingleShow || this.state.shouldLastSingleShow ? 1 : 2;
+                let delta: delta = 1;
+                if (this.prevDirection === 'L' && this.lastStep) {
+                    this.fallback = true;
+                    delta = (-this.lastStep as delta);
+                }
+                else {
+                    this.fallback = false;
+                    if (this.state.shouldFirstSingleShow && this.state.shouldLastSingleShow) delta = 2;
+                    else if (this.state.shouldFirstSingleShow) delta = 1;
+                    else if (this.state.shouldLastSingleShow) delta = 2;
+                }
+                this.prevDirection = 'R';
+                this.lastStep = delta;
                 this.props.onSwitchPage({ delta });
                 this.resetSize();
             }
@@ -148,7 +253,19 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 });
             }
             else {
-                const delta = this.state.shouldFirstSingleShow || this.state.shouldLastSingleShow ? -1 : -2;
+                let delta: delta = -1;
+                if (this.prevDirection === 'R' && this.lastStep) {
+                    this.fallback = true;
+                    delta = (-this.lastStep as delta);
+                }
+                else {
+                    this.fallback = false;
+                    if (this.state.shouldFirstSingleShow && this.state.shouldLastSingleShow) delta = -2;
+                    else if (this.state.shouldLastSingleShow) delta = -2;
+                    else if (this.state.shouldFirstSingleShow) delta = -1;
+                }
+                this.prevDirection = 'L';
+                this.lastStep = delta;
                 this.props.onSwitchPage({ delta });
                 this.resetSize();
             }
@@ -167,8 +284,12 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         imgZoom = imgZoom <= 0 ? 0 : imgZoom;
 
         // if one of img's `width` > `height`, show single img.
+        let singleImg = '';
+        if (this.prevDirection === 'L') singleImg = this.state.imgLast ? this.state.imgLast : this.state.imgFirst;
+        else singleImg = this.state.imgFirst ? this.state.imgFirst : this.state.imgLast;
+
         const MainContainer = <div className={style.mainContainer}>
-            <img src={this.state.imgFirst} alt='' />
+            <img src={singleImg} alt='' />
         </div>;
 
         // otherwise, show double img.
@@ -185,7 +306,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
 
         return <div className={style.doublePageWrapper} onWheel={this.handleWheel}>
             <div className={style.scaleContainer} style={{ transform: `scale(${imgZoom})` }}>
-                {this.state.shouldFirstSingleShow || this.state.shouldLastSingleShow ? MainContainer : DoublePageContainer}
+                {this.state.shouldFirstSingleShow && this.state.shouldLastSingleShow ? DoublePageContainer : MainContainer}
             </div>
             <div className={style.clickModal}>
                 <div className={style.left}></div>
