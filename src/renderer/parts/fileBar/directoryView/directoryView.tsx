@@ -87,6 +87,13 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         });
     }
 
+    handleFold = (treeNode: ITreeDataNode) => {
+        delete treeNode.children;
+        this.setState({
+            treeData: [...this.state.treeData]
+        });
+    }
+
     async onLoadData(treeNode: ITreeDataNode): Promise<void> {
         return new Promise(resolve => {
             if (treeNode.children) {
@@ -116,6 +123,7 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
                     onSelect={this.onSelect.bind(this)}
                     treeData={this.state.treeData}
                     loadData={this.onLoadData.bind(this) as (treeNode: ITreeDataNode) => Promise<void>}
+                    onFold={this.handleFold}
                 />
             </div>
         );

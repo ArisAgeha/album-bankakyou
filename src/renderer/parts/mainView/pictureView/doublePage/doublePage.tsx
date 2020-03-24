@@ -2,8 +2,17 @@ import * as React from 'react';
 import style from './doublePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
+const sizeOf = require('image-size');
+const getDimensions = require('get-video-dimensions');
 
 type delta = 1 | 2 | -1 | -2;
+
+type dimension = {
+    width: number;
+    height: number;
+    url: string;
+    [key: string]: any;
+};
 
 interface IImgData {
     firstImgDirection: 'horizontal' | 'vertical';
@@ -125,60 +134,25 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         }
     }
 
-    initImgInfo = (historyState?: IHistoryState) => {
-        if (this.fallback && historyState) {
-            this.setState({
-                shouldFirstSingleShow: historyState.shouldFirstSingleShow,
-                shouldLastSingleShow: historyState.shouldLastSingleShow,
-                imgFirst: historyState.imgFirst,
-                imgLast: historyState.imgLast
-            });
-            return;
+    initImgInfo = async (historyState?: IHistoryState) => {
+        const data = this.props.page.data as picture[];
+        const imgUrls = data.map(picture => picture.url);
+        const imgDimensions: dimension[] = [];
+        for (const url of imgUrls) {
+            if (url.endsWith('.webm')) {
+                imgDimensions.push({
+                    width: 1,
+                    height: 0,
+                    url
+                });
+            }
+            else {
+                const dimension = sizeOf(url);
+                dimension.url = url;
+                imgDimensions.push(dimension);
+            }
         }
-
-        const urlFirst = (this.props.page.data as picture[])[this.props.currentShowIndex]?.url;
-        const urlLast = (this.props.page.data as picture[])[this.props.currentShowIndex + 1]?.url;
-
-        const imgFirst = new Image();
-        const imgLast = new Image();
-        imgFirst.src = urlFirst;
-        imgLast.src = urlLast;
-
-        let isloadCount = 0;
-
-        const imgData: IImgData = {
-            firstImgDirection: null,
-            lastImgDirection: null,
-            moveDirection: this.prevDirection,
-            imgFirst: null,
-            imgLast: null
-        };
-
-        imgFirst.onload = (ev: any) => {
-            const firstImgDirection = ev.target.width > ev.target.height ? 'horizontal' : 'vertical';
-            imgData.imgFirst = urlFirst;
-            imgData.firstImgDirection = firstImgDirection;
-            isloadCount++;
-            if (isloadCount === 2) this.handleOnLoad(imgData);
-        };
-
-        imgLast.onload = (ev: any) => {
-            const lastImgDirection = ev.target.width > ev.target.height ? 'horizontal' : 'vertical';
-            imgData.imgLast = urlLast;
-            imgData.lastImgDirection = lastImgDirection;
-            isloadCount++;
-            if (isloadCount === 2) this.handleOnLoad(imgData);
-        };
-
-        imgFirst.onerror = () => {
-            isloadCount++;
-            if (isloadCount === 2) this.handleOnLoad(imgData);
-        };
-
-        imgLast.onerror = () => {
-            isloadCount++;
-            if (isloadCount === 2) this.handleOnLoad(imgData);
-        };
+        console.log(imgDimensions);
     }
 
     handleOnLoad(imgData: IImgData) {
@@ -285,7 +259,8 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
 
         // if one of img's `width` > `height`, show single img.
         let singleImg = '';
-        if (this.prevDirection === 'L') singleImg = this.state.imgLast ? this.state.imgLast : this.state.imgFirst;
+        if (this.fallback) singleImg;
+        else if (this.prevDirection === 'L') singleImg = this.state.imgLast ? this.state.imgLast : this.state.imgFirst;
         else singleImg = this.state.imgFirst ? this.state.imgFirst : this.state.imgLast;
 
         const MainContainer = <div className={style.mainContainer}>

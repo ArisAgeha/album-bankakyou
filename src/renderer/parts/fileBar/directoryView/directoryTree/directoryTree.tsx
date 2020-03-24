@@ -3,6 +3,7 @@ import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined } from 
 import { isUndefinedOrNull, isArray } from '@/common/types';
 import style from './directoryTree.scss';
 import { IDirectoryViewState, IDirectoryViewProps } from '../directoryView';
+import { extractDirUrlFromKey } from '@/common/utils';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     constructor(props: IDirectoryTreeProps) {
@@ -18,7 +19,9 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         const keyPosInRecord = this.state.expandedKeys.indexOf(node.key);
         const loadDataCb = this.props.loadData;
         const onSelectCb = this.props.onSelect;
+        const onFold = this.props.onFold;
         const shouldInvokeLoadData = loadDataCb && !node.children;
+        const shouldFoldNode = this.state.expandedKeys.includes(node.key) && onFold && node.children;
         const loadingKeys = shouldInvokeLoadData ? [node.key] : [];
         const selectedNodes = [node];
         const selectedKeys = selectedNodes.map(node => node.key);
@@ -47,6 +50,19 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 });
         }
 
+        if (shouldFoldNode) {
+            onFold(node);
+            const key = extractDirUrlFromKey(node.key);
+            const keySuffix = node.key.slice(node.key.indexOf('|'));
+            const shouldSaveKeys = expandedKeys.filter((expdKey) => {
+                if (expdKey.startsWith(key) && expdKey.endsWith(keySuffix)) return false;
+                return true;
+            });
+            this.setState({
+                expandedKeys: shouldSaveKeys
+            });
+        }
+
         //  invoke onSelect callback function.
         if (onSelectCb) {
             onSelectCb(selectedKeys, {
@@ -70,7 +86,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         );
     }
 
-    handleKeyDown = (e: React.KeyboardEvent) => {};
+    handleKeyDown = (e: React.KeyboardEvent) => { };
 
     renderRoot(node: ITreeDataNode) {
         const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
@@ -131,6 +147,7 @@ export interface IDirectoryTreeProps {
         }
     ): void;
     loadData?(treeNode: ITreeDataNode): Promise<void>;
+    onFold?(treeNode: ITreeDataNode): void;
     selectAwaitLoad?: boolean;
 }
 
