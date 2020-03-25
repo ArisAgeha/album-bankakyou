@@ -28,7 +28,8 @@ export type picture = {
 
 export interface IPictureViewState {
     viewMode: 'preview' | 'scroll_list' | 'single_page' | 'double_page';
-    currentShowIndex: number;
+    singlePageShowIndex: number;
+    doublePageShowIndex: number;
     scrollList: number;
     doublePage: number;
     pageDetail: {
@@ -50,7 +51,8 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         this.state = {
             viewMode: 'preview',
-            currentShowIndex: 0,
+            singlePageShowIndex: 0,
+            doublePageShowIndex: 0,
             scrollList: 0.6,
             doublePage: 1,
             pageDetail: {
@@ -101,7 +103,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
     handleClickPage(e: React.MouseEvent, data: { targetIndex: number }) {
         const { targetIndex } = data;
         this.setState({
-            currentShowIndex: targetIndex,
+            singlePageShowIndex: targetIndex,
             viewMode: 'double_page'
         });
     }
@@ -179,9 +181,16 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         );
     }
 
-    handleSwitchPage: (e: ISwitchPageEvent) => void = (e) => {
+    handleSwitchSinglePage: (e: ISwitchPageEvent) => void = (e) => {
+        const nextIndex = this.calculateNextIndex(e, this.state.singlePageShowIndex);
+        this.setState({
+            singlePageShowIndex: nextIndex
+        });
+    }
+
+    calculateNextIndex(e: ISwitchPageEvent, prevIndex: number) {
         const pageNum = this.props.page.data.length;
-        let nextIndex = this.state.currentShowIndex;
+        let nextIndex = prevIndex;
 
         if (e.delta) {
             nextIndex += e.delta;
@@ -194,9 +203,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             if (nextIndex < 0) nextIndex = 0;
         }
 
-        this.setState({
-            currentShowIndex: nextIndex
-        });
+        return nextIndex;
     }
 
     renderContent = () => {
@@ -204,15 +211,15 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         switch (this.state.viewMode) {
             case 'scroll_list':
-                Album = <ScrollList page={this.props.page} currentShowIndex={this.state.currentShowIndex} />;
+                Album = <ScrollList page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} />;
                 break;
 
             case 'single_page':
-                Album = <SinglePage page={this.props.page} currentShowIndex={this.state.currentShowIndex} onSwitchPage={this.handleSwitchPage} />;
+                Album = <SinglePage page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} onSwitchPage={this.handleSwitchSinglePage} />;
                 break;
 
             case 'double_page':
-                Album = <DoublePage page={this.props.page} currentShowIndex={this.state.currentShowIndex} onSwitchPage={this.handleSwitchPage} />;
+                Album = <DoublePage page={this.props.page} />;
         }
 
         return Album;
