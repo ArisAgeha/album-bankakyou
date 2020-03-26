@@ -5,6 +5,8 @@ import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import LazyLoad from 'react-lazyload';
 import { page } from '../../mainView';
+import { CompressedImage } from '@/renderer/components/CompressedImage/compressedImage';
+import { emptyCall } from '@/common/utils';
 
 export interface IPreviewState {
     zoomLevel: number;
@@ -20,8 +22,16 @@ export interface IPreviewProps {
 }
 
 export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
+    imageMap: {
+        [key: string]: {
+            [key: number]: JSX.Element;
+        };
+    };
+
     constructor(props: IPreviewProps) {
         super(props);
+
+        this.imageMap = {};
 
         this.state = {
             zoomLevel: 6
@@ -76,6 +86,19 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         });
     }
 
+    getImage(dataUrl: string): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const image = new Image();
+            image.src = dataUrl;
+            image.onload = () => {
+                resolve(image);
+            };
+            image.onerror = (el: any, err: string) => {
+                reject(err);
+            };
+        });
+    }
+
     render(): JSX.Element {
         const album = this.props.album;
         let zoomLevel = this.state.zoomLevel;
@@ -83,7 +106,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
         zoomLevel = zoomLevel === 11 ? 10 : zoomLevel;
         const boxWidth: string = String(100 / this.state.zoomLevel) + '%';
-        const boxMaxHeight: string = String(2000 / this.state.zoomLevel) + 'px';
+        const boxMaxHeight: number = 2000 / this.state.zoomLevel;
 
         const scrollContainer = `#pictureViewScrollWrapper${this.props.index}`;
 
@@ -92,29 +115,45 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                 className={style.preview}
                 onWheel={this.handleWheel}
             >
-                {album.map((picture, index) => (
-                    <div
-                        onClick={(e: React.MouseEvent) => {
-                            this.handleClick(e, picture, index);
-                        }}
-                        className={style.pictureBox}
-                        style={{ width: boxWidth }}
-                        key={picture.title}
-                    >
-                        <div className={style.imgBox} >
-                            <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={150}>
-                                {picture.url.endsWith('.webm') ? (
-                                    <video src={picture.url} autoPlay muted loop></video>
-                                ) : (
-                                        <img src={picture.url} alt='' style={{ maxHeight: boxMaxHeight }} />
-                                    )}
-                            </LazyLoad>
+                {album.map((picture, index) => {
+                    const resolution = boxMaxHeight < 600 ? 600 : 1200;
+
+                    let content: JSX.Element = null;
+                    if (picture.url.endsWith('.webm')) {
+                        content = <video src={picture.url} autoPlay muted loop></video>;
+                    }
+                    else {
+                        content = this.imageMap[picture.id] && this.imageMap[picture.id][resolution] || (<CompressedImage
+                            dataUrl={picture.url}
+                            imageType={picture.url.slice(picture.url.lastIndexOf('.') + 1)}
+                            resolution={resolution}
+                            quality={1} />);
+
+                        this.imageMap[picture.id] ? emptyCall() : this.imageMap[picture.id] = {};
+                        this.imageMap[picture.id][resolution] = content;
+                    }
+
+                    return (
+                        <div
+                            onClick={(e: React.MouseEvent) => {
+                                this.handleClick(e, picture, index);
+                            }}
+                            className={style.pictureBox}
+                            style={{ width: boxWidth }}
+                            key={picture.id}
+                        >
+                            <div className={style.imgBox} >
+                                <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={150}>
+                                    {content}
+                                </LazyLoad>
+                            </div>
+                            <div className={`${style.title} text-ellipsis-2`} style={{ display: showTitle ? '-webkit-box' : 'none' }}>
+                                {picture.title}
+                            </div>
                         </div>
-                        <div className={`${style.title} text-ellipsis-2`} style={{ display: showTitle ? '-webkit-box' : 'none' }}>
-                            {picture.title}
-                        </div>
-                    </div>
-                ))}
+                    );
+                }
+                )}
             </div>
         );
     }
