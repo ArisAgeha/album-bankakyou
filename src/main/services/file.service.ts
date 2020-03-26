@@ -123,7 +123,6 @@ export class FileService {
 
     async openDirByImport(dir: string, auto: boolean): Promise<void> {
         const tree = await this.loadDir(dir);
-        console.log(tree);
         mainWindow.webContents.send(command.OPEN_DIR_BY_IMPORT, {
             autoImport: auto,
             tree

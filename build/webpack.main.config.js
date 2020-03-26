@@ -1,18 +1,13 @@
-const alias = require('./webpack.alias');
+const alias = require('./commonConfig/webpack.alias');
 
 module.exports = {
-  /**
-   * This is the main entry point for your application, it's the first file
-   * that runs in the main process.
-   */
-  entry: './src/main.ts',
-  // Put your normal webpack config below here
-  module: {
-    rules: require('./webpack.rules'),
-  },
-  devtool: 'source-map',
-  resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
-    alias
-  },
+    entry: './src/main.ts',
+    module: {
+        rules: require('./commonConfig/webpack.rules'),
+    },
+    devtool: 'source-map',
+    resolve: {
+        extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
+        alias
+    },
 };

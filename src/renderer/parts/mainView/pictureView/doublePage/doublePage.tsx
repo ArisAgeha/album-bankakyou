@@ -27,12 +27,16 @@ export interface IDoublePageProps {
 export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePageState> {
     pageReAlign: boolean;
     mode: 'LR' | 'RL';
+    hasBeenLoadIndex: {
+        [key: number]: boolean;
+    };
 
     constructor(props: IDoublePageProps) {
         super(props);
 
         this.pageReAlign = false;
         this.mode = 'LR';
+        this.hasBeenLoadIndex = [];
 
         this.state = {
             doublePageAlbum: [],
@@ -222,20 +226,30 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         let imgZoom = Math.sqrt((2 ** (zoomLevel - 1))) * 2;
         imgZoom = imgZoom <= 0 ? 0 : imgZoom;
         const album = this.state.doublePageAlbum;
-        const currentPage = album[this.state.currentShowIndex];
-        const SinglePageContainer = this.singlePageContainer;
-        const DoublePageContainer = this.doublePageContainer;
+        // const currentPage = album[this.state.currentShowIndex];
+        // const SinglePageContainer = this.singlePageContainer;
+        // const DoublePageContainer = this.doublePageContainer;
 
         return <div className={style.doublePageWrapper} onWheel={this.handleWheel}>
             <ul className={style.scaleContainer} style={{ transform: `scale(${imgZoom})` }}>
-                {/* {album.map((dbpic, index) => {
+                {album.map((dbpic, index) => {
                     const SinglePageContainer = this.singlePageContainer;
                     const DoublePageContainer = this.doublePageContainer;
-                    return (<li key={dbpic[0]}>
-                        {dbpic.length === 1 ? <SinglePageContainer url={dbpic[0]} /> : <DoublePageContainer urls={dbpic} />}
+
+                    const currentShowIndex = this.state.currentShowIndex;
+                    const nextIndex = (currentShowIndex + 1) % album.length;
+                    const prevIndex = currentShowIndex - 1 < 0 ? album.length - 1 : currentShowIndex - 1;
+                    const shouldLoad = [currentShowIndex, nextIndex, prevIndex].includes(index) || this.hasBeenLoadIndex[index];
+                    if (shouldLoad) this.hasBeenLoadIndex[index] = true;
+                    const shouldShow = index === currentShowIndex;
+
+                    return (<li key={dbpic[0]} className={`${style.imgContainer} ${shouldShow ? '' : style.isHidden}`}>
+                        {dbpic.length === 1 ?
+                            (shouldLoad ? <SinglePageContainer url={dbpic[0]} /> : '')
+                            : (shouldLoad ? <DoublePageContainer urls={dbpic} /> : '')}
                     </li>);
-                })} */}
-                {currentPage && (currentPage.length === 1 ? <SinglePageContainer url={currentPage[0]} /> : <DoublePageContainer urls={currentPage} />)}
+                })}
+                {/* {currentPage && (currentPage.length === 1 ? <SinglePageContainer url={currentPage[0]} /> : <DoublePageContainer urls={currentPage} />)} */}
             </ul>
             <div className={style.clickModal}>
                 <div className={style.left}></div>

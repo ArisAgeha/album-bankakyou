@@ -96,7 +96,8 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-plugin-prettier": "^2.1.0",
-    "typescript": "^3.7.4"
+    "typescript": "^3.7.4",
+    "worker-loader": "^2.0.0"
   },
   "dependencies": {
     "@ant-design/icons": "^4.0.2",
@@ -112,6 +113,7 @@
     "get-video-dimensions": "^1.0.0",
     "i18next": "^19.3.2",
     "image-size": "^0.8.3",
+    "jimp": "^0.9.6",
     "nedb": "^1.8.0",
     "nedb-promises": "^4.0.1",
     "rc-tree": "^3.0.1",

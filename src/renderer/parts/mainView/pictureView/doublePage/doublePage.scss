@@ -11,6 +11,17 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
+        .imgContainer {
+        height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .isHidden {
+            display: none;
+        }
     }
 
     .mainContainer {
