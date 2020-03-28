@@ -13,7 +13,7 @@ import { extractDirNameFromUrl } from '@/common/utils';
 import { command } from '@/common/constant/command.constant';
 import { isUndefinedOrNull, isObject } from '@/common/types';
 
-export interface IMainViewProps { }
+export interface IMainViewProps {}
 
 export interface IMainViewState {
     pages: page[];
@@ -85,22 +85,26 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             const { data, ...sendData } = { ...newTabData, url };
             ipcRenderer.send(command.SELECT_DIR_IN_TREE, newTabData);
         }
-    }
+    };
 
     handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Tab' && e.ctrlKey) {
             if (!this.state.currentPage) return;
-            const currentPageIndex = this.state.pages.findIndex((page) => page.id === this.state.currentPage);
+            const currentPageIndex = this.state.pages.findIndex(page => page.id === this.state.currentPage);
             const nextPageIndex = currentPageIndex >= this.state.pages.length - 1 ? 0 : currentPageIndex + 1;
             const nextPageId = this.state.pages[nextPageIndex].id;
             this.switchToTab(nextPageId);
         }
 
-        if (e.ctrlKey && e.key === 'w' || e.key === 'W') {
+        if ((e.ctrlKey && e.key === 'w') || e.key === 'W') {
             if (!this.state.currentPage) return;
             this.closeTab(this.state.currentPage);
         }
-    }
+
+        if (e.key === '6') {
+            ipcRenderer.send('test');
+        }
+    };
 
     switchToTab(id: string) {
         this.setState({
@@ -142,7 +146,8 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
                     key={page.id}
                     onMouseUp={(e: React.MouseEvent) => {
                         this.handleMouseUp(e, page.id);
-                    }}>
+                    }}
+                >
                     <div className={`${style.left} text-ellipsis-1`}>{page.title}</div>
                     <div className={style.right} onClick={e => this.closeTab(page.id, e)}>
                         <div className={style.closeWrapper}>
@@ -160,7 +165,11 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         const Pages = pages.map(
             (page, index) =>
                 page?.data &&
-                (page?.type === 'gallery' ? <GalleryView /> : <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />)
+                (page?.type === 'gallery' ? (
+                    <GalleryView />
+                ) : (
+                    <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
+                ))
         );
 
         return (

@@ -5,7 +5,7 @@ import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import LazyLoad from 'react-lazyload';
 import { page } from '../../mainView';
-import { CompressedImage } from '@/renderer/components/CompressedImage/compressedImage';
+import { CompressedImage } from '@/renderer/components/CompressedImage/compressedImageOldVersion';
 import { emptyCall } from '@/common/utils';
 
 export interface IPreviewState {
@@ -111,25 +111,24 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         const scrollContainer = `#pictureViewScrollWrapper${this.props.index}`;
 
         return (
-            <div
-                className={style.preview}
-                onWheel={this.handleWheel}
-            >
+            <div className={style.preview} onWheel={this.handleWheel}>
                 {album.map((picture, index) => {
                     const resolution = boxMaxHeight < 600 ? 600 : 1200;
 
                     let content: JSX.Element = null;
                     if (picture.url.endsWith('.webm')) {
                         content = <video src={picture.url} autoPlay muted loop></video>;
-                    }
-                    else {
-                        content = this.imageMap[picture.id] && this.imageMap[picture.id][resolution] || (<CompressedImage
-                            dataUrl={picture.url}
-                            imageType={picture.url.slice(picture.url.lastIndexOf('.') + 1)}
-                            resolution={resolution}
-                            quality={1} />);
+                    } else {
+                        content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || (
+                            <CompressedImage
+                                dataUrl={picture.url}
+                                imageType={picture.url.slice(picture.url.lastIndexOf('.') + 1)}
+                                resolution={resolution}
+                                quality={1}
+                            />
+                        );
 
-                        this.imageMap[picture.id] ? emptyCall() : this.imageMap[picture.id] = {};
+                        this.imageMap[picture.id] ? emptyCall() : (this.imageMap[picture.id] = {});
                         this.imageMap[picture.id][resolution] = content;
                     }
 
@@ -142,7 +141,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                             style={{ width: boxWidth }}
                             key={picture.id}
                         >
-                            <div className={style.imgBox} >
+                            <div className={style.imgBox}>
                                 <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={150}>
                                     {content}
                                 </LazyLoad>
@@ -152,8 +151,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                             </div>
                         </div>
                     );
-                }
-                )}
+                })}
             </div>
         );
     }

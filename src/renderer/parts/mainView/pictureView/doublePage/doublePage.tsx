@@ -3,7 +3,6 @@ import style from './doublePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
 const sizeOf = require('image-size');
-const getDimensions = require('get-video-dimensions');
 
 type dimension = {
     width: number;
@@ -59,7 +58,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
     }
 
     initImgOrVideoInfo = (options: { reverse: boolean } = { reverse: false }) => {
-        const insert = (target: any[], data: any) => this.mode === 'LR' ? target.push(data) : target.unshift(data);
+        const insert = (target: any[], data: any) => (this.mode === 'LR' ? target.push(data) : target.unshift(data));
         const dimensions = this.getImgOrVideoDimensions();
         const album: DoublePicture[] = [];
 
@@ -72,13 +71,11 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 if (pages.length !== 0) insert(album, [...pages]);
                 insert(album, [data.url]);
                 pages.length = 0;
-            }
-            else {
+            } else {
                 if (shouldReAlign && !hasReAlign) {
                     insert(album, [data.url]);
                     hasReAlign = true;
-                }
-                else if (pages.length === 0) insert(pages, data.url);
+                } else if (pages.length === 0) insert(pages, data.url);
                 else {
                     insert(pages, data.url);
                     insert(album, [...pages]);
@@ -92,7 +89,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
             doublePageAlbum: album,
             currentShowIndex: index
         });
-    }
+    };
 
     getImgOrVideoDimensions(): dimension[] {
         const data = this.props.page.data as picture[];
@@ -105,8 +102,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                     height: 0,
                     url
                 });
-            }
-            else {
+            } else {
                 const dimension = sizeOf(url);
                 dimension.url = url;
                 imgDimensions.push(dimension);
@@ -119,7 +115,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         this.setState({
             zoomLevel: -1
         });
-    }
+    };
 
     handleKeydown = (e: KeyboardEvent) => {
         if (e.key === 'ArrowRight') {
@@ -128,35 +124,30 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 currentShowIndex
             });
             this.resetSize();
-        }
-        else if (e.key === 'ArrowLeft') {
+        } else if (e.key === 'ArrowLeft') {
             const currentShowIndex = this.state.currentShowIndex - 1 < 0 ? this.state.doublePageAlbum.length - 1 : this.state.currentShowIndex - 1;
             this.setState({
                 currentShowIndex
             });
             this.resetSize();
-        }
-        else if (e.key === '+') {
+        } else if (e.key === '+') {
             const zoomLevel = this.state.zoomLevel + 1;
             this.setState({
                 zoomLevel
             });
-        }
-        else if (e.key === '-') {
+        } else if (e.key === '-') {
             const zoomLevel = this.state.zoomLevel - 1;
             this.setState({
                 zoomLevel
             });
-        }
-        else if (e.key === '0') {
+        } else if (e.key === '0') {
             this.pageReAlign = !this.pageReAlign;
             this.initImgOrVideoInfo();
-        }
-        else if (e.key === '5') {
+        } else if (e.key === '5') {
             this.mode = this.mode === 'RL' ? 'LR' : 'RL';
             this.initImgOrVideoInfo({ reverse: true });
         }
-    }
+    };
 
     handleWheel = (e: React.WheelEvent) => {
         if (e.deltaY > 0) {
@@ -165,96 +156,107 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 this.setState({
                     zoomLevel
                 });
-            }
-            else {
+            } else {
                 const currentShowIndex = (this.state.currentShowIndex + 1) % this.state.doublePageAlbum.length;
                 this.setState({
                     currentShowIndex
                 });
                 this.resetSize();
             }
-        }
-        else if (e.deltaY < 0) {
+        } else if (e.deltaY < 0) {
             if (e.ctrlKey) {
                 const zoomLevel = this.state.zoomLevel + 1;
                 this.setState({
                     zoomLevel
                 });
-            }
-            else {
-                const currentShowIndex = this.state.currentShowIndex - 1 < 0 ? this.state.doublePageAlbum.length - 1 : this.state.currentShowIndex - 1;
+            } else {
+                const currentShowIndex =
+                    this.state.currentShowIndex - 1 < 0 ? this.state.doublePageAlbum.length - 1 : this.state.currentShowIndex - 1;
                 this.setState({
                     currentShowIndex
                 });
                 this.resetSize();
             }
         }
-    }
+    };
 
     singlePageContainer = (props: { url: string }): JSX.Element => (
         <div className={style.mainContainer}>
-            {
-                props.url.endsWith('.webm') ?
-                    (<div className={style.mainContainer}>
-                        <video src={props.url}> </video>
-                    </div>)
-                    :
-                    (<div className={style.mainContainer}>
-                        <img src={props.url} alt='' />
-                    </div>)
-            }
+            {props.url.endsWith('.webm') ? (
+                <div className={style.mainContainer}>
+                    <video src={props.url}> </video>
+                </div>
+            ) : (
+                <div className={style.mainContainer}>
+                    <img src={props.url} alt='' />
+                </div>
+            )}
         </div>
-    )
+    );
 
     doublePageContainer = (props: { urls: string[] }): JSX.Element => {
         const urlLeft = props.urls[0];
         const urlRight = props.urls[1];
 
-        return (<React.Fragment>
-            <div className={style.leftContainer}>
-                {urlLeft.endsWith('.webm') ? <video src={urlLeft}></video> : <img src={urlLeft} alt='' draggable={false} />}
-            </div>
-            <div className={style.rightContainer}>
-                {urlRight.endsWith('.webm') ? <video src={urlRight}></video> : <img src={urlRight} alt='' draggable={false} />}
-            </div>
-        </React.Fragment>);
-    }
+        return (
+            <React.Fragment>
+                <div className={style.leftContainer}>
+                    {urlLeft.endsWith('.webm') ? <video src={urlLeft}></video> : <img src={urlLeft} alt='' draggable={false} />}
+                </div>
+                <div className={style.rightContainer}>
+                    {urlRight.endsWith('.webm') ? <video src={urlRight}></video> : <img src={urlRight} alt='' draggable={false} />}
+                </div>
+            </React.Fragment>
+        );
+    };
 
     render(): JSX.Element {
         // get scale ratio
         const zoomLevel = this.state.zoomLevel;
-        let imgZoom = Math.sqrt((2 ** (zoomLevel - 1))) * 2;
+        let imgZoom = Math.sqrt(2 ** (zoomLevel - 1)) * 2;
         imgZoom = imgZoom <= 0 ? 0 : imgZoom;
         const album = this.state.doublePageAlbum;
         // const currentPage = album[this.state.currentShowIndex];
         // const SinglePageContainer = this.singlePageContainer;
         // const DoublePageContainer = this.doublePageContainer;
 
-        return <div className={style.doublePageWrapper} onWheel={this.handleWheel}>
-            <ul className={style.scaleContainer} style={{ transform: `scale(${imgZoom})` }}>
-                {album.map((dbpic, index) => {
-                    const SinglePageContainer = this.singlePageContainer;
-                    const DoublePageContainer = this.doublePageContainer;
+        return (
+            <div className={style.doublePageWrapper} onWheel={this.handleWheel}>
+                <ul className={style.scaleContainer} style={{ transform: `scale(${imgZoom})` }}>
+                    {album.map((dbpic, index) => {
+                        const SinglePageContainer = this.singlePageContainer;
+                        const DoublePageContainer = this.doublePageContainer;
 
-                    const currentShowIndex = this.state.currentShowIndex;
-                    const nextIndex = (currentShowIndex + 1) % album.length;
-                    const prevIndex = currentShowIndex - 1 < 0 ? album.length - 1 : currentShowIndex - 1;
-                    const shouldLoad = [currentShowIndex, nextIndex, prevIndex].includes(index) || this.hasBeenLoadIndex[index];
-                    if (shouldLoad) this.hasBeenLoadIndex[index] = true;
-                    const shouldShow = index === currentShowIndex;
+                        const currentShowIndex = this.state.currentShowIndex;
+                        const nextIndex = (currentShowIndex + 1) % album.length;
+                        const prevIndex = currentShowIndex - 1 < 0 ? album.length - 1 : currentShowIndex - 1;
+                        const shouldLoad = [currentShowIndex, nextIndex, prevIndex].includes(index) || this.hasBeenLoadIndex[index];
+                        if (shouldLoad) this.hasBeenLoadIndex[index] = true;
+                        const shouldShow = index === currentShowIndex;
 
-                    return (<li key={dbpic[0]} className={`${style.imgContainer} ${shouldShow ? '' : style.isHidden}`}>
-                        {dbpic.length === 1 ?
-                            (shouldLoad ? <SinglePageContainer url={dbpic[0]} /> : '')
-                            : (shouldLoad ? <DoublePageContainer urls={dbpic} /> : '')}
-                    </li>);
-                })}
-                {/* {currentPage && (currentPage.length === 1 ? <SinglePageContainer url={currentPage[0]} /> : <DoublePageContainer urls={currentPage} />)} */}
-            </ul>
-            <div className={style.clickModal}>
-                <div className={style.left}></div>
-                <div className={style.right}></div>
+                        return (
+                            <li key={dbpic[0]} className={`${style.imgContainer} ${shouldShow ? '' : style.isHidden}`}>
+                                {dbpic.length === 1 ? (
+                                    shouldLoad ? (
+                                        <SinglePageContainer url={dbpic[0]} />
+                                    ) : (
+                                        ''
+                                    )
+                                ) : shouldLoad ? (
+                                    <DoublePageContainer urls={dbpic} />
+                                ) : (
+                                    ''
+                                )}
+                            </li>
+                        );
+                    })}
+                    {/* {currentPage && (currentPage.length === 1 ? <SinglePageContainer url={currentPage[0]} /> : <DoublePageContainer urls={currentPage} />)} */}
+                </ul>
+                <div className={style.clickModal}>
+                    <div className={style.left}></div>
+                    <div className={style.right}></div>
+                </div>
             </div>
-        </div>;
+        );
     }
 }

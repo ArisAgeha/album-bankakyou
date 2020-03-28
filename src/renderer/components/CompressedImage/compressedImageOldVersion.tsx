@@ -17,12 +17,7 @@ export function CompressedImage(props: { dataUrl: string; imageType: string; res
                 };
             });
 
-        const downscaleImage = async (
-            dataUrl: string,
-            imageType: string,
-            resolution: number,
-            quality: number
-        ): Promise<void> => {
+        const downscaleImage = async (dataUrl: string, imageType: string, resolution: number, quality: number): Promise<void> => {
             // Create a temporary image so that we can compute the height of the image.
             const image = await getImage(dataUrl);
             const oldWidth = image.naturalWidth;
@@ -32,11 +27,9 @@ export function CompressedImage(props: { dataUrl: string; imageType: string; res
             const currentRes = longestDimension == 'width' ? oldWidth : oldHeight;
 
             if (currentRes > resolution) {
-
                 // Calculate new dimensions
-                const newSize = longestDimension == 'width'
-                    ? Math.floor(oldHeight / oldWidth * resolution)
-                    : Math.floor(oldWidth / oldHeight * resolution);
+                const newSize =
+                    longestDimension == 'width' ? Math.floor((oldHeight / oldWidth) * resolution) : Math.floor((oldWidth / oldHeight) * resolution);
                 const newWidth = longestDimension == 'width' ? resolution : newSize;
                 const newHeight = longestDimension == 'height' ? resolution : newSize;
 
@@ -51,8 +44,7 @@ export function CompressedImage(props: { dataUrl: string; imageType: string; res
                 const newDataUrl = canvas.toDataURL(imageType, quality);
                 console.log('hi');
                 setCompressedSrc(newDataUrl);
-            }
-            else {
+            } else {
                 console.log('hi2');
                 setCompressedSrc(dataUrl);
             }
