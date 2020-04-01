@@ -42,10 +42,8 @@ export function CompressedImage(props: { dataUrl: string; imageType: string; res
                 const ctx = canvas.getContext('2d')!;
                 ctx.drawImage(image, 0, 0, newWidth, newHeight);
                 const newDataUrl = canvas.toDataURL(imageType, quality);
-                console.log('hi');
                 setCompressedSrc(newDataUrl);
             } else {
-                console.log('hi2');
                 setCompressedSrc(dataUrl);
             }
         };
