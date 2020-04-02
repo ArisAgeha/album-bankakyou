@@ -56,6 +56,11 @@
                   "html": "./src/index.html",
                   "js": "./src/renderer.tsx",
                   "name": "main_window"
+                },
+                {
+                  "html": "./src/worker.html",
+                  "js": "./src/workerRenderer.tsx",
+                  "name": "worker_window"
                 }
               ]
             }

@@ -10,7 +10,6 @@ import { processConfig } from './common/constant/config.constant';
 import { db } from './common/nedb';
 import { isDev } from './common/utils';
 import { serviceConstant } from './common/constant/service.constant';
-import { HashRouter } from 'react-router-dom';
 
 bootstrap();
 
@@ -34,9 +33,7 @@ async function bootstrap() {
 
 function initApp() {
     // init app
-    const App: FC = (): JSX.Element => <HashRouter>
-        <Layout />
-    </HashRouter>;
+    const App: FC = (): JSX.Element => <Layout />;
 
     // init hot module if NODE_ENV is in dev
     if (isDev) hot(module)(App);
