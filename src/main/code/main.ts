@@ -10,6 +10,7 @@ import { app } from 'electron';
 import { isFunction } from '@/common/types';
 import { ChokidarService } from '../services/chokidar.service';
 import { serviceConstant } from '@/common/constant/service.constant';
+import { IpcService } from '../services/ipc.services';
 
 export class CodeMain {
     main(): void {
@@ -29,6 +30,7 @@ export class CodeMain {
         const fileService = createInstance(FileService);
         const configurationService = createInstance(ConfigurationService);
         const chokidarService = createInstance(ChokidarService);
+        const ipcService = createInstance(IpcService);
 
         // store service
         serviceCollection.set(serviceConstant.ENVIRONMENT, environmentService);
@@ -41,6 +43,7 @@ export class CodeMain {
         environmentService.initial();
         configurationService.initial();
         fileService.initial();
+        ipcService.initial();
 
         // mount service to electron.app.remote
         (global as any)['serviceCollection'] = serviceCollection;

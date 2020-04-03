@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom';
 import React, { FC } from 'react';
-import { ElectronWorker } from './workerRenderer/electronWorker';
+import { ElectronWorker } from './worker/electronWorker';
 
 bootstrap();
 

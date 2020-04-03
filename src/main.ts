@@ -21,7 +21,7 @@ const onReady: () => void = (): void => {
     // Create the browser window.
 
     createMainWindow();
-    createWorkerWindow();
+    // createWorkerWindow();
 };
 
 function createMainWindow() {

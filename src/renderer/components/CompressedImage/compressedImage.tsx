@@ -1,36 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import Worker from 'worker-loader!../../webWorker/compress.worker.ts';
+import { ipcRenderer } from 'electron';
+import { command } from '@/common/constant/command.constant';
+import { ICompressImageReturn } from '@/worker/electronWorker';
 
 const worker = new Worker();
 worker.addEventListener('error', e => {
     console.error(e);
 });
 
-export function CompressedImage(props: { dataUrl: string; imageType: string; resolution: number; quality: number }) {
-    const { dataUrl, imageType, resolution, quality } = props;
+export function CompressedImage(props: { url: string; imageType?: string; resolution: number; quality: number }) {
+    const { url, imageType, resolution, quality } = props;
     const [compressedSrc, setCompressedSrc] = useState('');
 
     useEffect(() => {
-        const getImage = (dataUrl: string): Promise<HTMLImageElement> =>
-            new Promise((resolve, reject) => {
-                const image = new Image();
-                image.src = dataUrl;
-                image.onload = () => {
-                    resolve(image);
-                };
-                image.onerror = (el: any, err: string) => {
-                    reject(err);
-                };
-            });
+        ipcRenderer.send(command.WORKER_COMPRESS_IMAGE, { url, imageType, resolution, quality });
+        ipcRenderer.on(command.WORKER_RETURN_COMPRESSED_IMAGE, (event: Electron.IpcRendererEvent, data: ICompressImageReturn) => {
+            const { file, id } = data;
+            if (id === url) setCompressedSrc(file);
 
-        getImage(dataUrl).then(img => {
-            worker.postMessage({ img, imageType, resolution, quality });
-            worker.onmessage = e => {
-                console.log('---');
-                console.log(e);
-            };
+            console.log('----');
+            console.log(data);
+            console.log(id);
         });
-
     });
 
     return <img src={compressedSrc} alt='' />;

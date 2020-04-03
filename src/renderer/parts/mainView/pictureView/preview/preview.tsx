@@ -27,9 +27,13 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
             [key: number]: JSX.Element;
         };
     };
+    private readonly pictureBoxRefs: {
+        [key: string]: HTMLDivElement;
+    };
 
     constructor(props: IPreviewProps) {
         super(props);
+        this.pictureBoxRefs = {};
 
         this.imageMap = {};
 
@@ -81,6 +85,12 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         if (zoom === 'ZOOM_OUT') zoomLevel = zoomLevel >= 11 ? 11 : zoomLevel + 1;
         else zoomLevel = zoomLevel <= 1 ? 1 : zoomLevel - 1;
 
+        zoomLevel = zoomLevel === 11 ? 10 : zoomLevel;
+        const boxWidth: string = String(100 / zoomLevel) + '%';
+
+        Object.values(this.pictureBoxRefs).forEach(ref => {
+            ref.style.width = boxWidth;
+        });
         this.setState({
             zoomLevel
         });
@@ -101,32 +111,29 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
     render(): JSX.Element {
         const album = this.props.album;
-        let zoomLevel = this.state.zoomLevel;
+        const zoomLevel = this.state.zoomLevel;
         const showTitle: boolean = zoomLevel === 11;
-
-        zoomLevel = zoomLevel === 11 ? 10 : zoomLevel;
-        const boxWidth: string = String(100 / this.state.zoomLevel) + '%';
-        const boxMaxHeight: number = 2000 / this.state.zoomLevel;
 
         const scrollContainer = `#pictureViewScrollWrapper${this.props.index}`;
 
         return (
             <div className={style.preview} onWheel={this.handleWheel}>
                 {album.map((picture, index) => {
-                    const resolution = boxMaxHeight < 600 ? 600 : 1200;
+                    const resolution = 1200;
 
                     let content: JSX.Element = null;
                     if (picture.url.endsWith('.webm')) {
                         content = <video src={picture.url} autoPlay muted loop></video>;
                     } else {
-                        content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || (
-                            <CompressedImage
-                                dataUrl={picture.url}
-                                imageType={picture.url.slice(picture.url.lastIndexOf('.') + 1)}
-                                resolution={resolution}
-                                quality={1}
-                            />
-                        );
+                        content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || <img src={picture.url} />;
+                        // content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || (
+                        //     <CompressedImage
+                        //         dataUrl={picture.url}
+                        //         imageType={picture.url.slice(picture.url.lastIndexOf('.') + 1)}
+                        //         resolution={resolution}
+                        //         quality={1}
+                        //     />
+                        // );
 
                         this.imageMap[picture.id] ? emptyCall() : (this.imageMap[picture.id] = {});
                         this.imageMap[picture.id][resolution] = content;
@@ -138,11 +145,13 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                                 this.handleClick(e, picture, index);
                             }}
                             className={style.pictureBox}
-                            style={{ width: boxWidth }}
                             key={picture.id}
+                            ref={instance => {
+                                this.pictureBoxRefs[picture.id] = instance;
+                            }}
                         >
                             <div className={style.imgBox}>
-                                <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={150}>
+                                <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={50} once>
                                     {content}
                                 </LazyLoad>
                             </div>
