@@ -69,7 +69,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         if (e.key === '+') zoom = 'ZOOM_IN';
         else if (e.key === '-') zoom = 'ZOOM_OUT';
         if (zoom) this.handleZoom(zoom);
-    }
+    };
 
     handleWheel = (e: React.WheelEvent) => {
         if (e.ctrlKey) {
@@ -78,7 +78,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
             else if (e.deltaY > 0) zoom = 'ZOOM_OUT';
             if (zoom) this.handleZoom(zoom);
         }
-    }
+    };
 
     handleZoom = (zoom: zoomEvent) => {
         let zoomLevel = this.state.zoomLevel;
@@ -94,7 +94,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.setState({
             zoomLevel
         });
-    }
+    };
 
     getImage(dataUrl: string): Promise<HTMLImageElement> {
         return new Promise((resolve, reject) => {
@@ -117,7 +117,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         const scrollContainer = `#pictureViewScrollWrapper${this.props.index}`;
 
         return (
-            <div className={style.preview} onWheel={this.handleWheel}>
+            <div className={style.preview} onWheel={this.handleWheel} style={{ opacity: this.props.isShow ? 1 : 0 }}>
                 {album.map((picture, index) => {
                     const resolution = 1200;
 

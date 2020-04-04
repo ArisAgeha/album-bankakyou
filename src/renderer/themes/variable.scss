@@ -1,10 +1,28 @@
 $themeColor1: #e6f7ff;
-$themeColor2:#bae7ff;
-$themeColor3:#91d5ff;
-$themeColor4:#69c0ff;
-$themeColor5:#40a9ff;
-$themeColor6:#1890ff;
+$themeColor2: #bae7ff;
+$themeColor3: #91d5ff;
+$themeColor4: #69c0ff;
+$themeColor5: #40a9ff;
+$themeColor6: #1890ff;
 $themeColor7: #096dd9;
 $themeColor8: #0050b3;
 $themeColor9: #003a8c;
 $themeColor10: #002766;
+
+// container
+$borderColor: rgb(221, 221, 221);
+$fontColor: rgb(255, 255, 255);
+$fontColorHover: rgb(0, 0, 0);
+$fontColorActive: rgb(255, 0, 200);
+
+// svg
+$svgColor: rgb(223, 223, 223);
+$svgActiveColor: rgb(255, 0, 200);
+
+// scroll track
+$scrollThumbColor: rgba(116, 116, 117, 0.9);
+$scrollTrackColor: rgba(116, 116, 117, 0);
+
+// tab
+$tabBgColorHover: rgba(0, 0, 0, 0.25);
+$tabBgColorActive: rgba(0, 0, 0, 0.40);

@@ -14,6 +14,7 @@ import { IDirectoryData } from '../../fileBar/directoryView/directoryView';
 import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 import { isNumber, isUndefinedOrNull } from '@/common/types';
+import bgimg from '@/renderer/static/image/background02.jpg';
 
 export interface ISwitchPageEvent {
     delta?: number;
@@ -61,7 +62,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             },
             fullScreen: false
         };
-
     }
 
     componentDidMount() {
@@ -153,20 +153,44 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         const Buttons = (
             <div className={style.buttons}>
-                <Button className={style.button} type='primary' icon={<ProfileOutlined />} tabIndex={-1} onClick={() => { this.switchPictureMode('scroll_list'); }}>
+                <Button
+                    className={style.button}
+                    type='primary'
+                    icon={<ProfileOutlined />}
+                    tabIndex={-1}
+                    onClick={() => {
+                        this.switchPictureMode('scroll_list');
+                    }}
+                >
                     {t('%scrollMode%')}
                 </Button>
-                <Button className={style.button} type='primary' icon={<BookOutlined />} tabIndex={-1} onClick={() => { this.switchPictureMode('single_page'); }}>
+                <Button
+                    className={style.button}
+                    type='primary'
+                    icon={<BookOutlined />}
+                    tabIndex={-1}
+                    onClick={() => {
+                        this.switchPictureMode('single_page');
+                    }}
+                >
                     {t('%singlePageMode%')}
                 </Button>
-                <Button className={style.button} type='primary' icon={<ReadOutlined />} tabIndex={-1} onClick={() => { this.switchPictureMode('double_page'); }}>
+                <Button
+                    className={style.button}
+                    type='primary'
+                    icon={<ReadOutlined />}
+                    tabIndex={-1}
+                    onClick={() => {
+                        this.switchPictureMode('double_page');
+                    }}
+                >
                     {t('%doublePageMode%')}
                 </Button>
             </div>
         );
 
         return (
-            <div className={style.pageDetail}>
+            <div className={style.pageDetail} style={{ opacity: this.state.viewMode === 'preview' ? 1 : 0 }}>
                 <div className={style.left}>{CoverBox}</div>
                 <div className={style.right}>
                     <div className={style.top}>
@@ -181,7 +205,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         );
     }
 
-    handleSwitchSinglePage: (e: ISwitchPageEvent) => void = (e) => {
+    handleSwitchSinglePage: (e: ISwitchPageEvent) => void = e => {
         const nextIndex = this.calculateNextIndex(e, this.state.singlePageShowIndex);
         this.setState({
             singlePageShowIndex: nextIndex
@@ -196,8 +220,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             nextIndex += e.delta;
             if (nextIndex > pageNum - 1) nextIndex = 0;
             if (nextIndex < 0) nextIndex = pageNum - 1;
-        }
-        else if (isNumber(e.goto)) {
+        } else if (isNumber(e.goto)) {
             nextIndex = e.goto;
             if (nextIndex > pageNum - 1) nextIndex = pageNum - 1;
             if (nextIndex < 0) nextIndex = 0;
@@ -215,7 +238,9 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 break;
 
             case 'single_page':
-                Album = <SinglePage page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} onSwitchPage={this.handleSwitchSinglePage} />;
+                Album = (
+                    <SinglePage page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} onSwitchPage={this.handleSwitchSinglePage} />
+                );
                 break;
 
             case 'double_page':
@@ -250,7 +275,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 id={`pictureViewScrollWrapper${this.props.index}`}
                 className={`${style.pictureViewWrapper} medium-scrollbar`}
                 style={{ display: this.props.isShow ? 'block' : 'none' }}
-                tabIndex={1}
             >
                 <PageDetail />
                 <Preview
@@ -261,16 +285,16 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                         this.handleClickPage(e, data);
                     }}
                 />
-                {this.state.viewMode !== 'preview'
-                    && <div
+                {this.state.viewMode !== 'preview' && (
+                    <div
                         className={style.contentWrapper}
-                        style={{ position: this.state.fullScreen ? 'fixed' : 'absolute' }}
+                        style={{ position: this.state.fullScreen ? 'fixed' : 'absolute', backgroundImage: `url(${bgimg})` }}
                         onMouseDown={this.switchFullScreen}
                         onDoubleClick={this.exitViewer}
                     >
                         <Content />
                     </div>
-                }
+                )}
             </div>
         );
     }

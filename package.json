@@ -56,11 +56,6 @@
                   "html": "./src/index.html",
                   "js": "./src/renderer.tsx",
                   "name": "main_window"
-                },
-                {
-                  "html": "./src/worker.html",
-                  "js": "./src/workerRenderer.tsx",
-                  "name": "worker_window"
                 }
               ]
             }
@@ -114,6 +109,7 @@
     "antd": "^4.0.0",
     "chokidar": "^3.3.1",
     "electron-squirrel-startup": "^1.0.0",
+    "file-loader": "^6.0.0",
     "i18next": "^19.3.2",
     "image-size": "^0.8.3",
     "nedb": "^1.8.0",

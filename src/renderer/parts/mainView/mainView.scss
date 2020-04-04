@@ -8,16 +8,15 @@
         height: 35px;
         display: flex;
         width: 100%;
-        background-color: $themeColor4;
         overflow: auto;
+        border-bottom: 1px solid $borderColor;
 
         .tabsItem {
             display: flex;
             justify-content: space-between;
             padding: 5px;
-            background-color: $themeColor4;
             color: #fff;
-            border-right: 1px solid $themeColor3;
+            border-right: 1px solid $borderColor;
             min-width: 120px;
             max-width: 300px;
             transition: 0.15s ease-in-out;
@@ -35,7 +34,7 @@
         }
 
         .tabsItem:hover {
-            background-color: $themeColor5;
+            background-color: $tabBgColorHover;
             cursor: pointer;
 
             .right {
@@ -46,7 +45,7 @@
         }
 
         .tabsItem.isSelected {
-            background-color: $themeColor6;
+            background-color: $tabBgColorActive;
         }
     }
 

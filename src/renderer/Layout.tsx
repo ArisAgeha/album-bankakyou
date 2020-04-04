@@ -15,6 +15,7 @@ import { FileService } from '@/main/services/file.service';
 import { ChokidarService } from '@/main/services/chokidar.service';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { isUndefinedOrNull } from '@/common/types';
+import bgimg from '@/renderer/static/image/background03.jpg';
 
 interface ILayoutState {
     fileBarIsShow: boolean;
@@ -204,7 +205,7 @@ class Layout extends React.PureComponent<any, ILayoutState> {
     render(): JSX.Element {
         const cursor: string = this.getCursorStyle();
 
-        const layoutStyle: React.CSSProperties = { cursor };
+        const layoutStyle: React.CSSProperties = { cursor, background: `url(${bgimg})` };
         const fileBarStyle: React.CSSProperties = { width: this.layoutValue.fileBarWidth, display: this.state.fileBarIsShow ? 'block' : 'none' };
         const manageBarStyle: React.CSSProperties = {
             height: this.layoutValue.manageBarHeight,

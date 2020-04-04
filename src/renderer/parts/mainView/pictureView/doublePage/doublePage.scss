@@ -2,7 +2,6 @@
     width: 100%;
     height: 100%;
     position: relative;
-    background-color: $themeColor1;
     overflow: hidden;
 
     .scaleContainer {
@@ -41,7 +40,6 @@
     .rightContainer {
         width: 50%;
         height: 100%;
-        display: flex;
 
         img {
             max-height: 100%;
@@ -50,10 +48,8 @@
     }
 
     .leftContainer {
-        justify-content: flex-end;
     }
 
     .rightContainer {
-        justify-content: start;
     }
 }
