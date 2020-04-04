@@ -15,10 +15,12 @@
             align-items: center;
             cursor: pointer;
             color: $svgColor;
+            transition: 0.2s;
         }
 
         .item.isActive {
             color: $svgActiveColor;
+            background-color: #fff;
         }
 
         .item:hover {
