@@ -14,4 +14,3 @@ export const workbenchConfig = {
     MANAGEBAR_HEIGHT: 'workbench.manageBar.height',
     MANAGEBAR_SHOW: 'workbench.manageBar.show'
 };
-

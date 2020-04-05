@@ -11,25 +11,58 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         this.state = {
             expandedKeys: [],
             selectedNodes: [],
-            loadingKeys: []
+            loadingKeys: [],
+            lastSelectedNode: null,
+            selectedNodesHistory: []
         };
     }
 
     async handleClickNode(event: React.MouseEvent, node: ITreeDataNode) {
         if (event.shiftKey) this.multiSelectDir(event, node);
-        if (event.ctrlKey) this.selectDir(event, node);
+        else if (event.ctrlKey) this.selectDir(event, node);
         else this.openDir(event, node);
     }
 
     multiSelectDir = (event: React.MouseEvent, targetNodes: ITreeDataNode) => {
-        const curSelectedNodes = this.state.selectedNodes;
-        const lastSelectedNode = curSelectedNodes[curSelectedNodes.length - 1];
+        const lastSelectedNode = this.state.lastSelectedNode;
+        const treeData = this.props.treeData;
+        const treeNodesMap = this.buildTreeNodesMap(treeData, []);
+
+        // traverse all node and push the node which should be selected into `selectedArea`
+        const selectedArea: ITreeDataNode[] = [];
+        let startFlags = false;
+        let endFlags = false;
+        for (let i = 0; i < treeNodesMap.length; i++) {
+            const node = treeNodesMap[i];
+            if (node.key === lastSelectedNode.key) startFlags = true;
+            if (node.key === targetNodes.key) endFlags = true;
+            if (startFlags || endFlags) selectedArea.push(node);
+            if (startFlags && endFlags) break;
+        }
+
+        const operationNodesArray = this.state.selectedNodesHistory.length === 0 ? this.state.selectedNodes : this.state.selectedNodesHistory;
+        let newSelectedNodes = null;
+        newSelectedNodes = Array.from(new Set([...operationNodesArray, ...selectedArea]));
+
+        this.setState({
+            selectedNodes: newSelectedNodes,
+            selectedNodesHistory: operationNodesArray
+        });
+    }
+
+    buildTreeNodesMap = (nodes: ITreeDataNode[], nodesMap: ITreeDataNode[]) => {
+        nodes.forEach(node => {
+            const { children, ...newNode } = node;
+            nodesMap.push(newNode);
+            if (node.children) this.buildTreeNodesMap(node.children, nodesMap);
+        });
+        return nodesMap;
     }
 
     selectDir(event: React.MouseEvent, node: ITreeDataNode) {
         const selectedNodes = this.state.selectedNodes.filter(n => n.key !== node.key);
         if (selectedNodes.length === this.state.selectedNodes.length) selectedNodes.push(node);
-        this.setState({ selectedNodes });
+        this.setState({ selectedNodes, lastSelectedNode: node, selectedNodesHistory: [] });
     }
 
     openDir = async (event: React.MouseEvent, node: ITreeDataNode) => {
@@ -49,11 +82,11 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         let expandedKeys;
         if (keyPosInRecord === -1) {
             expandedKeys = [...this.state.expandedKeys, node.key];
-            this.setState({ expandedKeys, selectedNodes, loadingKeys });
+            this.setState({ expandedKeys, selectedNodes, loadingKeys, lastSelectedNode: node, selectedNodesHistory: [] });
         } else {
             expandedKeys = [...this.state.expandedKeys];
             expandedKeys.splice(keyPosInRecord, 1);
-            this.setState({ expandedKeys, selectedNodes, loadingKeys });
+            this.setState({ expandedKeys, selectedNodes, loadingKeys, lastSelectedNode: node, selectedNodesHistory: [] });
         }
 
         // invoke loadData callback function.
@@ -149,6 +182,8 @@ export interface IDirectoryTreeState {
     expandedKeys: string[];
     selectedNodes: ITreeDataNode[];
     loadingKeys: string[];
+    lastSelectedNode: ITreeDataNode;
+    selectedNodesHistory: ITreeDataNode[];
 }
 
 export interface IDirectoryTreeProps {
