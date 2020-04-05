@@ -17,6 +17,9 @@ export interface IDoublePageState {
     zoomLevel: number;
     doublePageAlbum: DoublePicture[];
     currentShowIndex: number;
+    isDragging: boolean;
+    x: number;
+    y: number;
 }
 
 export interface IDoublePageProps {
@@ -40,7 +43,10 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         this.state = {
             doublePageAlbum: [],
             zoomLevel: -1,
-            currentShowIndex: 0
+            currentShowIndex: 0,
+            isDragging: false,
+            x: 0,
+            y: 0
         };
     }
 
@@ -51,10 +57,18 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
 
     initEvent() {
         document.addEventListener('keydown', this.handleKeydown);
+        document.addEventListener('mouseup', this.stopDrag);
     }
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeydown);
+        document.removeEventListener('mouseup', this.stopDrag);
+    }
+
+    stopDrag = () => {
+        this.setState({
+            isDragging: false
+        });
     }
 
     initImgOrVideoInfo = (options: { reverse: boolean } = { reverse: false }) => {
@@ -75,7 +89,9 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 if (shouldReAlign && !hasReAlign) {
                     insert(album, [data.url]);
                     hasReAlign = true;
-                } else if (pages.length === 0) insert(pages, data.url);
+                } else if (pages.length === 0) {
+                    insert(pages, data.url);
+                }
                 else {
                     insert(pages, data.url);
                     insert(album, [...pages]);
@@ -89,7 +105,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
             doublePageAlbum: album,
             currentShowIndex: index
         });
-    };
+    }
 
     getImgOrVideoDimensions(): dimension[] {
         const data = this.props.page.data as picture[];
@@ -113,72 +129,82 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
 
     resetSize = () => {
         this.setState({
-            zoomLevel: -1
+            zoomLevel: -1,
+            x: 0,
+            y: 0
         });
-    };
+    }
 
     handleKeydown = (e: KeyboardEvent) => {
-        if (e.key === 'ArrowRight') {
-            const currentShowIndex = (this.state.currentShowIndex + 1) % this.state.doublePageAlbum.length;
-            this.setState({
-                currentShowIndex
-            });
-            this.resetSize();
-        } else if (e.key === 'ArrowLeft') {
-            const currentShowIndex = this.state.currentShowIndex - 1 < 0 ? this.state.doublePageAlbum.length - 1 : this.state.currentShowIndex - 1;
-            this.setState({
-                currentShowIndex
-            });
-            this.resetSize();
-        } else if (e.key === '+') {
-            const zoomLevel = this.state.zoomLevel + 1;
-            this.setState({
-                zoomLevel
-            });
-        } else if (e.key === '-') {
-            const zoomLevel = this.state.zoomLevel - 1;
-            this.setState({
-                zoomLevel
-            });
-        } else if (e.key === '0') {
+        if (e.key === 'ArrowRight') this.gotoRightPage();
+        else if (e.key === 'ArrowLeft') this.gotoLeftPage();
+        else if (e.key === '+') this.zoomIn();
+        else if (e.key === '-') this.zoomOut();
+        else if (e.key === '0') {
             this.pageReAlign = !this.pageReAlign;
             this.initImgOrVideoInfo();
         } else if (e.key === '5') {
             this.mode = this.mode === 'RL' ? 'LR' : 'RL';
             this.initImgOrVideoInfo({ reverse: true });
         }
-    };
+    }
 
     handleWheel = (e: React.WheelEvent) => {
         if (e.deltaY > 0) {
-            if (e.ctrlKey) {
-                const zoomLevel = this.state.zoomLevel - 1;
-                this.setState({
-                    zoomLevel
-                });
-            } else {
-                const currentShowIndex = (this.state.currentShowIndex + 1) % this.state.doublePageAlbum.length;
-                this.setState({
-                    currentShowIndex
-                });
-                this.resetSize();
-            }
+            if (e.ctrlKey || e.buttons === 2) this.zoomOut();
+            else this.mode === 'LR' ? this.gotoRightPage() : this.gotoLeftPage();
+
         } else if (e.deltaY < 0) {
-            if (e.ctrlKey) {
-                const zoomLevel = this.state.zoomLevel + 1;
-                this.setState({
-                    zoomLevel
-                });
-            } else {
-                const currentShowIndex =
-                    this.state.currentShowIndex - 1 < 0 ? this.state.doublePageAlbum.length - 1 : this.state.currentShowIndex - 1;
-                this.setState({
-                    currentShowIndex
-                });
-                this.resetSize();
-            }
+            if (e.ctrlKey || e.buttons === 2) this.zoomIn();
+            else this.mode === 'LR' ? this.gotoLeftPage() : this.gotoRightPage();
         }
-    };
+    }
+
+    gotoLeftPage = () => {
+        const currentShowIndex = this.state.currentShowIndex - 1 < 0 ? this.state.doublePageAlbum.length - 1 : this.state.currentShowIndex - 1;
+        this.setState({
+            currentShowIndex
+        });
+        this.resetSize();
+    }
+
+    gotoRightPage = () => {
+        const currentShowIndex = (this.state.currentShowIndex + 1) % this.state.doublePageAlbum.length;
+        this.setState({
+            currentShowIndex
+        });
+        this.resetSize();
+    }
+
+    zoomIn = () => {
+        const zoomLevel = this.state.zoomLevel + 1;
+        this.setState({
+            zoomLevel
+        });
+    }
+
+    zoomOut = () => {
+        const zoomLevel = this.state.zoomLevel - 1;
+        this.setState({
+            zoomLevel
+        });
+    }
+
+    handleMouseDown = (e: React.MouseEvent) => {
+        if (e.button === 0) this.setState({ isDragging: true });
+    }
+
+    handleMouseMove = (e: React.MouseEvent) => {
+        if (this.state.isDragging) {
+            const newX = this.state.x + e.movementX;
+            const newY = this.state.y + e.movementY;
+
+            this.setState({
+                x: newX,
+                y: newY
+            });
+        }
+    }
 
     singlePageContainer = (props: { url: string }): JSX.Element => (
         <div className={style.mainContainer}>
@@ -187,12 +213,12 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                     <video src={props.url}> </video>
                 </div>
             ) : (
-                <div className={style.mainContainer}>
-                    <img src={props.url} alt='' />
-                </div>
-            )}
+                    <div className={style.mainContainer}>
+                        <img src={props.url} alt='' />
+                    </div>
+                )}
         </div>
-    );
+    )
 
     doublePageContainer = (props: { urls: string[] }): JSX.Element => {
         const urlLeft = props.urls[0];
@@ -208,7 +234,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 </div>
             </React.Fragment>
         );
-    };
+    }
 
     render(): JSX.Element {
         // get scale ratio
@@ -216,13 +242,14 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         let imgZoom = Math.sqrt(2 ** (zoomLevel - 1)) * 2;
         imgZoom = imgZoom <= 0 ? 0 : imgZoom;
         const album = this.state.doublePageAlbum;
-        // const currentPage = album[this.state.currentShowIndex];
-        // const SinglePageContainer = this.singlePageContainer;
-        // const DoublePageContainer = this.doublePageContainer;
 
         return (
-            <div className={style.doublePageWrapper} onWheel={this.handleWheel}>
-                <ul className={style.scaleContainer} style={{ transform: `scale(${imgZoom})` }}>
+            <div
+                onMouseMove={this.handleMouseMove}
+                className={style.doublePageWrapper}
+                onMouseDown={this.handleMouseDown}
+                onWheel={this.handleWheel}>
+                <ul className={style.scaleContainer} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }}>
                     {album.map((dbpic, index) => {
                         const SinglePageContainer = this.singlePageContainer;
                         const DoublePageContainer = this.doublePageContainer;
@@ -240,13 +267,13 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                                     shouldLoad ? (
                                         <SinglePageContainer url={dbpic[0]} />
                                     ) : (
-                                        ''
-                                    )
+                                            ''
+                                        )
                                 ) : shouldLoad ? (
                                     <DoublePageContainer urls={dbpic} />
                                 ) : (
-                                    ''
-                                )}
+                                            ''
+                                        )}
                             </li>
                         );
                     })}

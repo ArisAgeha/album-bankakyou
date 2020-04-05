@@ -3,5 +3,5 @@
   "singleQuote": true,
   "jsxSingleQuote": true,
   "printWidth": 150,
-  "Semicolons": false
+  "semi": none
 }

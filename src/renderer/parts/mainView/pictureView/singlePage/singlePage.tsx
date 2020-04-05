@@ -34,11 +34,11 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
 
     componentDidMount() {
         this.initEvent();
-        document.addEventListener('mouseup', this.stopDrag);
     }
 
     initEvent() {
         document.addEventListener('keydown', this.handleKeydown);
+        document.addEventListener('mouseup', this.stopDrag);
     }
 
     componentWillUnmount() {
@@ -50,7 +50,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         this.setState({
             isDragging: false
         });
-    }
+    };
 
     resetSize = () => {
         this.setState({
@@ -58,11 +58,11 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             y: 0,
             zoomLevel: -1
         });
-    }
+    };
 
     handleWheel = (e: React.WheelEvent) => {
         if (e.deltaY > 0) {
-            if (e.ctrlKey) {
+            if (e.ctrlKey || e.buttons === 2) {
                 const zoomLevel = this.state.zoomLevel - 1;
                 this.setState({
                     zoomLevel
@@ -72,7 +72,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 this.resetSize();
             }
         } else if (e.deltaY < 0) {
-            if (e.ctrlKey) {
+            if (e.ctrlKey || e.buttons === 2) {
                 const zoomLevel = this.state.zoomLevel + 1;
                 this.setState({
                     zoomLevel
@@ -82,7 +82,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 this.resetSize();
             }
         }
-    }
+    };
 
     handleKeydown = (e: KeyboardEvent) => {
         if ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(Number(e.key))) {
@@ -110,7 +110,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 zoomLevel
             });
         }
-    }
+    };
 
     handleMouseMove = (e: React.MouseEvent) => {
         if (this.state.isDragging) {
@@ -122,7 +122,11 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 y: newY
             });
         }
-    }
+    };
+
+    handleMouseDown = (e: React.MouseEvent) => {
+        if (e.button === 0) this.setState({ isDragging: true });
+    };
 
     render(): JSX.Element {
         const imgSrc = (this.props.page.data as picture[])[this.props.currentShowIndex].url;
@@ -134,9 +138,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             <div
                 className={style.singlePageWrapper}
                 style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
-                onMouseDown={() => {
-                    this.setState({ isDragging: true });
-                }}
+                onMouseDown={this.handleMouseDown}
                 onMouseMove={this.handleMouseMove}
                 onWheel={this.handleWheel}
             >
