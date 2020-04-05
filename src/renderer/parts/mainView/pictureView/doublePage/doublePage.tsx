@@ -24,11 +24,13 @@ export interface IDoublePageState {
 
 export interface IDoublePageProps {
     page: page;
+    curPage: number;
 }
 
 export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePageState> {
     pageReAlign: boolean;
     mode: 'LR' | 'RL';
+    curPage: number;
     hasBeenLoadIndex: {
         [key: number]: boolean;
     };
@@ -39,6 +41,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         this.pageReAlign = false;
         this.mode = 'LR';
         this.hasBeenLoadIndex = [];
+        this.curPage = this.props.curPage;
 
         this.state = {
             doublePageAlbum: [],
@@ -52,6 +55,9 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
 
     componentDidMount() {
         this.initImgOrVideoInfo();
+        setTimeout(() => {
+            this.jumpPage();
+        }, 0);
         this.initEvent();
     }
 
@@ -68,6 +74,16 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
     stopDrag = () => {
         this.setState({
             isDragging: false
+        });
+    }
+
+    jumpPage = () => {
+        const curPage = this.props.curPage;
+        const album = this.props.page.data as picture[];
+        const url = album[curPage].url;
+        const jumpIndex = this.state.doublePageAlbum.findIndex(page => page.some(picture => picture === url));
+        this.setState({
+            currentShowIndex: jumpIndex
         });
     }
 
@@ -100,10 +116,12 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
             }
         }
         if (pages.length > 0) insert(album, pages);
-        const index = options.reverse ? album.length - this.state.currentShowIndex - 1 : this.state.currentShowIndex;
+
+        const jumpIndex = options.reverse ? album.length - this.state.currentShowIndex - 1 : this.state.currentShowIndex;
+
         this.setState({
             doublePageAlbum: album,
-            currentShowIndex: index
+            currentShowIndex: jumpIndex
         });
     }
 

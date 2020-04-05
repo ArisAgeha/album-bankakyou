@@ -16,6 +16,23 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     }
 
     async handleClickNode(event: React.MouseEvent, node: ITreeDataNode) {
+        if (event.shiftKey) this.multiSelectDir(event, node);
+        if (event.ctrlKey) this.selectDir(event, node);
+        else this.openDir(event, node);
+    }
+
+    multiSelectDir = (event: React.MouseEvent, targetNodes: ITreeDataNode) => {
+        const curSelectedNodes = this.state.selectedNodes;
+        const lastSelectedNode = curSelectedNodes[curSelectedNodes.length - 1];
+    }
+
+    selectDir(event: React.MouseEvent, node: ITreeDataNode) {
+        const selectedNodes = this.state.selectedNodes.filter(n => n.key !== node.key);
+        if (selectedNodes.length === this.state.selectedNodes.length) selectedNodes.push(node);
+        this.setState({ selectedNodes });
+    }
+
+    openDir = async (event: React.MouseEvent, node: ITreeDataNode) => {
         const keyPosInRecord = this.state.expandedKeys.indexOf(node.key);
         const loadDataCb = this.props.loadData;
         const onSelectCb = this.props.onSelect;
@@ -73,6 +90,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 nativeEvent: event
             });
         }
+
     }
 
     renderLeaf(node: ITreeDataNode) {

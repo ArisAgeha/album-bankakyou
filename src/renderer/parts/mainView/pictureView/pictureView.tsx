@@ -244,7 +244,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 break;
 
             case 'double_page':
-                Album = <DoublePage page={this.props.page} />;
+                Album = <DoublePage curPage={this.state.singlePageShowIndex} page={this.props.page} />;
         }
 
         return Album;

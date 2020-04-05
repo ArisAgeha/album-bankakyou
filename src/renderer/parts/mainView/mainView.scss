@@ -35,6 +35,7 @@
 
         .tabsItem:hover {
             background-color: $tabBgColorHover;
+            color: $fontColorActive;
             cursor: pointer;
 
             .right {
@@ -46,6 +47,7 @@
 
         .tabsItem.isSelected {
             background-color: $tabBgColorActive;
+            color: $fontColorActive;
         }
     }
 

@@ -108,7 +108,8 @@
         "restrict-plus-operands": false,
         "prefer-switch": false,
         "switch-default": false,
-        "unnecessary-else": false
+        "unnecessary-else": false,
+        "prefer-for-of": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"
