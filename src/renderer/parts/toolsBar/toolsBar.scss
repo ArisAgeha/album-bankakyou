@@ -21,10 +21,12 @@
         .item.isActive {
             color: $svgActiveColor;
             background-color: #fff;
+            transition: 0s;
         }
 
         .item:hover {
             color: $svgActiveColor;
+            transition: 0s;
         }
     }
 }

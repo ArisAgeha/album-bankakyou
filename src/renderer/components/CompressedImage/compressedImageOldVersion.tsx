@@ -51,5 +51,5 @@ export function CompressedImage(props: { dataUrl: string; imageType: string; res
         downscaleImage(dataUrl, imageType, resolution, quality);
     });
 
-    return <img src={compressedSrc} alt='' />;
+    return <img draggable={false} src={compressedSrc} alt='' />;
 }

@@ -15,6 +15,7 @@ import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 import { isNumber, isUndefinedOrNull } from '@/common/types';
 import bgimg from '@/renderer/static/image/background02.jpg';
+import { isVideo } from '@/common/utils';
 
 export interface ISwitchPageEvent {
     delta?: number;
@@ -117,7 +118,11 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         const CoverBox = (
             <div className={style.coverBox}>
-                <img src={album[0].url} alt='' />
+                {
+                    isVideo(album[0].url)
+                        ? <video autoPlay draggable={false} muted loop src={album[0].url}></video>
+                        : <img draggable={false} src={album[0].url} alt='' />
+                }
             </div>
         );
 
@@ -234,17 +239,17 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
 
         switch (this.state.viewMode) {
             case 'scroll_list':
-                Album = <ScrollList page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} />;
+                Album = <ScrollList page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} isShow={this.props.isShow} />;
                 break;
 
             case 'single_page':
                 Album = (
-                    <SinglePage page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} onSwitchPage={this.handleSwitchSinglePage} />
+                    <SinglePage page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} onSwitchPage={this.handleSwitchSinglePage} isShow={this.props.isShow} />
                 );
                 break;
 
             case 'double_page':
-                Album = <DoublePage curPage={this.state.singlePageShowIndex} page={this.props.page} />;
+                Album = <DoublePage curPage={this.state.singlePageShowIndex} page={this.props.page} isShow={this.props.isShow} />;
         }
 
         return Album;

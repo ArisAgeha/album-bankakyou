@@ -3,6 +3,7 @@ import style from './singlePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent } from '../pictureView';
 import { isNumber } from '@/common/types';
+import { isVideo } from '@/common/utils';
 
 export interface ISinglePageState {
     x: number;
@@ -15,6 +16,7 @@ export interface ISinglePageProps {
     page: page;
     currentShowIndex: number;
     onSwitchPage(e: ISwitchPageEvent): void;
+    isShow: boolean;
 }
 
 export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePageState> {
@@ -50,7 +52,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         this.setState({
             isDragging: false
         });
-    };
+    }
 
     resetSize = () => {
         this.setState({
@@ -58,7 +60,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             y: 0,
             zoomLevel: -1
         });
-    };
+    }
 
     handleWheel = (e: React.WheelEvent) => {
         if (e.deltaY > 0) {
@@ -82,9 +84,11 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 this.resetSize();
             }
         }
-    };
+    }
 
     handleKeydown = (e: KeyboardEvent) => {
+        if (!this.props.isShow) return;
+
         if ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(Number(e.key))) {
             this.input += e.key;
         } else if (e.key === 'ArrowRight') {
@@ -110,7 +114,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 zoomLevel
             });
         }
-    };
+    }
 
     handleMouseMove = (e: React.MouseEvent) => {
         if (this.state.isDragging) {
@@ -122,11 +126,11 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 y: newY
             });
         }
-    };
+    }
 
     handleMouseDown = (e: React.MouseEvent) => {
         if (e.button === 0) this.setState({ isDragging: true });
-    };
+    }
 
     render(): JSX.Element {
         const imgSrc = (this.props.page.data as picture[])[this.props.currentShowIndex].url;
@@ -142,12 +146,16 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 onMouseMove={this.handleMouseMove}
                 onWheel={this.handleWheel}
             >
-                <img
-                    src={imgSrc}
-                    alt=''
-                    draggable={false}
-                    style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }}
-                />
+                {
+                    isVideo(imgSrc)
+                        ? <video src={imgSrc} loop autoPlay muted></video>
+                        : (<img
+                            src={imgSrc}
+                            alt=''
+                            draggable={false}
+                            style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }}
+                        />)
+                }
             </div>
         );
     }

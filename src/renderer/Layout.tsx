@@ -16,6 +16,8 @@ import { ChokidarService } from '@/main/services/chokidar.service';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { isUndefinedOrNull } from '@/common/types';
 import bgimg from '@/renderer/static/image/background03.jpg';
+import { EventHub } from '@/common/eventHub';
+import { eventConstant } from '@/common/constant/event.constant';
 
 interface ILayoutState {
     fileBarIsShow: boolean;
@@ -52,6 +54,36 @@ class Layout extends React.PureComponent<any, ILayoutState> {
         this.configurationService = serviceCollection.get(serviceConstant.CONFIGURATION);
 
         this.init();
+        this.initEvent();
+    }
+
+    initEvent() {
+        // show manage bar
+        EventHub.on(eventConstant.SHOW_MANAGE_BAR, () => {
+            const layoutStyle = this.layoutRef.current.getBoundingClientRect();
+            const height = layoutStyle.height * 0.8;
+
+            this.layoutValue.manageBarHeight = height;
+            this.manageBarRef.current.style.height = `${height}px`;
+            this.configurationService.upadteUserConfig([
+                { id: 'workbench', key: workbenchConfig.MANAGEBAR_HEIGHT, value: height },
+                { id: 'workbench', key: workbenchConfig.MANAGEBAR_SHOW, value: true }
+            ]);
+            this.setState({ manageBarIsShow: true });
+        });
+
+        // hidden manage bar
+        EventHub.on(eventConstant.HIDDEN_MANAGE_BAR, () => {
+            const height = 0;
+
+            this.layoutValue.manageBarHeight = height;
+            this.manageBarRef.current.style.height = `${height}px`;
+            this.configurationService.upadteUserConfig([
+                { id: 'workbench', key: workbenchConfig.MANAGEBAR_HEIGHT, value: height },
+                { id: 'workbench', key: workbenchConfig.MANAGEBAR_SHOW, value: false }
+            ]);
+            this.setState({ manageBarIsShow: false });
+        });
     }
 
     // insize
@@ -110,8 +142,8 @@ class Layout extends React.PureComponent<any, ILayoutState> {
                     computedWidth <= 200
                         ? 200
                         : distanceFromCursorToClientRight <= 200
-                        ? this.layoutRef.current.clientWidth - this.state.toolsBarWidth - 200
-                        : computedWidth;
+                            ? this.layoutRef.current.clientWidth - this.state.toolsBarWidth - 200
+                            : computedWidth;
                 fileBarIsShow = computedWidth <= 100 ? false : true;
             }
 
@@ -121,7 +153,7 @@ class Layout extends React.PureComponent<any, ILayoutState> {
                 manageBarIsShow = height <= 100 ? false : true;
             }
 
-            this.updateToFile({ fileBarWidth, fileBarIsShow, manageBarHeight, manageBarIsShow });
+            this.writeConfigurationToFile({ fileBarWidth, fileBarIsShow, manageBarHeight, manageBarIsShow });
         }
 
         // while is not dragging, check if bar could drag
@@ -160,7 +192,7 @@ class Layout extends React.PureComponent<any, ILayoutState> {
         if (Object.values(setStateObj).length !== 0) this.setState(setStateObj);
     }
 
-    updateToFile(updateObj: { fileBarWidth: number; fileBarIsShow: boolean; manageBarHeight: number; manageBarIsShow: boolean }) {
+    writeConfigurationToFile(updateObj: { fileBarWidth: number; fileBarIsShow: boolean; manageBarHeight: number; manageBarIsShow: boolean }) {
         const { fileBarWidth, fileBarIsShow, manageBarHeight, manageBarIsShow } = updateObj;
 
         const shouldUpdateObj = [];

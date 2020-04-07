@@ -2,8 +2,9 @@ import React, { Component, PureComponent } from 'react';
 import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined } from '@ant-design/icons';
 import { isUndefinedOrNull, isArray } from '@/common/types';
 import style from './directoryTree.scss';
-import { IDirectoryViewState, IDirectoryViewProps } from '../directoryView';
 import { extractDirUrlFromKey } from '@/common/utils';
+import { EventHub } from '@/common/eventHub';
+import { eventConstant } from '@/common/constant/event.constant';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     constructor(props: IDirectoryTreeProps) {
@@ -15,10 +16,47 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
             lastSelectedNode: null,
             selectedNodesHistory: []
         };
+
+    }
+
+    componentDidMount() {
+        this.initEvent();
+    }
+
+    initEvent = () => {
+        window.addEventListener('mousedown', (downEvent: MouseEvent) => {
+            let deltaX = 0;
+            let deltaY = 0;
+
+            const onMove = (moveEvent: MouseEvent) => {
+                deltaX += moveEvent.movementX;
+                deltaY += moveEvent.movementY;
+            };
+
+            if (downEvent.buttons === 3) {
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', (upEvent: MouseEvent) => {
+                    window.removeEventListener('mousemove', onMove);
+                    this.checkOpenModal(deltaX, deltaY);
+                }, { once: true });
+            }
+        });
+    }
+
+    checkOpenModal(x: number, y: number) {
+        if (x > 300 && Math.abs(x / y) > 3) {
+            const selectedKeys = this.state.selectedNodes.map(node => node.key);
+            EventHub.emit(eventConstant.SHOW_MANAGE_BAR, selectedKeys);
+        }
+    }
+
+    handleCloseManagePanel = () => {
+        EventHub.emit(eventConstant.HIDDEN_MANAGE_BAR);
     }
 
     async handleClickNode(event: React.MouseEvent, node: ITreeDataNode) {
-        if (event.shiftKey) this.multiSelectDir(event, node);
+        event.stopPropagation();
+        if ((event.shiftKey || event.buttons === 2) && this.state.lastSelectedNode) this.multiSelectDir(event, node);
         else if (event.ctrlKey) this.selectDir(event, node);
         else this.openDir(event, node);
     }
@@ -123,7 +161,12 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 nativeEvent: event
             });
         }
+    }
 
+    handleClickRoot = (event: React.MouseEvent) => {
+        this.setState({
+            selectedNodes: []
+        });
     }
 
     renderLeaf(node: ITreeDataNode) {
@@ -136,8 +179,6 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
             </div>
         );
     }
-
-    handleKeyDown = (e: React.KeyboardEvent) => { };
 
     renderRoot(node: ITreeDataNode) {
         const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
@@ -171,8 +212,10 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     render() {
         const treeData = this.props.treeData;
         return (
-            <div className={style.treeRoot} onKeyDown={this.handleKeyDown}>
-                {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
+            <div className={style.treeRootWrapper} onClick={this.handleClickRoot}>
+                <div className={style.treeRoot}>
+                    {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
+                </div>
             </div>
         );
     }

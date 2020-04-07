@@ -2,6 +2,7 @@ import * as React from 'react';
 import style from './doublePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
+import { isVideo } from '@/common/utils';
 const sizeOf = require('image-size');
 
 type dimension = {
@@ -25,6 +26,7 @@ export interface IDoublePageState {
 export interface IDoublePageProps {
     page: page;
     curPage: number;
+    isShow: boolean;
 }
 
 export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePageState> {
@@ -130,7 +132,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         const imgUrls = data.map(picture => picture.url);
         const imgDimensions: dimension[] = [];
         for (const url of imgUrls) {
-            if (url.endsWith('.webm')) {
+            if (isVideo(url)) {
                 imgDimensions.push({
                     width: 1,
                     height: 0,
@@ -154,6 +156,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
     }
 
     handleKeydown = (e: KeyboardEvent) => {
+        if (!this.props.isShow) return;
         if (e.key === 'ArrowRight') this.gotoRightPage();
         else if (e.key === 'ArrowLeft') this.gotoLeftPage();
         else if (e.key === '+') this.zoomIn();
@@ -226,13 +229,13 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
 
     singlePageContainer = (props: { url: string }): JSX.Element => (
         <div className={style.mainContainer}>
-            {props.url.endsWith('.webm') ? (
+            {isVideo(props.url) ? (
                 <div className={style.mainContainer}>
-                    <video src={props.url}> </video>
+                    <video src={props.url} autoPlay loop muted> </video>
                 </div>
             ) : (
                     <div className={style.mainContainer}>
-                        <img src={props.url} alt='' />
+                        <img draggable={false} src={props.url} alt='' />
                     </div>
                 )}
         </div>
@@ -245,10 +248,10 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         return (
             <React.Fragment>
                 <div className={style.leftContainer}>
-                    {urlLeft.endsWith('.webm') ? <video src={urlLeft}></video> : <img src={urlLeft} alt='' draggable={false} />}
+                    {isVideo(urlLeft) ? <video src={urlLeft} autoPlay loop muted></video> : <img src={urlLeft} alt='' draggable={false} />}
                 </div>
                 <div className={style.rightContainer}>
-                    {urlRight.endsWith('.webm') ? <video src={urlRight}></video> : <img src={urlRight} alt='' draggable={false} />}
+                    {isVideo(urlRight) ? <video src={urlRight} autoPlay loop muted></video> : <img src={urlRight} alt='' draggable={false} />}
                 </div>
             </React.Fragment>
         );

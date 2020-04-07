@@ -1,0 +1,61 @@
+.manageBar {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+
+    .scrollWrapper {
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        overflow: auto;
+        position: absolute;
+
+        .group {
+            z-index: 100;
+            margin: 36px auto;
+            width: 60%;
+            min-width: 800px;
+            padding: 0 100px;
+            h2 {
+                color: $titleFontColor;
+                font-weight: bold;
+            }
+
+            .item {
+                color: $h2FontColor;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid $borderSettingColor;
+                padding: 8px 0;
+                transition: 0.1s ease-in-out;
+                font-weight: bold;
+
+                h3 {
+                    font-weight: bold;
+                }
+            }
+
+            .item:hover {
+                color: #fff;
+                transition: 0;
+            }
+        }
+    }
+}
+
+.manageBar::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transform: scale(1.8);
+    filter: blur(32px);
+    background: inherit;
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+}

@@ -6,6 +6,7 @@
 
     .tabsWrapper {
         height: 35px;
+        min-height: 35px;
         display: flex;
         width: 100%;
         overflow: auto;
@@ -40,7 +41,7 @@
 
             .right {
                 .closeWrapper {
-                    color: rgba(255, 255, 255, 1);
+                    color: $fontColorActive;
                 }
             }
         }

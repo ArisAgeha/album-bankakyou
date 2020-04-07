@@ -17,6 +17,7 @@ export interface IScrollListState {
 export interface IScrollListProps {
     page: page;
     currentShowIndex: number;
+    isShow: boolean;
 }
 
 export class ScrollList extends React.PureComponent<IScrollListProps, IScrollListState> {
@@ -60,6 +61,7 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
     }
 
     handleKeydown = (e: KeyboardEvent) => {
+        if (!this.props.isShow) return;
         let mode: mode = this.state.mode;
         let zoomLevel = this.state.zoomLevel;
 
@@ -129,7 +131,7 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
         const Album = album.map(picture =>
             <LazyLoad scrollContainer={`#scrollListContainer`} overflow offset={150} placeholder={placeholder} once key={picture.id}>
-                <img src={picture.url} alt='' style={imgStyle} />
+                <img draggable={false} src={picture.url} alt='' style={imgStyle} />
             </LazyLoad>
         );
 

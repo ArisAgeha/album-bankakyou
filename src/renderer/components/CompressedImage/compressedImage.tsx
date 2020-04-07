@@ -25,5 +25,5 @@ export function CompressedImage(props: { url: string; imageType?: string; resolu
         });
     });
 
-    return <img src={compressedSrc} alt='' />;
+    return <img draggable={false} src={compressedSrc} alt='' />;
 }

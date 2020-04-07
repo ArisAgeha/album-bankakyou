@@ -1,9 +1,20 @@
 {
+    "%category%": "分类",
     "%tag%": "标签",
     "%author%": "作者",
     "%pageNumberTotal%": "共",
     "%pageNumberPage%": "页",
+
+    "%readingSettings%": "阅读设置",
+
+    "%readingMode%": "阅读方式",
     "%scrollMode%": "滚动模式",
     "%singlePageMode%": "单页模式",
-    "%doublePageMode%": "对页模式"
+    "%doublePageMode%": "对页模式",
+
+    "%readingDirection%": "阅读方向",
+    "%fromLeftToRight%": "从左到右",
+    "%fromRightToLeft%": "从右到左",
+
+    "%pageReAlign%": "对页模式重对齐"
 }

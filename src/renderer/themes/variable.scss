@@ -12,7 +12,7 @@ $themeColor10: #002766;
 // container
 $borderColor: rgb(221, 221, 221);
 $fontColor: rgb(255, 255, 255);
-$fontColorHover: rgb(0, 0, 0);
+$fontColorHover: rgba(255, 0, 200, 0.5);
 $fontColorActive: rgb(255, 0, 200);
 
 // svg
@@ -20,12 +20,18 @@ $svgColor: rgb(223, 223, 223);
 $svgActiveColor: rgb(255, 0, 200);
 
 // scroll track
-$scrollThumbColor: rgba(116, 116, 117, 0.9);
+// $scrollThumbColor: rgba(116, 116, 117, 0.9);
+// $scrollTrackColor: rgba(116, 116, 117, 0);
+$scrollThumbColor: rgba(233, 233, 233, 1);
 $scrollTrackColor: rgba(116, 116, 117, 0);
 
 // tab
 // $tabBgColorHover: rgba(0, 0, 0, 0.25);
 // $tabBgColorActive: rgba(0, 0, 0, 0.40);
-
 $tabBgColorHover: rgba(255, 255, 255, 0.4);
 $tabBgColorActive: rgba(255, 255, 255, 1);
+
+// setting
+$titleFontColor: rgb(204, 204, 204);
+$h2FontColor: rgb(204, 204, 204);
+$borderSettingColor: rgb(204, 204, 204);
