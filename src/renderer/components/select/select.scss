@@ -1,0 +1,53 @@
+.select {
+    position: relative;
+
+    .input {
+        border: none;
+        min-width: 80px;
+        height: 40px;
+        font-weight: bold;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0);
+        cursor: pointer;
+        user-select: none;
+        outline: none;
+    }
+
+    .input:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .input:active,
+    .input.active {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .dropdown {
+        height: 0;
+        min-width: 100%;
+        overflow: hidden;
+        transition: 0.8s ease-in-out;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        cursor: pointer;
+        z-index: 2;
+
+        .option {
+            padding: 10px 6px;
+            background-color: $selectOptionBgColor;
+            min-width: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .option.active {
+            background-color: $selectOptionBgColorHover;
+        }
+    }
+
+    .dropdown.visible {
+        height: initial;
+    }
+}
