@@ -11,8 +11,16 @@
         overflow: auto;
         position: absolute;
 
+        .info {
+            color: $titleFontColor;
+            margin: 36px auto;
+            width: 60%;
+            min-width: 800px;
+            padding: 0 100px;
+        }
+
         .group {
-            z-index: 100;
+            z-index: 10;
             margin: 36px auto;
             width: 60%;
             min-width: 800px;

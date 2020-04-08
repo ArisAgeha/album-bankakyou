@@ -19,5 +19,10 @@
     "%fromLeftToRight%": "从左到右",
     "%fromRightToLeft%": "从右到左",
 
-    "%pageReAlign%": "对页模式重对齐"
+    "%pageReAlign%": "对页模式重对齐",
+
+    "%selectedDirNum%": "选择了 %{selectedDirNum} 个目录",
+    "%dirNum%": "共包含 %{dirNum} 个目录及子目录",
+
+    "%differentSetting%": "（不同的设置）"
 }

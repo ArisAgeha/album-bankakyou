@@ -68,13 +68,17 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
         this.inputRef.current.selectionStart = this.inputRef.current.selectionEnd;
     }
 
-    cancelSelect = (e: React.MouseEvent) => {
+    toggleDropdown = (e: React.MouseEvent) => {
         e.preventDefault();
-        this.inputRef.current.focus();
+        this.state.isVisible ? this.inputRef.current.blur() : this.inputRef.current.focus();
     }
 
-    openDropdownByArrow = () => {
-        this.inputRef.current.focus();
+    toggleDropdownByArrow = (e: React.MouseEvent) => {
+        this.state.isVisible
+            ? this.inputRef.current.blur()
+            : setTimeout(() => {
+                this.inputRef.current.focus();
+            }, 0);
     }
 
     openDropdown = () => {
@@ -92,14 +96,12 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
 
         if (e.key === 'ArrowUp') {
             const selectedIndex = Math.abs(this.state.selectedIndex - 1) % this.props.children.length;
-            console.log(selectedIndex);
             this.setState({
                 selectedIndex
             });
         }
         else if (e.key === 'ArrowDown') {
             const selectedIndex = Math.abs(this.state.selectedIndex + 1) % this.props.children.length;
-            console.log(selectedIndex);
             this.setState({
                 selectedIndex
             });
@@ -122,10 +124,14 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
         const curOptProps = curOpt?.props || null;
 
         const tabIndex = isNumber(this.props.tabIndex) ? this.props.tabIndex : 1;
-        const value = isUndefinedOrNull(curOptProps) ? '' : curOptProps.children;
+        const value = isUndefinedOrNull(curOptProps)
+            ? placeholder
+                ? placeholder
+                : ''
+            : curOptProps.children;
         return (
             <div className={style.select}>
-                <div onClick={this.openDropdownByArrow} className={style.iconWrapper}>
+                <div onMouseDown={this.toggleDropdownByArrow} className={style.iconWrapper}>
                     <DownOutlined></DownOutlined>
                 </div>
                 <input
@@ -136,9 +142,9 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
                     readOnly
                     placeholder={isUndefinedOrNull(placeholder) ? '' : placeholder}
                     value={value}
-                    style={{ width: `${value.length * 14 + 56}px`}}
+                    style={{ width: `${value.length * 14 + 56}px` }}
                     onSelect={this.cancelSelectByTab}
-                    onMouseDown={this.cancelSelect}
+                    onMouseDown={this.toggleDropdown}
                     onFocus={this.openDropdown}
                     onBlur={this.closeDropdown}
                     onKeyDown={this.handleKeydown}
