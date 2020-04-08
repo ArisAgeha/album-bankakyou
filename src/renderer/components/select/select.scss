@@ -18,8 +18,10 @@
         right: 0;
         top: 50%;
         transform: translate(-100%, calc(-50% - -1px));
+        cursor: pointer;
     }
 
+    .iconWrapper:hover + .input,
     .input:hover {
         background-color: rgba(0, 0, 0, 0.3);
     }

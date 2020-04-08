@@ -73,6 +73,10 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
         this.inputRef.current.focus();
     }
 
+    openDropdownByArrow = () => {
+        this.inputRef.current.focus();
+    }
+
     openDropdown = () => {
         this.setState({ isVisible: true });
     }
@@ -121,6 +125,9 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
         const value = isUndefinedOrNull(curOptProps) ? '' : curOptProps.children;
         return (
             <div className={style.select}>
+                <div onClick={this.openDropdownByArrow} className={style.iconWrapper}>
+                    <DownOutlined></DownOutlined>
+                </div>
                 <input
                     tabIndex={tabIndex}
                     ref={this.inputRef}
@@ -136,9 +143,6 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
                     onBlur={this.closeDropdown}
                     onKeyDown={this.handleKeydown}
                 />
-                <div className={style.iconWrapper}>
-                    <DownOutlined></DownOutlined>
-                </div>
                 <div className={`${style.dropdown} ${this.state.isVisible ? style.visible : ''}`}>
                     {
                         children.map((option, index) =>
