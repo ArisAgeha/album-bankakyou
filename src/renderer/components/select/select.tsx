@@ -2,7 +2,7 @@ import * as React from 'react';
 import style from './select.scss';
 import { isUndefinedOrNull, isNumber } from '@/common/types';
 import { render } from 'react-dom';
-import { ArrowDownOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, DownOutlined } from '@ant-design/icons';
 
 export type OptionProps = {
     key?: string;
@@ -118,6 +118,7 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
         const curOptProps = curOpt?.props || null;
 
         const tabIndex = isNumber(this.props.tabIndex) ? this.props.tabIndex : 1;
+        const value = isUndefinedOrNull(curOptProps) ? '' : curOptProps.children;
         return (
             <div className={style.select}>
                 <input
@@ -127,13 +128,17 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
                     type='text'
                     readOnly
                     placeholder={isUndefinedOrNull(placeholder) ? '' : placeholder}
-                    value={isUndefinedOrNull(curOptProps) ? '' : curOptProps.children}
+                    value={value}
+                    style={{ width: `${value.length * 14 + 56}px`}}
                     onSelect={this.cancelSelectByTab}
                     onMouseDown={this.cancelSelect}
                     onFocus={this.openDropdown}
                     onBlur={this.closeDropdown}
                     onKeyDown={this.handleKeydown}
                 />
+                <div className={style.iconWrapper}>
+                    <DownOutlined></DownOutlined>
+                </div>
                 <div className={`${style.dropdown} ${this.state.isVisible ? style.visible : ''}`}>
                     {
                         children.map((option, index) =>

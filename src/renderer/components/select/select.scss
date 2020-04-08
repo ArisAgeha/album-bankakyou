@@ -3,14 +3,21 @@
 
     .input {
         border: none;
-        min-width: 80px;
         height: 40px;
         font-weight: bold;
-        text-align: center;
+        text-align: right;
         background-color: rgba(0, 0, 0, 0);
         cursor: pointer;
         user-select: none;
         outline: none;
+        padding: 0 42px 0 14px;
+    }
+
+    .iconWrapper {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translate(-100%, calc(-50% - -1px));
     }
 
     .input:hover {
@@ -36,7 +43,6 @@
         .option {
             padding: 10px 6px;
             background-color: $selectOptionBgColor;
-            min-width: 120px;
             display: flex;
             justify-content: center;
             align-items: center;
