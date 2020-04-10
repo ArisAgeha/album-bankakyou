@@ -10,6 +10,9 @@
 
     "%readingSettings%": "阅读设置",
 
+    "%totallyAuthorCount%": "等 共 %{totallyAuthorCount} 位作者",
+    "%totallyTagCount%": "等 共 %{totallyTagCount} 个标签",
+
     "%readingMode%": "阅读方式",
     "%scrollMode%": "滚动模式",
     "%singlePageMode%": "单页模式",
@@ -24,5 +27,8 @@
     "%selectedDirNum%": "选择了 %{selectedDirNum} 个目录",
     "%dirNum%": "共包含 %{dirNum} 个目录及子目录",
 
-    "%differentSetting%": "（不同的设置）"
+    "%differentSetting%": "（不同的设置）",
+    "%noTags%": "（无标签）",
+    "%addTagHere%": "添加标签...",
+    "%addAuthorHere%": "添加作者..."
 }

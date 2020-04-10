@@ -43,7 +43,21 @@
                 h3 {
                     font-weight: bold;
                 }
-                > div {
+                .selectorButton {
+                    height: 40px;
+                    padding: 0 14px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
+                }
+
+                .selectorButton:hover {
+                    background-color: rgba(0, 0, 0, 0.3);
+                }
+
+                .selectorButton:active {
+                    background-color: rgba(0, 0, 0, 0.4);
                 }
             }
 

@@ -6,7 +6,8 @@ import style from './manageBar.scss';
 import { useTranslation, withTranslation } from 'react-i18next';
 import bgimg from '@/renderer/static/image/background02.jpg';
 import { Select } from '@/renderer/components/select/select';
-import value from '@/renderer/static/image/background02.jpg';
+import { TagSelector } from '@/renderer/components/tagSelector/tagSelector';
+import { isArray } from '@/common/types';
 const { Option } = Select;
 
 type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
@@ -15,6 +16,8 @@ type pageReAlign = boolean | '_different';
 
 export interface IManageBarState {
     urls: string[];
+    tags: string[] | null;
+    authors: string[] | null;
     selectedUrls: string[];
     readingMode: readingMode;
     readingDirection: readingDirection;
@@ -24,9 +27,13 @@ export interface IManageBarState {
         readingDirection: readingDirection;
         pageReAlign: pageReAlign;
     };
+    tagSelectorIsShow: boolean;
+    authorSelectorIsShow: boolean;
 }
 
 export class ManageBar extends React.PureComponent<{}, IManageBarState> {
+
+    MAX_TAGS_MESSAGE_LENGTH: number = 10;
 
     constructor(props: {}) {
         super(props);
@@ -34,6 +41,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         this.state = {
             selectedUrls: [],
             urls: [],
+            tags: null,
+            authors: null,
             readingMode: 'double_page',
             readingDirection: 'LR',
             pageReAlign: false,
@@ -41,7 +50,9 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 readingMode: 'double_page',
                 readingDirection: 'LR',
                 pageReAlign: false
-            }
+            },
+            tagSelectorIsShow: false,
+            authorSelectorIsShow: false
         };
     }
 
@@ -49,10 +60,36 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         this.initEvent();
     }
 
+    componentWillUnmount() {
+        this.removeEvent();
+    }
+
     initEvent() {
-        EventHub.on(eventConstant.SHOW_MANAGE_BAR, (data: string[]) => {
-            const urls = data.map(extractDirUrlFromKey);
-            console.log(urls);
+        EventHub.on(eventConstant.SHOW_MANAGE_BAR, this.loadPreference);
+    }
+
+    removeEvent() {
+        EventHub.cancel(eventConstant.SHOW_MANAGE_BAR, this.loadPreference);
+    }
+
+    loadPreference = (data: string[]) => {
+        const urls = data.map(extractDirUrlFromKey);
+        console.log(urls);
+    }
+
+    handleAuthorsChange = (authors: string[]) => {
+        // TODO: save into database
+        this.setState({
+            authors,
+            authorSelectorIsShow: false
+        });
+    }
+
+    handleTagsChange = (tags: string[]) => {
+        // TODO: save into database
+        this.setState({
+            tags,
+            tagSelectorIsShow: false
         });
     }
 
@@ -75,22 +112,41 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     renderCategory = () => {
         const { t, i18n } = useTranslation();
+        const tags = this.state.tags;
+
+        let tagsMessage = null;
+        if (isArray(tags)) {
+            if (tags.length > 0) {
+                tagsMessage = tags.reduce((preVal, curVal) => `${preVal}, ${curVal}`, '').slice(2);
+                if (tagsMessage.length > this.MAX_TAGS_MESSAGE_LENGTH) {
+                    tagsMessage = tags.length > 1
+                        ? `${tagsMessage.slice(0, 10)}...${t('%totallyTagCount%')}`.replace('%{totallyTagCount}', tags.length.toString())
+                        : tagsMessage.slice(0, 10);
+                }
+            }
+            else {
+                tagsMessage = t('%noTags%');
+            }
+        }
+        else {
+            tagsMessage = t('%differentSetting%');
+            console.log(tagsMessage);
+        }
+
         return (
             <div className={style.group}>
                 <h2>{t('%category%')}</h2>
                 <div className={style.item}>
                     <h3>{t('%tag%')}</h3>
-                    <div>TODO</div>
+                    <div className={style.selectorButton} onClick={() => { this.setState({ tagSelectorIsShow: true }); }}>{tagsMessage}</div>
                 </div>
                 <div className={style.item}>
                     <h3>{t('%author%')}</h3>
-                    <div>TODO</div>
+                    <div className={style.selectorButton} onClick={() => { this.setState({ authorSelectorIsShow: true }); }}>{tagsMessage}</div>
                 </div>
             </div>
         );
     }
-
-    handleSelectPageReAlign = () => { };
 
     setReadingDirection = (value: any) => {
         this.setState({ readingDirection: value });
@@ -147,12 +203,21 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         const Category = this.renderCategory;
         const ReadingSettings = this.renderReadingSettings;
 
+        const { tagSelectorIsShow, authorSelectorIsShow } = this.state;
+
         return <div className={style.manageBar} style={{ backgroundImage: `url(${bgimg})` }}>
             <div className={`${style.scrollWrapper} medium-scrollbar`}>
                 <Info />
                 <Category />
                 <ReadingSettings />
             </div>
+            {tagSelectorIsShow ?
+                <TagSelector
+                    visible={tagSelectorIsShow}
+                    selectedTags={this.state.tags}
+                    onSubmit={this.handleTagsChange}
+                    onCancel={() => { this.setState({ tagSelectorIsShow: false }); }} />
+                : ''}
         </div>;
     }
 }

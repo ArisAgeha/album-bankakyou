@@ -72,6 +72,31 @@
 }
 
 :global {
+    .useBlurBg {
+        position: relative;
+        display: flex;
+        overflow: hidden;
+    }
+
+    .useBlurBg::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        transform: scale(1.8);
+        filter: blur(32px);
+        background: inherit;
+        background-size: cover;
+        background-position: center;
+        z-index: 0;
+    }
+
+    .useBlurBg > * {
+        z-index: 1;
+    }
+
     .ant-btn-primary {
         color: #fff;
         background-color: #1890ff00;
@@ -85,6 +110,7 @@
     }
 
     .ant-btn-primary:hover {
+        transition: 0s;
         color: $fontColorActive;
         background-color: #fff;
         border: 2px solid #1890ff00;
