@@ -15,7 +15,7 @@ import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
 
 @injectable
 export class FileService {
-    constructor(private readonly logService: LogService) {}
+    constructor(private readonly logService: LogService) { }
 
     MAX_RECURSIVE_DEPTH: number = 2;
 
@@ -27,24 +27,50 @@ export class FileService {
             const dirIsExists = fs.existsSync(resolvedUrl);
             if (!dirIsExists) return;
 
-            let dirInfo = fs.readdirSync(resolvedUrl);
-            dirInfo = dirInfo.filter(fileOrDirName => {
-                if (!isPicture(fileOrDirName)) return false;
+            const dirInfo = fs.readdirSync(resolvedUrl);
+            const filteredDirInfo: string[] = [];
+            const getFileterdDirInfoPromises = dirInfo.map((fileOrDirName, index) =>
+                new Promise(resolve => {
+                    if (!isPicture(fileOrDirName)) resolve();
+                    const fileOrDirUrl = this.pr(url, fileOrDirName);
+                    fs.stat(fileOrDirUrl, (err, stat) => {
+                        if (stat.isFile()) filteredDirInfo[index] = fileOrDirName;
+                        resolve();
+                    });
+                }));
 
-                const fileOrDirUrl = this.pr(url, fileOrDirName);
-                if (fs.statSync(fileOrDirUrl).isDirectory()) return false;
+            Promise.all(getFileterdDirInfoPromises).then(() => {
+                console.log(filteredDirInfo);
+                const pictureData = filteredDirInfo
+                    .filter(item => !isUndefinedOrNull(item))
+                    .map((filename, index) => ({
+                        id: index,
+                        url: this.pr(url, filename),
+                        title: filename
+                    }))
+                    .sort((a, b) => naturalCompare(a.title, b.title));
 
-                return true;
+                event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
             });
-            const pictureData: picture[] = dirInfo
-                .map((filename, index) => ({
-                    id: index,
-                    url: this.pr(url, filename),
-                    title: filename
-                }))
-                .sort((a, b) => naturalCompare(a.title, b.title));
 
-            event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
+            // dirInfo = dirInfo.filter(fileOrDirName => {
+            //     if (!isPicture(fileOrDirName)) return false;
+
+            //     const fileOrDirUrl = this.pr(url, fileOrDirName);
+            //     if (fs.statSync(fileOrDirUrl).isDirectory()) return false;
+
+            //     return true;
+            // });
+
+            // const pictureData: picture[] = dirInfo
+            //     .map((filename, index) => ({
+            //         id: index,
+            //         url: this.pr(url, filename),
+            //         title: filename
+            //     }))
+            //     .sort((a, b) => naturalCompare(a.title, b.title));
+
+            // event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
         });
     }
 
@@ -58,9 +84,9 @@ export class FileService {
             time?: number;
             keySuffix?: string;
         } = {
-            level: 0,
-            time: 0
-        }
+                level: 0,
+                time: 0
+            }
     ): Promise<ITreeDataNode> {
         if (!options.time) options.time = 0;
         return new Promise(resolveTop => {
@@ -73,7 +99,6 @@ export class FileService {
                 key: `${dir}${suffix}`
             };
 
-            const index: number = 0;
             const childrenDir: ITreeDataNode[] = [];
 
             if (options.level < this.MAX_RECURSIVE_DEPTH) {
