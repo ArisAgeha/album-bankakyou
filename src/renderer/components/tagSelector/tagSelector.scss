@@ -10,7 +10,7 @@
     align-items: center;
 
     .mask {
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: rgba(0, 0, 0, 0.6);
         position: fixed;
         top: 0;
         bottom: 0;
@@ -25,6 +25,7 @@
         background-color: #fff;
         border-radius: 8px;
         flex-direction: column;
+        box-shadow: 2px 2px 2px 2px;
 
         .submitPanel {
             display: flex;
@@ -88,7 +89,7 @@
                 background-color: rgba(0, 0, 0, 0);
                 outline: none;
                 color: $tagFontColor;
-                margin-right: 12px;
+                margin: 7px 12px 7px 0;
             }
         }
 

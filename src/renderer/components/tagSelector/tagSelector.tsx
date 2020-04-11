@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import style from './tagSelector.scss';
 import { Tag } from '../tag/tag';
 import { isArray } from '@/common/types';
-import bgimg from '@/renderer/static/image/background02.jpg';
+import bgimg from '@/renderer/static/image/background03.jpg';
 import { useTranslation } from 'react-i18next';
 import { CiCircleOutlined, CloseOutlined, UpCircleOutlined, CheckOutlined } from '@ant-design/icons';
 
@@ -124,7 +124,7 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
                         <Input />
                         {
                             selectedTags.map(tag =>
-                                <Tag key={tag} onClose={() => { this.closeTag(tag); }}>{tag}</Tag>)
+                                <Tag key={tag} onClose={() => { this.closeTag(tag); }} closeByWheelClick>{tag}</Tag>)
                         }
                     </div>
                 </div>
