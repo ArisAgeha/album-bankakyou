@@ -97,12 +97,12 @@
             width: 100%;
             flex: 1;
             padding: 12px;
-            overflow: auto;
+            overflow: scroll;
         }
 
         .controlPanel .scrollWrapper,
         .selectPanel .scrollWrapper {
-            overflow: auto;
+            overflow: scroll;
             height: 100%;
             width: 100%;
             padding: 12px;

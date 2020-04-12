@@ -7,6 +7,7 @@ import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
+    test: any = {};
     constructor(props: IDirectoryTreeProps) {
         super(props);
         this.state = {
@@ -110,7 +111,6 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         const onFold = this.props.onFold;
         const shouldInvokeLoadData = loadDataCb && !node.children;
         const shouldFoldNode = this.state.expandedKeys.includes(node.key) && onFold && node.children;
-        const loadingKeys = shouldInvokeLoadData ? [node.key] : [];
         const selectedNodes = [node];
         const selectedKeys = selectedNodes.map(node => node.key);
 
@@ -120,22 +120,18 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         let expandedKeys;
         if (keyPosInRecord === -1) {
             expandedKeys = [...this.state.expandedKeys, node.key];
-            this.setState({ expandedKeys, selectedNodes, loadingKeys, lastSelectedNode: node, selectedNodesHistory: [] });
+            this.setState({ expandedKeys, selectedNodes, lastSelectedNode: node, selectedNodesHistory: [] });
         } else {
             expandedKeys = [...this.state.expandedKeys];
             expandedKeys.splice(keyPosInRecord, 1);
-            this.setState({ expandedKeys, selectedNodes, loadingKeys, lastSelectedNode: node, selectedNodesHistory: [] });
+            this.setState({ expandedKeys, selectedNodes, lastSelectedNode: node, selectedNodesHistory: [] });
         }
 
         // invoke loadData callback function.
+        console.log(shouldInvokeLoadData);
         if (shouldInvokeLoadData) {
-            if (onSelectCb && this.props.selectAwaitLoad) {
-                await loadDataCb(node);
-                this.setState({ loadingKeys: [] });
-            } else
-                loadDataCb(node).then(() => {
-                    this.setState({ loadingKeys: [] });
-                });
+            if (onSelectCb && this.props.selectAwaitLoad) await loadDataCb(node);
+            else loadDataCb(node);
         }
 
         if (shouldFoldNode) {
@@ -170,7 +166,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     }
 
     renderLeaf(node: ITreeDataNode) {
-        return (
+        const res = (
             <div className={style.nodeLeaf} key={node.key}>
                 <div className={style.icon}>
                     <FileImageOutlined />
@@ -178,9 +174,13 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 <div className={`${style.title} text-ellipsis-1`}>{!isUndefinedOrNull(node.title) ? node.title : node.key}</div>
             </div>
         );
+        return res;
     }
 
     renderRoot(node: ITreeDataNode) {
+        // console.log(node);
+        // console.error('===============================================');
+        // console.time('a' + node.key);
         const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
 
         const NodeChildren = (
@@ -188,10 +188,14 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 {isArray(node.children) ? node.children.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node))) : ''}
             </div>
         );
+        // console.timeEnd('a' + node.key);
 
+        // console.time('b' + node.key);
         const isSelected = this.state.selectedNodes.findIndex(nodeInState => nodeInState.key === node.key) !== -1;
+        // console.timeEnd('b' + node.key);
 
-        return (
+        // console.time('c' + node.key);
+        const res = (
             <div className={style.nodeRoot} key={node.key}>
                 <div
                     className={`${style.nodeRootTitleWrapper} ${isSelected ? style.selected : ''}`}
@@ -200,24 +204,34 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                     }}
                 >
                     <div className={style.icon}>
-                        {this.state.loadingKeys.includes(node.key) ? <LoadingOutlined /> : isExpanded ? <DownOutlined /> : <RightOutlined />}
+                        {isExpanded ? <DownOutlined /> : <RightOutlined />}
                     </div>
-                    <div className={`${style.nodeRootTitle} text-ellipsis-1`}>{!isUndefinedOrNull(node.title) ? node.title : node.key}</div>
+                    <div className={`${style.nodeRootTitle}`}>{!isUndefinedOrNull(node.title) ? node.title : node.key}</div>
                 </div>
                 {isExpanded ? NodeChildren : ''}
             </div>
         );
+        // console.timeEnd('c' + node.key);
+        this.test[node.key] ? this.test[node.key]++ : this.test[node.key] = 1;
+        return res;
     }
 
     render() {
         const treeData = this.props.treeData;
-        return (
+        console.time('c');
+        const res = (
             <div className={style.treeRootWrapper} onClick={this.handleClickRoot}>
                 <div className={style.treeRoot}>
                     {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
                 </div>
             </div>
         );
+        console.warn('========');
+        console.trace();
+        console.log(this.test);
+        console.timeEnd('c');
+
+        return res;
     }
 }
 

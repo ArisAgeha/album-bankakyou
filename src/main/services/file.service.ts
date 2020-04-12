@@ -40,7 +40,6 @@ export class FileService {
                 }));
 
             Promise.all(getFileterdDirInfoPromises).then(() => {
-                console.log(filteredDirInfo);
                 const pictureData = filteredDirInfo
                     .filter(item => !isUndefinedOrNull(item))
                     .map((filename, index) => ({
@@ -52,25 +51,6 @@ export class FileService {
 
                 event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
             });
-
-            // dirInfo = dirInfo.filter(fileOrDirName => {
-            //     if (!isPicture(fileOrDirName)) return false;
-
-            //     const fileOrDirUrl = this.pr(url, fileOrDirName);
-            //     if (fs.statSync(fileOrDirUrl).isDirectory()) return false;
-
-            //     return true;
-            // });
-
-            // const pictureData: picture[] = dirInfo
-            //     .map((filename, index) => ({
-            //         id: index,
-            //         url: this.pr(url, filename),
-            //         title: filename
-            //     }))
-            //     .sort((a, b) => naturalCompare(a.title, b.title));
-
-            // event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
         });
     }
 

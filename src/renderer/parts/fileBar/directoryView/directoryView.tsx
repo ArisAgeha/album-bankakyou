@@ -67,16 +67,16 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         });
     }
 
-    onSelect(
+    handleSelect = (
         keys: string[],
         event: {
             event: 'select';
             selected: boolean;
             node: ITreeDataNode;
             selectedNodes: ITreeDataNode[];
-            nativeEvent: MouseEvent;
+            nativeEvent: React.MouseEvent;
         }
-    ) {
+    ) => {
         const key: string = keys[0];
         this.setState({ lastSelectedNode: key });
 
@@ -94,8 +94,8 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         });
     }
 
-    async onLoadData(treeNode: ITreeDataNode): Promise<void> {
-        return new Promise(resolve => {
+    onLoadData = async (treeNode: ITreeDataNode): Promise<void> =>
+        new Promise(resolve => {
             if (treeNode.children) {
                 resolve();
                 return;
@@ -112,17 +112,16 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
                 });
                 resolve();
             });
-        });
-    }
+        })
 
     render(): JSX.Element {
         return (
             <div className={`${style.dirTreeWrapper} medium-scrollbar`}>
                 <DirectoryTree
                     className={style.dirTree}
-                    onSelect={this.onSelect.bind(this)}
+                    onSelect={this.handleSelect}
                     treeData={this.state.treeData}
-                    loadData={this.onLoadData.bind(this) as (treeNode: ITreeDataNode) => Promise<void>}
+                    loadData={this.onLoadData}
                     onFold={this.handleFold}
                 />
             </div>
