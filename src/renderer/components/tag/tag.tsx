@@ -13,7 +13,6 @@ export interface ITag {
 
 export function Tag(props: ITag) {
     const { children, onClick, onClose, isActive, closeByWheelClick } = props;
-    console.log(isActive);
 
     return (<span
         className={`${style.tag} ${isActive ? style.active : ''}`}

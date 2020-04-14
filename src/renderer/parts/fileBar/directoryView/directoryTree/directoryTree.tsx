@@ -128,7 +128,6 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         }
 
         // invoke loadData callback function.
-        console.log(shouldInvokeLoadData);
         if (shouldInvokeLoadData) {
             if (onSelectCb && this.props.selectAwaitLoad) await loadDataCb(node);
             else loadDataCb(node);
@@ -226,11 +225,6 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 </div>
             </div>
         );
-        console.warn('========');
-        console.trace();
-        console.log(this.test);
-        console.timeEnd('c');
-
         return res;
     }
 }

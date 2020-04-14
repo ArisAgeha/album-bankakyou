@@ -74,7 +74,6 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     loadPreference = (data: string[]) => {
         const urls = data.map(extractDirUrlFromKey);
-        console.log(urls);
     }
 
     handleAuthorsChange = (authors: string[]) => {
@@ -130,7 +129,6 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         }
         else {
             tagsMessage = t('%differentSetting%');
-            console.log(tagsMessage);
         }
 
         return (

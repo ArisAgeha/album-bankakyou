@@ -26,7 +26,6 @@ class ElectronWorker extends React.PureComponent<any, any> {
 
     compressImage = (event: Electron.IpcRendererEvent, data: ICompressImageParams) => {
         const { url, resolution, quality, imageType } = data;
-        console.log(data);
         this.downscaleImage(url, imageType, resolution, quality);
     };
 
