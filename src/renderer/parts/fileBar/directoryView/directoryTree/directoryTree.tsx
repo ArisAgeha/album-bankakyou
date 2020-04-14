@@ -177,9 +177,6 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     }
 
     renderRoot(node: ITreeDataNode) {
-        // console.log(node);
-        // console.error('===============================================');
-        // console.time('a' + node.key);
         const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
 
         const NodeChildren = (
@@ -187,13 +184,9 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 {isArray(node.children) ? node.children.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node))) : ''}
             </div>
         );
-        // console.timeEnd('a' + node.key);
 
-        // console.time('b' + node.key);
         const isSelected = this.state.selectedNodes.findIndex(nodeInState => nodeInState.key === node.key) !== -1;
-        // console.timeEnd('b' + node.key);
 
-        // console.time('c' + node.key);
         const res = (
             <div className={style.nodeRoot} key={node.key}>
                 <div
@@ -210,14 +203,12 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 {isExpanded ? NodeChildren : ''}
             </div>
         );
-        // console.timeEnd('c' + node.key);
         this.test[node.key] ? this.test[node.key]++ : this.test[node.key] = 1;
         return res;
     }
 
     render() {
         const treeData = this.props.treeData;
-        console.time('c');
         const res = (
             <div className={style.treeRootWrapper} onClick={this.handleClickRoot}>
                 <div className={style.treeRoot}>
