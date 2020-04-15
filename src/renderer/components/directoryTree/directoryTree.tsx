@@ -58,7 +58,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     async handleClickNode(event: React.MouseEvent, node: ITreeDataNode) {
         event.stopPropagation();
         if ((event.shiftKey || event.buttons === 2) && this.state.lastSelectedNode) this.multiSelectDir(event, node);
-        else if (event.ctrlKey) this.selectDir(event, node);
+        else if (event.ctrlKey || event.buttons === 2) this.selectDir(event, node);
         else this.openDir(event, node);
     }
 

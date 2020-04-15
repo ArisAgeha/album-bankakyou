@@ -80,7 +80,7 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
         let zoomLevel = this.state.zoomLevel;
 
-        if (e.ctrlKey) {
+        if (e.ctrlKey || e.buttons === 2) {
             if (e.deltaY < 0) zoomLevel *= Math.sqrt(2);
             else if (e.deltaY > 0) zoomLevel /= Math.sqrt(2);
             this.setState({ zoomLevel });

@@ -13,7 +13,7 @@ import { extractDirNameFromUrl } from '@/common/utils';
 import { command } from '@/common/constant/command.constant';
 import { isUndefinedOrNull, isObject } from '@/common/types';
 
-export interface IMainViewProps {}
+export interface IMainViewProps { }
 
 export interface IMainViewState {
     pages: page[];
@@ -85,7 +85,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             const { data, ...sendData } = { ...newTabData, url };
             ipcRenderer.send(command.SELECT_DIR_IN_TREE, newTabData);
         }
-    };
+    }
 
     handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Tab' && e.ctrlKey) {
@@ -96,15 +96,11 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             this.switchToTab(nextPageId);
         }
 
-        if ((e.ctrlKey && e.key === 'w') || e.key === 'W') {
+        if (e.ctrlKey && e.key.toLowerCase() === 'w') {
             if (!this.state.currentPage) return;
             this.closeTab(this.state.currentPage);
         }
-
-        if (e.key === '6') {
-            ipcRenderer.send('test');
-        }
-    };
+    }
 
     switchToTab(id: string) {
         this.setState({
@@ -168,8 +164,8 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
                 (page?.type === 'gallery' ? (
                     <GalleryView />
                 ) : (
-                    <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
-                ))
+                        <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
+                    ))
         );
 
         return (

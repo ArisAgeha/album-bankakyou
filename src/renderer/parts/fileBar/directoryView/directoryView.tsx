@@ -8,7 +8,7 @@ import { extractDirUrlFromKey, extractSuffixFromKey } from '@/common/utils';
 import { command } from '@/common/constant/command.constant';
 import { eventConstant } from '@/common/constant/event.constant';
 import { EventHub } from '@/common/eventHub';
-import { ITreeDataNode, DirectoryTree } from './directoryTree/directoryTree';
+import { ITreeDataNode, DirectoryTree } from '../../../components/directoryTree/directoryTree';
 import { serviceConstant } from '@/common/constant/service.constant';
 
 export interface IDirectoryData {

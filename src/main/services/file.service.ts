@@ -2,16 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import { injectable } from '@/common/decorator/injectable';
 import { LogService } from './log.service';
-import chokidar from 'chokidar';
 import { isPicture, naturalCompare } from '@/common/utils';
 import { ipcMain, ipcRenderer } from 'electron';
-import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { mainWindow } from '@/main';
 import { isArray, isUndefinedOrNull } from '@/common/types';
 import { command } from '@/common/constant/command.constant';
-import { ITreeDataNode } from '@/renderer/parts/fileBar/directoryView/directoryTree/directoryTree';
+import { ITreeDataNode } from '@/renderer/components/directoryTree/directoryTree';
 import { page } from '@/renderer/parts/mainView/mainView';
-import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
 
 @injectable
 export class FileService {

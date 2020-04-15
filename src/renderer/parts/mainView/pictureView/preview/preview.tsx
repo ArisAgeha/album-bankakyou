@@ -71,7 +71,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     }
 
     handleWheel = (e: React.WheelEvent) => {
-        if (e.ctrlKey) {
+        if (e.ctrlKey || e.buttons === 2) {
             let zoom: zoomEvent = null;
             if (e.deltaY < 0) zoom = 'ZOOM_IN';
             else if (e.deltaY > 0) zoom = 'ZOOM_OUT';
