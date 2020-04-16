@@ -1,5 +1,5 @@
-import { emptyCall } from './utils';
-import { isArray } from './types';
+import { emptyCall } from './utils/tools';
+import { isArray } from './utils/types';
 
 export class EventHub {
     static events: { [key: string]: Function[] } = {};

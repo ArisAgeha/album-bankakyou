@@ -2,8 +2,8 @@ import * as React from 'react';
 import style from './singlePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent } from '../pictureView';
-import { isNumber } from '@/common/types';
-import { isVideo } from '@/common/utils';
+import { isNumber } from '@/common/utils/types';
+import { isVideo } from '@/common/utils/tools';
 
 export interface ISinglePageState {
     x: number;

@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createElement } from 'react';
 import style from './tagSelector.scss';
 import { Tag } from '../tag/tag';
-import { isArray } from '@/common/types';
+import { isArray } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background03.jpg';
 import { useTranslation } from 'react-i18next';
 import { CiCircleOutlined, CloseOutlined, UpCircleOutlined, CheckOutlined } from '@ant-design/icons';
+import { EventHub } from '@/common/eventHub';
+import { eventConstant } from '@/common/constant/event.constant';
+import { createPortal } from 'react-dom';
+import { db } from '@/common/nedb';
 
 export interface ITagSelectorProps {
     visible: boolean;
@@ -19,9 +23,15 @@ export interface ITagSelectorState {
     newTagName: string;
 }
 
+const modalRoot = document.getElementById('modal-root');
+
 export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSelectorState> {
+    el: HTMLDivElement;
+
     constructor(props: ITagSelectorProps) {
         super(props);
+
+        this.el = document.createElement('div');
 
         this.state = {
             tags: [],
@@ -31,14 +41,17 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
     }
 
     componentDidMount() {
+        modalRoot.appendChild(this.el);
         this.initSelectedTags();
         this.fetchTags();
     }
 
     componentWillUnmount() {
+        modalRoot.removeChild(this.el);
     }
 
     componentDidUpdate(prevProps: ITagSelectorProps) {
+        if (this.props.visible) EventHub.emit(eventConstant.SET_BLUR_BODY);
         if (prevProps.selectedTags !== this.props.selectedTags) this.fetchTags();
     }
 
@@ -54,6 +67,7 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
     }
 
     toggleTag(tag: string) {
+        if (!tag) return;
         if (this.state.selectedTags.includes(tag)) this.closeTag(tag);
         else this.addTag(tag);
     }
@@ -72,7 +86,10 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
 
     hiddenPanel = () => {
         const onCancel = this.props.onCancel;
-        if (onCancel) onCancel();
+        if (onCancel) {
+            onCancel();
+            EventHub.emit(eventConstant.UNSET_BLUR_BODY);
+        }
     }
 
     checkHasChange = () => {
@@ -90,7 +107,10 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
 
         const { onSubmit } = this.props;
         const tags = this.state.selectedTags;
-        if (onSubmit) onSubmit(tags);
+        if (onSubmit) {
+            onSubmit(tags);
+            EventHub.emit(eventConstant.UNSET_BLUR_BODY);
+        }
     }
 
     handleInputSubmit = (e: React.KeyboardEvent) => {
@@ -115,7 +135,7 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
         const tags = this.state.tags;
         const hasChange = this.checkHasChange();
 
-        return (<div className={style.tagSelector}>
+        const children = (<div className={style.tagSelector} style={{ display: this.props.visible ? 'flex' : 'none' }}>
             <div className={style.mask} onClick={this.hiddenPanel}></div>
             <div className={`${style.panelWrapper} useBlurBg`} style={{ backgroundImage: `url(${bgimg})` }}>
 
@@ -149,5 +169,7 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
                 </div>
             </div>
         </div>);
+
+        return createPortal(children, this.el);
     }
 }

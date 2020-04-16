@@ -14,7 +14,7 @@ import 'reflect-metadata';
 import { FileService } from '@/main/services/file.service';
 import { ChokidarService } from '@/main/services/chokidar.service';
 import { serviceConstant } from '@/common/constant/service.constant';
-import { isUndefinedOrNull } from '@/common/types';
+import { isUndefinedOrNull } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background03.jpg';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
@@ -27,6 +27,7 @@ interface ILayoutState {
     toolsBarWidth: number;
     infoBarHeight: number;
     filebarShowView: fileBarViewType;
+    isBlur: boolean;
 }
 
 interface ILayoutValue {
@@ -84,6 +85,14 @@ class Layout extends React.PureComponent<any, ILayoutState> {
             ]);
             this.setState({ manageBarIsShow: false });
         });
+
+        EventHub.on(eventConstant.SET_BLUR_BODY, () => {
+            this.setState({ isBlur: true });
+        });
+
+        EventHub.on(eventConstant.UNSET_BLUR_BODY, () => {
+            this.setState({ isBlur: false });
+        });
     }
 
     // insize
@@ -97,7 +106,8 @@ class Layout extends React.PureComponent<any, ILayoutState> {
             manageBarCanDrag: false,
             toolsBarWidth: 50,
             infoBarHeight: 22,
-            filebarShowView: 'directory'
+            filebarShowView: 'directory',
+            isBlur: false
         };
 
         state.fileBarIsShow = this.configurationService.getValue('workbench', workbenchConfig.FILEBAR_SHOW) as boolean;
@@ -243,11 +253,12 @@ class Layout extends React.PureComponent<any, ILayoutState> {
             height: this.layoutValue.manageBarHeight,
             display: this.state.manageBarIsShow ? 'block' : 'none'
         };
+        const isBlur = this.state.isBlur;
 
         return (
             <div
                 ref={this.layoutRef}
-                className={style.layout}
+                className={`${style.layout} ${isBlur ? style.blur : ''}`}
                 style={layoutStyle}
                 onMouseMove={this.handleMouseMove.bind(this)}
                 onMouseDown={this.startDrag.bind(this)}

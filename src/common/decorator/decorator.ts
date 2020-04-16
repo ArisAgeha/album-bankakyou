@@ -1,4 +1,4 @@
-import { isNumber } from '../types';
+import { isNumber } from '../utils/types';
 
 /**
  * flagsPosition: if `flagsPosition` is defined and its value >= 0

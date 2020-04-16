@@ -31,8 +31,8 @@ export function extractSuffixFromKey(key: string): string {
 }
 
 export function extractDirNameFromKey(key: string): string {
-    const url = extractDirUrlFromKey(key);
-    return (url.match(/[^\\/]+$/) || []).pop();
+    const dirName = extractDirUrlFromKey(key);
+    return (dirName.match(/[^\\/]+$/) || []).pop();
 }
 
 export function extractDirNameFromUrl(url: string): string {

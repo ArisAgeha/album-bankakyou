@@ -1,7 +1,7 @@
 import { injectable } from '@/common/decorator/injectable';
 import fs from 'fs';
 import path from 'path';
-import { isObject } from '@/common/types';
+import { isObject } from '@/common/utils/types';
 
 @injectable
 export class LogService {

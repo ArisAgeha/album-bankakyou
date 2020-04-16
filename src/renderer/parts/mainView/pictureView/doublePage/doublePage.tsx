@@ -2,7 +2,7 @@ import * as React from 'react';
 import style from './doublePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
-import { isVideo } from '@/common/utils';
+import { isVideo } from '@/common/utils/tools';
 const sizeOf = require('image-size');
 
 type dimension = {

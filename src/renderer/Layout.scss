@@ -56,6 +56,10 @@
     }
 }
 
+.layout.blur {
+    filter: blur(8px);
+}
+
 .layout::before {
     content: "";
     position: absolute;

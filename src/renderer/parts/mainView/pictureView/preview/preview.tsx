@@ -5,7 +5,7 @@ import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import LazyLoad from 'react-lazyload';
 import { page } from '../../mainView';
-import { emptyCall, isVideo } from '@/common/utils';
+import { emptyCall, isVideo } from '@/common/utils/tools';
 
 export interface IPreviewState {
     zoomLevel: number;

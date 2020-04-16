@@ -7,7 +7,7 @@ import { LogService } from '@/main/services/log.service';
 import { Registry } from '@/common/registry';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { app } from 'electron';
-import { isFunction } from '@/common/types';
+import { isFunction } from '@/common/utils/types';
 import { ChokidarService } from '../services/chokidar.service';
 import { serviceConstant } from '@/common/constant/service.constant';
 // import { IpcService } from '../services/ipc.services';

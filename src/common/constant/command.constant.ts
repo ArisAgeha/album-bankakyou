@@ -5,6 +5,7 @@ export const command = {
     // main renderer ipc commands
     SELECT_DIR_IN_TREE: 'select-dir-in-tree',
     RECEIVE_PICTURE: 'receive_picture',
+    LOAD_SUB_DIRECTORY_INFO: 'load-sub-directory-info',
 
     // worker renderer ipc commands
     WORKER_COMPRESS_IMAGE: 'worker_compress_image',

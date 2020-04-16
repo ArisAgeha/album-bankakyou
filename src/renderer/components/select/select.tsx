@@ -1,6 +1,6 @@
 import * as React from 'react';
 import style from './select.scss';
-import { isUndefinedOrNull, isNumber } from '@/common/types';
+import { isUndefinedOrNull, isNumber } from '@/common/utils/types';
 import { render } from 'react-dom';
 import { ArrowDownOutlined, DownOutlined } from '@ant-design/icons';
 

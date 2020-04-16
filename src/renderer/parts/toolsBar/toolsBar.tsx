@@ -20,7 +20,7 @@ import { db } from '@/common/nedb';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
-import { isDev } from '@/common/utils';
+import { isDev } from '@/common/utils/tools';
 
 export interface IToolsBarProps {
     toolsBarWidth: number;

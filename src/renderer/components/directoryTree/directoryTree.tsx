@@ -1,8 +1,8 @@
 import React, { Component, PureComponent } from 'react';
 import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined } from '@ant-design/icons';
-import { isUndefinedOrNull, isArray } from '@/common/types';
+import { isUndefinedOrNull, isArray } from '@/common/utils/types';
 import style from './directoryTree.scss';
-import { extractDirUrlFromKey } from '@/common/utils';
+import { extractDirUrlFromKey } from '@/common/utils/tools';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 

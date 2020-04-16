@@ -1,4 +1,4 @@
-import { isString, isObject } from './types';
+import { isString, isObject } from './utils/types';
 
 export interface IRegistry {
     add(id: string, data: any): void;

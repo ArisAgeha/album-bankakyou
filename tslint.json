@@ -109,7 +109,8 @@
         "prefer-switch": false,
         "switch-default": false,
         "unnecessary-else": false,
-        "prefer-for-of": false
+        "prefer-for-of": false,
+        "no-bitwise": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"

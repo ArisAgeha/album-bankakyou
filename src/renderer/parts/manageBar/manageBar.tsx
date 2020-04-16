@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
-import { extractDirUrlFromKey } from '@/common/utils';
+import { extractDirUrlFromKey } from '@/common/utils/tools';
 import style from './manageBar.scss';
 import { useTranslation, withTranslation } from 'react-i18next';
 import bgimg from '@/renderer/static/image/background02.jpg';
 import { Select } from '@/renderer/components/select/select';
 import { TagSelector } from '@/renderer/components/tagSelector/tagSelector';
-import { isArray } from '@/common/types';
+import { isArray } from '@/common/utils/types';
+import { db } from '@/common/nedb';
 const { Option } = Select;
 
 type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
@@ -74,6 +75,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     loadPreference = (data: string[]) => {
         const urls = data.map(extractDirUrlFromKey);
+        console.log(urls);
     }
 
     handleAuthorsChange = (authors: string[]) => {
@@ -86,10 +88,14 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     handleTagsChange = (tags: string[]) => {
         // TODO: save into database
-        this.setState({
-            tags,
-            tagSelectorIsShow: false
+        const dirs = this.state.urls;
+        tags.forEach(tag => {
+            db.tag.update({ tag_name: tag }, { tag_name: tag }, { upsert: true });
+            dirs.forEach(dir => {
+                console.log(dir);
+            });
         });
+        this.setState({ tags, tagSelectorIsShow: false });
     }
 
     renderInfo = () => {

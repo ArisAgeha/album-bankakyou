@@ -6,7 +6,7 @@ import { Tree } from 'antd';
 import { EventDataNode, DataNode } from 'rc-tree/lib/interface';
 import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import { FileService } from '@/main/services/file.service';
-import { isArray } from '@/common/types';
+import { isArray } from '@/common/utils/types';
 import { resolveOnChange } from 'antd/lib/input/Input';
 import { DirectoryView } from './directoryView/directoryView';
 import { TagView } from './tagView/tagView';

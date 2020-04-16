@@ -13,9 +13,9 @@ import { db } from '@/common/nedb';
 import { IDirectoryData } from '../../fileBar/directoryView/directoryView';
 import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
-import { isNumber, isUndefinedOrNull } from '@/common/types';
+import { isNumber, isUndefinedOrNull } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background02.jpg';
-import { isVideo } from '@/common/utils';
+import { isVideo } from '@/common/utils/tools';
 
 export interface ISwitchPageEvent {
     delta?: number;
