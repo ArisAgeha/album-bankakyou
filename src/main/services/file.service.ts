@@ -9,7 +9,7 @@ import { isArray, isUndefinedOrNull } from '@/common/utils/types';
 import { command } from '@/common/constant/command.constant';
 import { ITreeDataNode } from '@/renderer/components/directoryTree/directoryTree';
 import { page } from '@/renderer/parts/mainView/mainView';
-import { readdir } from '@/common/utils/fsHelper';
+import { readdir, readdirWithFileTypes } from '@/common/utils/fsHelper';
 
 @injectable
 export class FileService {
@@ -22,37 +22,20 @@ export class FileService {
         ipcMain.on(command.LOAD_SUB_DIRECTORY_INFO, this.getSubDirectoryInfo);
     }
 
-    getAllPictureInDir = (event: Electron.IpcMainEvent, data: page) => {
+    getAllPictureInDir = async (event: Electron.IpcMainEvent, data: page) => {
         const { id, type, title } = data;
         const url = id;
         const resolvedUrl = this.pr(url);
         const dirIsExists = fs.existsSync(resolvedUrl);
         if (!dirIsExists) return;
 
-        const dirInfo = fs.readdirSync(resolvedUrl);
-        const filteredDirInfo: string[] = [];
-        const getFileterdDirInfoPromises = dirInfo.map((fileOrDirName, index) =>
-            new Promise(resolve => {
-                if (!isPicture(fileOrDirName)) resolve();
-                const fileOrDirUrl = this.pr(url, fileOrDirName);
-                fs.stat(fileOrDirUrl, (err, stat) => {
-                    if (stat.isFile()) filteredDirInfo[index] = fileOrDirName;
-                    resolve();
-                });
-            }));
+        const dirInfo = await readdirWithFileTypes(resolvedUrl);
+        const pictureData = dirInfo
+            .filter(dirent => dirent.isFile() && isPicture(dirent.name))
+            .map((dirent, index) => ({ id: index, url: this.pr(url, dirent.name), title: dirent.name }))
+            .sort((a, b) => naturalCompare(a.title, b.title));
 
-        Promise.all(getFileterdDirInfoPromises).then(() => {
-            const pictureData = filteredDirInfo
-                .filter(item => !isUndefinedOrNull(item))
-                .map((filename, index) => ({
-                    id: index,
-                    url: this.pr(url, filename),
-                    title: filename
-                }))
-                .sort((a, b) => naturalCompare(a.title, b.title));
-
-            event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
-        });
+        event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
     }
 
     getSubDirectoryInfo = (event: Electron.IpcMainEvent, dirs: string[]) => {
@@ -77,8 +60,8 @@ export class FileService {
             }
     ): Promise<ITreeDataNode> {
         if (!options.time) options.time = 0;
-        if (!fs.existsSync(dir)) return;
-        const dirInfo = await readdir(dir);
+        if (!fs.existsSync(dir)) return null;
+        const dirInfo = (await readdirWithFileTypes(dir));
 
         const dirTitle = (dir.match(/[^\\/]+$/) || []).pop();
         const suffix = options.keySuffix || `|${dirTitle}`;
@@ -87,34 +70,19 @@ export class FileService {
             key: `${dir}${suffix}`
         };
 
-        const childrenDir: ITreeDataNode[] = [];
-
         if (options.level < this.MAX_RECURSIVE_DEPTH) {
-            const promises = dirInfo.map(
-                (fileOrDirName, index) =>
-                    new Promise(resolve => {
-                        const fileOrDirUrl = this.pr(dir, fileOrDirName);
-                        fs.stat(fileOrDirUrl, (err, stats) => {
-                            if (stats.isDirectory()) {
-                                this.loadDir(fileOrDirUrl, { level: options.level + 1, time: index++, keySuffix: suffix }).then(val => {
-                                    childrenDir[index] = val;
-                                });
-                            }
-                            resolve();
-                        });
-                    })
-            );
-            Promise.all(promises).then(() => {
-                const childrenDirWithoutNullAndUndefined = childrenDir.filter(item => !isUndefinedOrNull(item));
-                if (childrenDirWithoutNullAndUndefined.length > 0) {
-                    if (tree.children && isArray(tree.children)) tree.children.splice(0, 0, ...childrenDirWithoutNullAndUndefined);
-                    else tree.children = childrenDirWithoutNullAndUndefined;
-                }
-                resolveTop(tree);
-            });
-        } else {
-            resolveTop(tree);
+            const childrenDir: ITreeDataNode[] = (await Promise.all(
+                dirInfo
+                    .filter(dirent => dirent.isDirectory())
+                    .map(async (dirent, index) => this.loadDir(this.pr(dir, dirent.name), { level: options.level + 1, time: index++, keySuffix: suffix }))
+            ))
+            .filter(node => !isUndefinedOrNull(node))
+            .sort((a, b) => naturalCompare(a.title, b.title));
+
+            if (childrenDir.length > 0) tree.children = childrenDir;
         }
+
+        return tree;
     }
 
     async openDirByImport(dir: string, auto: boolean): Promise<void> {

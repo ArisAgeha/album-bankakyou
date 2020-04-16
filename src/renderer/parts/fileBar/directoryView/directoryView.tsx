@@ -94,25 +94,20 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         });
     }
 
-    onLoadData = async (treeNode: ITreeDataNode): Promise<void> =>
-        new Promise(resolve => {
-            if (treeNode.children) {
-                resolve();
-                return;
-            }
-            const node = treeNode;
-            const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
-            const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
+    onLoadData = async (treeNode: ITreeDataNode): Promise<void> => {
+        if (treeNode.children) return;
 
-            fileService.loadDir(extractDirUrlFromKey(node.key), { level: 1, keySuffix: extractSuffixFromKey(node.key) }).then(loadedTree => {
-                treeNode.children = loadedTree.children || [];
+        const node = treeNode;
+        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+        const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
 
-                this.setState({
-                    treeData: [...this.state.treeData]
-                });
-                resolve();
-            });
-        })
+        const loadedTree = await fileService.loadDir(extractDirUrlFromKey(node.key), { level: 1, keySuffix: extractSuffixFromKey(node.key) });
+        treeNode.children = loadedTree.children || [];
+
+        this.setState({
+            treeData: [...this.state.treeData]
+        });
+    }
 
     render(): JSX.Element {
         return (
