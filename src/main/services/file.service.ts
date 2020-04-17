@@ -15,7 +15,7 @@ import { readdir, readdirWithFileTypes } from '@/common/utils/fsHelper';
 export class FileService {
     constructor(private readonly logService: LogService) { }
 
-    MAX_RECURSIVE_DEPTH = 2;
+    MAX_RECURSIVE_DEPTH = 9999;
 
     initial() {
         ipcMain.on(command.SELECT_DIR_IN_TREE, this.getAllPictureInDir);

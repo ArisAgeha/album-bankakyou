@@ -28,8 +28,12 @@ export type page = {
 };
 
 export class MainView extends React.PureComponent<IMainViewProps, IMainViewState> {
+    private readonly tabRef: React.RefObject<HTMLDivElement>;
+
     constructor(props: IMainViewProps) {
         super(props);
+
+        this.tabRef = React.createRef();
         this.state = {
             pages: [],
             currentPage: null
@@ -128,7 +132,16 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         });
     }
 
+    handleWheelMoveOnTabBar = (event: React.WheelEvent) => {
+        console.log('====');
+        console.log(event.deltaY);
+        console.log(this.tabRef.current.scrollLeft);
+        this.tabRef.current.scrollLeft += event.deltaY;
+        console.log(this.tabRef.current.scrollLeft);
+    }
+
     handleMouseUp(e: React.MouseEvent, id: string) {
+        e.preventDefault();
         if (e.button === 1) this.closeTab(id, e);
     }
 
@@ -138,6 +151,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             return (
                 <div
                     onClick={() => this.switchToTab(page.id)}
+                    onWheel={this.handleWheelMoveOnTabBar}
                     className={`${style.tabsItem} ${isSelected ? style.isSelected : ''}`}
                     key={page.id}
                     onMouseUp={(e: React.MouseEvent) => {
@@ -170,7 +184,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
 
         return (
             <div className={`${style.mainView}`}>
-                <div className={`${style.tabsWrapper} no-scrollbar`} style={{ display: Tabs.length > 0 ? 'flex' : 'none' }}>
+                <div className={`${style.tabsWrapper} no-scrollbar`} ref={this.tabRef} style={{ display: Tabs.length > 0 ? 'flex' : 'none' }}>
                     {Tabs}
                 </div>
                 <div className={`${style.displayArea}`}> {Pages}</div>

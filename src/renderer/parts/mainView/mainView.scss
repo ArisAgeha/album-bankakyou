@@ -19,8 +19,9 @@
             color: #fff;
             border-right: 1px solid $borderColor;
             min-width: 120px;
-            max-width: 300px;
+            max-width: 240px;
             transition: 0.15s ease-in-out;
+            flex-shrink: 0;
 
             .left {
                 padding-right: 10px;

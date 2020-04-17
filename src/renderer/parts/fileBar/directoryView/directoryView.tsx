@@ -99,10 +99,10 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
     }
 
     handleFold = (treeNode: ITreeDataNode) => {
-        delete treeNode.children;
-        this.setState({
-            treeData: [...this.state.treeData]
-        });
+        // delete treeNode.children;
+        // this.setState({
+        //     treeData: [...this.state.treeData]
+        // });
     }
 
     onLoadData = async (treeNode: ITreeDataNode): Promise<void> => {
