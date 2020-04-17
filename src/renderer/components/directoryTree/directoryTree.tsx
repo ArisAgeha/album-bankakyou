@@ -135,10 +135,11 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
 
         if (shouldFoldNode) {
             onFold(node);
-            const key = extractDirUrlFromKey(node.key);
-            const keySuffix = node.key.slice(node.key.indexOf('|'));
+            // const key = extractDirUrlFromKey(node.key);
+            // const keySuffix = node.key.slice(node.key.indexOf('|'));
             const shouldSaveKeys = expandedKeys.filter((expdKey) => {
-                if (expdKey.startsWith(key) && expdKey.endsWith(keySuffix)) return false;
+                // if (expdKey.startsWith(key) && expdKey.endsWith(keySuffix)) return false;
+                if (expdKey === node.key) return false;
                 return true;
             });
             this.setState({

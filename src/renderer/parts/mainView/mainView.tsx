@@ -133,11 +133,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     }
 
     handleWheelMoveOnTabBar = (event: React.WheelEvent) => {
-        console.log('====');
-        console.log(event.deltaY);
-        console.log(this.tabRef.current.scrollLeft);
         this.tabRef.current.scrollLeft += event.deltaY;
-        console.log(this.tabRef.current.scrollLeft);
     }
 
     handleMouseUp(e: React.MouseEvent, id: string) {
