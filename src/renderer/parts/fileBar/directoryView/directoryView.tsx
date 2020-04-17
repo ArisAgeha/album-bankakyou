@@ -49,12 +49,12 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
     }
 
     initIpc() {
-        ipcRenderer.on(command.OPEN_DIR_BY_IMPORT, (event: Electron.IpcRendererEvent, data: { autoImport: boolean; tree: ITreeDataNode }) => {
-            if (!data.autoImport) db.directory.insert({ url: extractDirUrlFromKey(data.tree.key) });
-            this.setState({
-                treeData: this.state.treeData.slice(0).concat(data.tree)
-            });
-        });
+        ipcRenderer.on(
+            command.OPEN_DIR_BY_IMPORT,
+            (event: Electron.IpcRendererEvent, data: { tree: ITreeDataNode }) => {
+                this.addDirNodeToTree(data.tree);
+            }
+        );
     }
 
     async autoImportDir() {
@@ -63,7 +63,20 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
 
         const dirs: string[] = (await db.directory.find({}).exec()).map((item: any) => item.url);
         dirs.forEach(dir => {
-            fileService.openDirByImport(dir, true);
+            fileService.loadDir(dir).then((dirNode) => {
+                this.addDirNodeToTree(dirNode);
+            });
+        });
+    }
+
+    addDirNodeToTree = (dirNode: ITreeDataNode) => {
+        db.directory.update(
+            { url: extractDirUrlFromKey(dirNode.key) },
+            { url: extractDirUrlFromKey(dirNode.key) },
+            { upsert: true }
+        );
+        this.setState({
+            treeData: this.state.treeData.slice(0).concat(dirNode)
         });
     }
 

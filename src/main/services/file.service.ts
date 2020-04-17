@@ -15,8 +15,6 @@ import { readdir, readdirWithFileTypes } from '@/common/utils/fsHelper';
 export class FileService {
     constructor(private readonly logService: LogService) { }
 
-    MAX_RECURSIVE_DEPTH: number = 2;
-
     initial() {
         ipcMain.on(command.SELECT_DIR_IN_TREE, this.getAllPictureInDir);
         ipcMain.on(command.LOAD_SUB_DIRECTORY_INFO, this.getSubDirectoryInfo);
@@ -54,9 +52,11 @@ export class FileService {
             level: number;
             time?: number;
             keySuffix?: string;
+            maxDepth?: number;
         } = {
                 level: 0,
-                time: 0
+                time: 0,
+                maxDepth: 2 // max recursive depth, no limit if maxDepth === -1;
             }
     ): Promise<ITreeDataNode> {
         if (!options.time) options.time = 0;
@@ -70,7 +70,8 @@ export class FileService {
             key: `${dir}${suffix}`
         };
 
-        if (options.level < this.MAX_RECURSIVE_DEPTH) {
+        const {level, maxDepth} = options;
+        if (maxDepth === -1 || level < maxDepth) {
             const childrenDir: ITreeDataNode[] = (await Promise.all(
                 dirInfo
                     .filter(dirent => dirent.isDirectory())
@@ -85,10 +86,9 @@ export class FileService {
         return tree;
     }
 
-    async openDirByImport(dir: string, auto: boolean): Promise<void> {
+    async openDirByImport(dir: string): Promise<void> {
         const tree = await this.loadDir(dir);
         mainWindow.webContents.send(command.OPEN_DIR_BY_IMPORT, {
-            autoImport: auto,
             tree
         });
     }
