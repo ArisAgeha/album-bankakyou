@@ -22,6 +22,7 @@ export interface IScrollListProps {
 
 export class ScrollList extends React.PureComponent<IScrollListProps, IScrollListState> {
     private readonly scrollListRef: React.RefObject<HTMLDivElement>;
+    private lastDirection: mode = 'LR';
 
     constructor(props: IScrollListProps) {
         super(props);
@@ -40,6 +41,18 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
     componentWillUnmount() {
         this.removeEvent();
+    }
+
+    componentDidUpdate() {
+        const el = this.scrollListRef.current;
+        if (this.state.mode !== this.lastDirection) {
+            if (this.state.mode === 'RL') el.scrollLeft = el.scrollWidth;
+            else if (this.state.mode === 'LR') el.scrollLeft = 0;
+            else if (this.state.mode === 'TB') el.scrollTop = 0;
+            else if (this.state.mode === 'BT') el.scrollTop = el.scrollHeight;
+
+            this.lastDirection = this.state.mode;
+        }
     }
 
     initEvent() {
@@ -114,11 +127,13 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
     getViewerStyle(): React.CSSProperties {
         const mode = this.state.mode;
         const flexDirection = mode === 'TB' ? 'column' : mode === 'BT' ? 'column-reverse' : mode === 'LR' ? 'row' : 'row-reverse';
-        return this.isVertical() ? { width: '100%', justifyContent: 'center', flexDirection } : { height: '100%', whiteSpace: 'nowrap', flexDirection };
+        return this.isVertical()
+            ? { width: '100%', justifyContent: 'center', flexDirection }
+            : { height: '100%', whiteSpace: 'nowrap', flexDirection, justifyContent: mode === 'LR' ? 'flex-start' : 'flex-end' };
     }
 
     getImgStyle(): React.CSSProperties {
-        return this.isVertical() ? { maxWidth: '100%', alignSelf: 'center' } : { maxHeight: '100%', alignSelf: 'flex-start' };
+        return this.isVertical() ? { maxWidth: '100%', alignSelf: 'center' } : { maxHeight: '100%', alignSelf: 'flex-end' };
     }
 
     render(): JSX.Element {
