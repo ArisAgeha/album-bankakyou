@@ -15,6 +15,8 @@ import { readdir, readdirWithFileTypes } from '@/common/utils/fsHelper';
 export class FileService {
     constructor(private readonly logService: LogService) { }
 
+    MAX_RECURSIVE_DEPTH = 2;
+
     initial() {
         ipcMain.on(command.SELECT_DIR_IN_TREE, this.getAllPictureInDir);
         ipcMain.on(command.LOAD_SUB_DIRECTORY_INFO, this.getSubDirectoryInfo);
@@ -56,7 +58,7 @@ export class FileService {
         } = {
                 level: 0,
                 time: 0,
-                maxDepth: 2 // max recursive depth, no limit if maxDepth === -1;
+                maxDepth: this.MAX_RECURSIVE_DEPTH // max recursive depth, no limit if maxDepth === -1;
             }
     ): Promise<ITreeDataNode> {
         if (!options.time) options.time = 0;
@@ -70,15 +72,16 @@ export class FileService {
             key: `${dir}${suffix}`
         };
 
-        const {level, maxDepth} = options;
-        if (maxDepth === -1 || level < maxDepth) {
+        const { level } = options;
+        const maxDepth = options.maxDepth || 2;
+        if (maxDepth === -1 || (level < maxDepth)) {
             const childrenDir: ITreeDataNode[] = (await Promise.all(
                 dirInfo
                     .filter(dirent => dirent.isDirectory())
                     .map(async (dirent, index) => this.loadDir(this.pr(dir, dirent.name), { level: options.level + 1, time: index++, keySuffix: suffix }))
             ))
-            .filter(node => !isUndefinedOrNull(node))
-            .sort((a, b) => naturalCompare(a.title, b.title));
+                .filter(node => !isUndefinedOrNull(node))
+                .sort((a, b) => naturalCompare(a.title, b.title));
 
             if (childrenDir.length > 0) tree.children = childrenDir;
         }

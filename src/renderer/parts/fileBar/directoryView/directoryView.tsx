@@ -63,9 +63,7 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
 
         const dirs: string[] = (await db.directory.find({}).exec()).map((item: any) => item.url);
         dirs.forEach(dir => {
-            fileService.loadDir(dir).then((dirNode) => {
-                this.addDirNodeToTree(dirNode);
-            });
+            fileService.openDirByImport(dir);
         });
     }
 

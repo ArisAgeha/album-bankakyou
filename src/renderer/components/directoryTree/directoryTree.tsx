@@ -109,7 +109,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         const loadDataCb = this.props.loadData;
         const onSelectCb = this.props.onSelect;
         const onFold = this.props.onFold;
-        const shouldInvokeLoadData = loadDataCb && !node.children;
+        const shouldInvokeLoadData = !this.state.expandedKeys.includes(node.key) && loadDataCb && !node.children;
         const shouldFoldNode = this.state.expandedKeys.includes(node.key) && onFold && node.children;
         const selectedNodes = [node];
         const selectedKeys = selectedNodes.map(node => node.key);
