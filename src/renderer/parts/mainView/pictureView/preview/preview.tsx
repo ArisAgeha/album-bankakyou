@@ -1,10 +1,7 @@
 import * as React from 'react';
 import style from './preview.scss';
 import { picture } from '../pictureView';
-import { EventHub } from '@/common/eventHub';
-import { eventConstant } from '@/common/constant/event.constant';
-import LazyLoad from 'react-lazyload';
-import { page } from '../../mainView';
+import LazyLoad from '@arisageha/react-lazyload-fixed';
 import { emptyCall, isVideo } from '@/common/utils/tools';
 
 export interface IPreviewState {
@@ -21,18 +18,23 @@ export interface IPreviewProps {
 }
 
 export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
+    private readonly previewRef: React.RefObject<HTMLDivElement>;
+
     imageMap: {
         [key: string]: {
             [key: number]: JSX.Element;
         };
     };
+
     private readonly pictureBoxRefs: {
         [key: string]: HTMLDivElement;
     };
 
     constructor(props: IPreviewProps) {
         super(props);
+
         this.pictureBoxRefs = {};
+        this.previewRef = React.createRef();
 
         this.imageMap = {};
 
@@ -47,6 +49,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
     componentWillUnmount() {
         this.removeEvent();
+        this.abortRequestPicture();
     }
 
     initEvent() {
@@ -55,6 +58,19 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
     removeEvent() {
         window.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    abortRequestPicture = () => {
+        const imgs = this.previewRef.current.querySelectorAll('img');
+        const videos = this.previewRef.current.querySelectorAll('video');
+
+        imgs.forEach(img => {
+            img.src = '';
+        });
+
+        videos.forEach(video => {
+            video.src = '';
+        });
     }
 
     handleClick(e: React.MouseEvent, picture: picture, index: number) {
@@ -116,7 +132,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         const scrollContainer = `#pictureViewScrollWrapper${this.props.index}`;
 
         return (
-            <div className={style.preview} onWheel={this.handleWheel} style={{ opacity: this.props.isShow ? 1 : 0 }}>
+            <div className={style.preview} ref={this.previewRef} onWheel={this.handleWheel} style={{ opacity: this.props.isShow ? 1 : 0 }}>
                 {album.map((picture, index) => {
                     const resolution = 1200;
 
@@ -125,15 +141,6 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                         content = <video src={picture.url} autoPlay muted loop></video>;
                     } else {
                         content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || <img draggable={false} src={picture.url} />;
-                        // content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || (
-                        //     <CompressedImage
-                        //         dataUrl={picture.url}
-                        //         imageType={picture.url.slice(picture.url.lastIndexOf('.') + 1)}
-                        //         resolution={resolution}
-                        //         quality={1}
-                        //     />
-                        // );
-
                         this.imageMap[picture.id] ? emptyCall() : (this.imageMap[picture.id] = {});
                         this.imageMap[picture.id][resolution] = content;
                     }

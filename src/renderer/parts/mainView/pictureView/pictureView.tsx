@@ -1,6 +1,6 @@
 import * as React from 'react';
 import style from './pictureView.scss';
-import LazyLoad from 'react-lazyload';
+import LazyLoad from '@arisageha/react-lazyload-fixed';
 import { ScrollList } from './scrollList/scrollList';
 import { Preview } from './preview/preview';
 import { SinglePage } from './singlePage/singlePage';

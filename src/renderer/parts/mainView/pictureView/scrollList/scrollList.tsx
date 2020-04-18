@@ -2,8 +2,7 @@ import * as React from 'react';
 import style from './scrollList.scss';
 import { page } from '../../mainView';
 import { picture } from '../pictureView';
-import LazyLoad from 'react-lazyload';
-import { PictureFilled } from '@ant-design/icons';
+import LazyLoad from '@arisageha/react-lazyload-fixed';
 import * as ReactDOM from 'react-dom';
 
 export type mode = 'TB' | 'BT' | 'LR' | 'RL';

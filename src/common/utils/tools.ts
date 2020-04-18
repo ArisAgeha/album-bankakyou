@@ -15,11 +15,12 @@ export function isProd() {
 export function emptyCall(): void { }
 
 export function isPicture(fileOrDirUrl: string): boolean {
-    return ['bmp', 'jpg', 'png', 'jpeg', 'exif', 'psd', 'webp', 'tif', 'tiff', 'gif', 'webm', '.mp4'].some(suffix => fileOrDirUrl.endsWith(suffix.toLowerCase()));
+    return ['bmp', 'jpg', 'png', 'jpeg', 'exif', 'psd', 'webp', 'tif', 'tiff', 'gif', 'webm', '.mp4']
+        .some(suffix => fileOrDirUrl.toLowerCase().endsWith(suffix));
 }
 
 export function isVideo(fileOrDirUrl: string): boolean {
-    return ['webm', '.mp4'].some(suffix => fileOrDirUrl.endsWith(suffix.toLowerCase()));
+    return ['webm', '.mp4'].some(suffix => fileOrDirUrl.toLowerCase().endsWith(suffix));
 }
 
 export function extractDirUrlFromKey(key: string): string {
