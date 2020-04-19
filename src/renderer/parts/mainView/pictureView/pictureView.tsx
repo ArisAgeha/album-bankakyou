@@ -115,6 +115,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         const album: picture[] = this.props.page.data as picture[];
         const tags = this.state.pageDetail.tags;
         const author = this.state.pageDetail.author;
+        const titleI18nModel = '%multipleSources%';
 
         const CoverBox = (
             <div className={style.coverBox}>
@@ -126,7 +127,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             </div>
         );
 
-        const Title = <h2 className={style.mainTitle}>{page.title}</h2>;
+        const Title = <h2 className={style.mainTitle}>{page.title === '%multipleSources%' ? t(titleI18nModel) : page.title}</h2>;
 
         const Tag = (
             <div className={style.group}>

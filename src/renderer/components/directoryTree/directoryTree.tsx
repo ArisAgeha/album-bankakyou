@@ -1,5 +1,5 @@
-import React, { Component, PureComponent } from 'react';
-import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined } from '@ant-design/icons';
+import React, { Component, PureComponent, cloneElement } from 'react';
+import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined, NodeExpandOutlined } from '@ant-design/icons';
 import { isUndefinedOrNull, isArray } from '@/common/utils/types';
 import style from './directoryTree.scss';
 import { extractDirUrlFromKey } from '@/common/utils/tools';
@@ -8,12 +8,16 @@ import { eventConstant } from '@/common/constant/event.constant';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     test: any = {};
+    cloneEl: Node[] = [];
+
     constructor(props: IDirectoryTreeProps) {
         super(props);
+
         this.state = {
             expandedKeys: [],
             selectedNodes: [],
             loadingKeys: [],
+            draggingNodes: [],
             lastSelectedNode: null,
             selectedNodesHistory: []
         };
@@ -80,12 +84,14 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         }
 
         const operationNodesArray = this.state.selectedNodesHistory.length === 0 ? this.state.selectedNodes : this.state.selectedNodesHistory;
+        const combindArray = treeNodesMap.filter(node => operationNodesArray.some(n => n.key === node.key));
+
         let newSelectedNodes = null;
-        newSelectedNodes = Array.from(new Set([...operationNodesArray, ...selectedArea]));
+        newSelectedNodes = Array.from(new Set([...combindArray, ...selectedArea]));
 
         this.setState({
             selectedNodes: newSelectedNodes,
-            selectedNodesHistory: operationNodesArray
+            selectedNodesHistory: combindArray
         });
     }
 
@@ -93,14 +99,17 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         nodes.forEach(node => {
             const { children, ...newNode } = node;
             nodesMap.push(newNode);
-            if (node.children) this.buildTreeNodesMap(node.children, nodesMap);
+            if (node.children && this.state.expandedKeys.includes(node.key)) this.buildTreeNodesMap(node.children, nodesMap);
+            // if (node.children) this.buildTreeNodesMap(node.children, nodesMap);
         });
         return nodesMap;
     }
 
     selectDir(event: React.MouseEvent, node: ITreeDataNode) {
         const selectedNodes = this.state.selectedNodes.filter(n => n.key !== node.key);
-        if (selectedNodes.length === this.state.selectedNodes.length) selectedNodes.push(node);
+        if (selectedNodes.length === this.state.selectedNodes.length) {
+            selectedNodes.push(node);
+        }
         this.setState({ selectedNodes, lastSelectedNode: node, selectedNodesHistory: [] });
     }
 
@@ -135,10 +144,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
 
         if (shouldFoldNode) {
             onFold(node);
-            // const key = extractDirUrlFromKey(node.key);
-            // const keySuffix = node.key.slice(node.key.indexOf('|'));
             const shouldSaveKeys = expandedKeys.filter((expdKey) => {
-                // if (expdKey.startsWith(key) && expdKey.endsWith(keySuffix)) return false;
                 if (expdKey === node.key) return false;
                 return true;
             });
@@ -159,10 +165,39 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         }
     }
 
-    handleClickRoot = (event: React.MouseEvent) => {
+    handleClickBackground = (event: React.MouseEvent) => {
         this.setState({
             selectedNodes: []
         });
+    }
+
+    handleDragNodeStart = (e: React.DragEvent, node: ITreeDataNode) => {
+        e.stopPropagation();
+        let urls: string[] = [];
+        const curSelectedKeys = this.state.selectedNodes.map(node => node.key);
+        if (curSelectedKeys.includes(node.key)) urls = this.state.selectedNodes.map(node => extractDirUrlFromKey(node.key));
+        else urls = this.buildTreeNodesMap([node], []).map(node => extractDirUrlFromKey(node.key));
+
+        console.log(urls);
+        urls = urls.filter((urlForCheck, index) =>
+            !urls.some(url => (urlForCheck !== url) && (url.includes(urlForCheck + '\\'))));
+
+        console.log(urls);
+
+        const urlsDataString = urls.join('?|?');
+        const dt = e.dataTransfer;
+        const img = new Image();
+        dt.setDragImage(img, 0, 0);
+        dt.setData('urls', urlsDataString);
+    }
+
+    handleDragNodeEnd = (e: React.DragEvent) => {
+    }
+
+    handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        const dt = e.dataTransfer;
+        // dt.dropEffect = 'copy';
     }
 
     renderLeaf(node: ITreeDataNode) {
@@ -189,7 +224,11 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         const isSelected = this.state.selectedNodes.findIndex(nodeInState => nodeInState.key === node.key) !== -1;
 
         const res = (
-            <div className={style.nodeRoot} key={node.key}>
+            <div
+                className={style.nodeRoot} key={node.key}
+                onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, node); }}
+                onDragEnd={this.handleDragNodeEnd}
+                draggable>
                 <div
                     className={`${style.nodeRootTitleWrapper} ${isSelected ? style.selected : ''}`}
                     onClick={(e: React.MouseEvent) => {
@@ -211,7 +250,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     render() {
         const treeData = this.props.treeData;
         const res = (
-            <div className={style.treeRootWrapper} onClick={this.handleClickRoot}>
+            <div className={style.treeRootWrapper} onClick={this.handleClickBackground} onDragOver={this.handleDragOver}>
                 <div className={style.treeRoot}>
                     {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
                 </div>
@@ -227,6 +266,7 @@ export interface IDirectoryTreeState {
     loadingKeys: string[];
     lastSelectedNode: ITreeDataNode;
     selectedNodesHistory: ITreeDataNode[];
+    draggingNodes: ITreeDataNode[];
 }
 
 export interface IDirectoryTreeProps {

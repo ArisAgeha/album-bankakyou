@@ -2,14 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import { injectable } from '@/common/decorator/injectable';
 import { LogService } from './log.service';
-import { isPicture, naturalCompare } from '@/common/utils/tools';
+import { isPicture, naturalCompare, extractDirNameFromUrl } from '@/common/utils/tools';
 import { ipcMain, ipcRenderer } from 'electron';
 import { mainWindow } from '@/main';
 import { isArray, isUndefinedOrNull } from '@/common/utils/types';
 import { command } from '@/common/constant/command.constant';
 import { ITreeDataNode } from '@/renderer/components/directoryTree/directoryTree';
-import { page } from '@/renderer/parts/mainView/mainView';
+import { page, LoadPictureRequest } from '@/renderer/parts/mainView/mainView';
 import { readdir, readdirWithFileTypes } from '@/common/utils/fsHelper';
+import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
 
 @injectable
 export class FileService {
@@ -22,20 +23,45 @@ export class FileService {
         ipcMain.on(command.LOAD_SUB_DIRECTORY_INFO, this.getSubDirectoryInfo);
     }
 
-    getAllPictureInDir = async (event: Electron.IpcMainEvent, data: page) => {
-        const { id, type, title } = data;
-        const url = id;
+    getAllPictureInDir = async (event: Electron.IpcMainEvent, data: LoadPictureRequest) => {
+        const { id, title, urls, recursiveDepth = 0 } = data;
+
+        const allPictureData: picture[] = [];
+
+        let loopTime = 0;
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            const resolvedUrl = this.pr(url);
+            const dirIsExists = fs.existsSync(resolvedUrl);
+            if (!dirIsExists) return;
+
+            await this.getPicture(url, allPictureData, { maxRecursiveDepth: recursiveDepth, curDepth: 0 });
+            loopTime++;
+        }
+        event.reply(command.RECEIVE_PICTURE, { id, data: allPictureData, title });
+    }
+
+    getPicture = async (url: string, pictureStore: picture[] = [], options: { curDepth: number; maxRecursiveDepth: number }) => {
+        const { maxRecursiveDepth, curDepth } = options;
         const resolvedUrl = this.pr(url);
+        const dirname = extractDirNameFromUrl(url);
+
         const dirIsExists = fs.existsSync(resolvedUrl);
         if (!dirIsExists) return;
 
         const dirInfo = await readdirWithFileTypes(resolvedUrl);
-        const pictureData = dirInfo
-            .filter(dirent => dirent.isFile() && isPicture(dirent.name))
-            .map((dirent, index) => ({ id: index, url: this.pr(url, dirent.name), title: dirent.name }))
-            .sort((a, b) => naturalCompare(a.title, b.title));
+        const dirInfoWithNaturalOrder = dirInfo.sort((a, b) => naturalCompare(a.name, b.name));
 
-        event.reply(command.RECEIVE_PICTURE, { id, data: pictureData, title, type });
+        for (let i = 0; i < dirInfoWithNaturalOrder.length; i++) {
+            const dirent = dirInfoWithNaturalOrder[i];
+            if (dirent.isFile() && isPicture(dirent.name)) {
+                pictureStore.push({ id: `${url}-${i}`, url: this.pr(url, dirent.name), title: dirent.name });
+            }
+            else if (dirent.isDirectory() && curDepth < maxRecursiveDepth) {
+                await this.getPicture(this.pr(url, dirent.name), pictureStore, { maxRecursiveDepth, curDepth: curDepth + 1 });
+            }
+        }
+
     }
 
     getSubDirectoryInfo = (event: Electron.IpcMainEvent, dirs: string[]) => {

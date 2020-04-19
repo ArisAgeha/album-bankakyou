@@ -30,5 +30,7 @@
     "%differentSetting%": "（不同的设置）",
     "%noTags%": "（无标签）",
     "%addTagHere%": "添加标签...",
-    "%addAuthorHere%": "添加作者..."
+    "%addAuthorHere%": "添加作者...",
+
+    "%multipleSources%": "(多个来源)"
 }
