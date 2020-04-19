@@ -1,5 +1,5 @@
 import React, { Component, SetStateAction, PureComponent } from 'react';
-import { remote, ipcMain, ipcRenderer } from 'electron';
+import { remote, ipcMain, ipcRenderer, IpcMain, IpcRendererEvent } from 'electron';
 import { ServiceCollection } from '@/common/serviceCollection';
 import style from './directoryView.scss';
 import { FileService } from '@/main/services/file.service';
@@ -38,6 +38,8 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         super(props);
     }
 
+    tmpTreeNode: ITreeDataNode = null;
+
     state: IDirectoryViewState = {
         treeData: [],
         lastSelectedNode: ''
@@ -55,19 +57,22 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
                 this.addDirNodeToTree(data.tree);
             }
         );
+
+        ipcRenderer.on(
+            command.RESPONSE_EXPAND_DIR,
+            this.handleLoadedData
+        );
     }
 
     async autoImportDir() {
-        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
-        const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
-
         const dirs: string[] = (await db.directory.find({}).exec()).map((item: any) => item.url);
         dirs.forEach(dir => {
-            fileService.openDirByImport(dir);
+            ipcRenderer.send(command.IMPORT_DIR, { dir });
         });
     }
 
     addDirNodeToTree = (dirNode: ITreeDataNode) => {
+        console.log(dirNode);;
         db.directory.update(
             { url: extractDirUrlFromKey(dirNode.key) },
             { url: extractDirUrlFromKey(dirNode.key) },
@@ -109,11 +114,16 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         if (treeNode.children) return;
 
         const node = treeNode;
-        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
-        const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
+        const loadOptions = { level: 1, keySuffix: extractSuffixFromKey(node.key), maxDepth: 2 };
+        ipcRenderer.send(command.EXPAND_DIR, {
+            url: extractDirUrlFromKey(node.key),
+            loadOptions
+        });
+        this.tmpTreeNode = treeNode;
+    }
 
-        const loadedTree = await fileService.loadDir(extractDirUrlFromKey(node.key), { level: 1, keySuffix: extractSuffixFromKey(node.key) });
-        treeNode.children = loadedTree.children || [];
+    handleLoadedData = (event: Electron.IpcRendererEvent, loadedTree: ITreeDataNode) => {
+        this.tmpTreeNode.children = loadedTree.children || [];
 
         this.setState({
             treeData: [...this.state.treeData]

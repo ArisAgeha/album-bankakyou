@@ -178,11 +178,8 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         if (curSelectedKeys.includes(node.key)) urls = this.state.selectedNodes.map(node => extractDirUrlFromKey(node.key));
         else urls = this.buildTreeNodesMap([node], []).map(node => extractDirUrlFromKey(node.key));
 
-        console.log(urls);
         urls = urls.filter((urlForCheck, index) =>
             !urls.some(url => (urlForCheck !== url) && (url.includes(urlForCheck + '\\'))));
-
-        console.log(urls);
 
         const urlsDataString = urls.join('?|?');
         const dt = e.dataTransfer;

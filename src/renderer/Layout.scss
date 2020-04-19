@@ -113,6 +113,7 @@
         border: 2px solid #fff;
     }
 
+    .ant-btn-primary.active,
     .ant-btn-primary:hover {
         transition: 0s;
         color: $fontColorActive;

@@ -32,5 +32,6 @@
     "%addTagHere%": "添加标签...",
     "%addAuthorHere%": "添加作者...",
 
-    "%multipleSources%": "(多个来源)"
+    "%multipleSources%": "(多个来源)",
+    "%deepMode%": "深层模式"
 }

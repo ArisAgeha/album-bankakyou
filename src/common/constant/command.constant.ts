@@ -6,6 +6,10 @@ export const command = {
     SELECT_DIR_IN_TREE: 'select-dir-in-tree',
     RECEIVE_PICTURE: 'receive_picture',
     LOAD_SUB_DIRECTORY_INFO: 'load-sub-directory-info',
+    REPLY_LOAD_SUB_DIRECTORY_INFO: 'reply-load-sub-directory-info',
+    IMPORT_DIR: 'import-dir',
+    EXPAND_DIR: 'expand-dir',
+    RESPONSE_EXPAND_DIR: 'response-expand-dir',
 
     // worker renderer ipc commands
     WORKER_COMPRESS_IMAGE: 'worker_compress_image',

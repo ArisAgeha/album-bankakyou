@@ -16,14 +16,47 @@ import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
 export class FileService {
     constructor(private readonly logService: LogService) { }
 
-    MAX_RECURSIVE_DEPTH = 9999;
+    MAX_RECURSIVE_DEPTH = 999;
 
     initial() {
         ipcMain.on(command.SELECT_DIR_IN_TREE, this.getAllPictureInDir);
         ipcMain.on(command.LOAD_SUB_DIRECTORY_INFO, this.getSubDirectoryInfo);
+        ipcMain.on(command.IMPORT_DIR, (event: Electron.IpcMainEvent, data: { dir: string }) => {
+            const { dir } = data;
+            this.openDirByImport(dir);
+        });
+        ipcMain.on(command.EXPAND_DIR, (
+            event: Electron.IpcMainEvent,
+            data: {
+                url: string;
+                loadOptions: {
+                    level: number;
+                    keySuffix: string;
+                    maxDepth: number;
+                };
+            }
+        ) => {
+            this.getSingleLevelDirInfo(event, data);
+        });
     }
 
-    getAllPictureInDir = async (event: Electron.IpcMainEvent, data: LoadPictureRequest) => {
+    getSingleLevelDirInfo = async (
+        event: Electron.IpcMainEvent,
+        data: {
+            url: string;
+            loadOptions: {
+                level: number;
+                keySuffix: string;
+                maxDepth: number;
+            };
+        }
+    ) => {
+        const { url, loadOptions } = data;
+        const tree = await this.loadDir(url, loadOptions);
+        event.reply(command.RESPONSE_EXPAND_DIR, tree);
+    }
+
+    private readonly getAllPictureInDir = async (event: Electron.IpcMainEvent, data: LoadPictureRequest) => {
         const { id, title, urls, recursiveDepth = 0 } = data;
 
         const allPictureData: picture[] = [];
@@ -41,10 +74,9 @@ export class FileService {
         event.reply(command.RECEIVE_PICTURE, { id, data: allPictureData, title });
     }
 
-    getPicture = async (url: string, pictureStore: picture[] = [], options: { curDepth: number; maxRecursiveDepth: number }) => {
+    private readonly getPicture = async (url: string, pictureStore: picture[] = [], options: { curDepth: number; maxRecursiveDepth: number }) => {
         const { maxRecursiveDepth, curDepth } = options;
         const resolvedUrl = this.pr(url);
-        const dirname = extractDirNameFromUrl(url);
 
         const dirIsExists = fs.existsSync(resolvedUrl);
         if (!dirIsExists) return;
@@ -61,14 +93,38 @@ export class FileService {
                 await this.getPicture(this.pr(url, dirent.name), pictureStore, { maxRecursiveDepth, curDepth: curDepth + 1 });
             }
         }
-
     }
 
-    getSubDirectoryInfo = (event: Electron.IpcMainEvent, dirs: string[]) => {
-        const res: string[] = [];
-        dirs.forEach(dir => {
-            if (!fs.existsSync(dir)) return;
-        });
+    private readonly getSubDirectoryInfo = async (event: Electron.IpcMainEvent, urls: string[]) => {
+        const allDirectory: string[] = [];
+
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            const resolvedUrl = this.pr(url);
+            const dirIsExists = fs.existsSync(resolvedUrl);
+            if (!dirIsExists) return;
+
+            await this.getDirectory(url, allDirectory);
+        }
+        event.reply(command.REPLY_LOAD_SUB_DIRECTORY_INFO, { urls: allDirectory });
+    }
+
+    private readonly getDirectory = async (url: string, allDirectory: string[]) => {
+        const resolvedUrl = this.pr(url);
+
+        const dirIsExists = fs.existsSync(resolvedUrl);
+        if (!dirIsExists) return;
+
+        const dirInfo = await readdirWithFileTypes(resolvedUrl);
+        const dirInfoWithNaturalOrder = dirInfo.sort((a, b) => naturalCompare(a.name, b.name));
+
+        for (let i = 0; i < dirInfoWithNaturalOrder.length; i++) {
+            const dirent = dirInfoWithNaturalOrder[i];
+            if (dirent.isDirectory()) {
+                allDirectory.push(url);
+                await this.getDirectory(this.pr(url, dirent.name), allDirectory);
+            }
+        }
     }
 
     /** directory tree methods */
@@ -104,7 +160,7 @@ export class FileService {
             const childrenDir: ITreeDataNode[] = (await Promise.all(
                 dirInfo
                     .filter(dirent => dirent.isDirectory())
-                    .map(async (dirent, index) => this.loadDir(this.pr(dir, dirent.name), { level: options.level + 1, time: index++, keySuffix: suffix }))
+                    .map(async (dirent, index) => this.loadDir(this.pr(dir, dirent.name), { level: options.level + 1, time: index++, keySuffix: suffix, maxDepth }))
             ))
                 .filter(node => !isUndefinedOrNull(node))
                 .sort((a, b) => naturalCompare(a.title, b.title));

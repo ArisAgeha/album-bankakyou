@@ -9,6 +9,10 @@ import { Select } from '@/renderer/components/select/select';
 import { TagSelector } from '@/renderer/components/tagSelector/tagSelector';
 import { isArray } from '@/common/utils/types';
 import { db } from '@/common/nedb';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
+import { command } from '@/common/constant/command.constant';
+import { Button } from 'antd';
+import { ApartmentOutlined } from '@ant-design/icons';
 const { Option } = Select;
 
 type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
@@ -16,6 +20,8 @@ type readingDirection = 'LR' | 'RL' | '_different';
 type pageReAlign = boolean | '_different';
 
 export interface IManageBarState {
+    loading: boolean;
+    deepMode: boolean;
     urls: string[];
     tags: string[] | null;
     authors: string[] | null;
@@ -40,13 +46,15 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         super(props);
 
         this.state = {
+            loading: true,
+            deepMode: false,
             selectedUrls: [],
             urls: [],
             tags: null,
             authors: null,
-            readingMode: 'double_page',
-            readingDirection: 'LR',
-            pageReAlign: false,
+            readingMode: '_different',
+            readingDirection: '_different',
+            pageReAlign: '_different',
             historyState: {
                 readingMode: 'double_page',
                 readingDirection: 'LR',
@@ -59,10 +67,24 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     componentDidMount() {
         this.initEvent();
+        this.initIpc();
     }
 
     componentWillUnmount() {
         this.removeEvent();
+    }
+
+    initIpc() {
+        ipcRenderer.on(command.REPLY_LOAD_SUB_DIRECTORY_INFO, (event: IpcRendererEvent, data: { urls: string[] }) => {
+            const { urls } = data;
+            this.setState({ urls });
+            const readingMode: readingMode = null;
+            const readingDirection: readingDirection = null;
+            const pageReAlign: pageReAlign = null;
+
+            const urlsData = db.directory.find({ $or: urls });
+            console.log(urlsData);
+        });
     }
 
     initEvent() {
@@ -74,9 +96,12 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     }
 
     loadPreference = (data: string[]) => {
-        const urls = data.map(extractDirUrlFromKey);
-        console.log(urls);
+        const selectedUrls = data.map(extractDirUrlFromKey);
+        this.setState({ selectedUrls });
+        ipcRenderer.send(command.LOAD_SUB_DIRECTORY_INFO, selectedUrls);
     }
+
+    getUrls = () => this.state.deepMode ? this.state.urls : this.state.selectedUrls;
 
     handleAuthorsChange = (authors: string[]) => {
         // TODO: save into database
@@ -87,12 +112,11 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     }
 
     handleTagsChange = (tags: string[]) => {
-        // TODO: save into database
         const dirs = this.state.urls;
         tags.forEach(tag => {
             db.tag.update({ tag_name: tag }, { tag_name: tag }, { upsert: true });
             dirs.forEach(dir => {
-                console.log(dir);
+                db.directory.update({ url: dir }, { tag }, { upsert: true });
             });
         });
         this.setState({ tags, tagSelectorIsShow: false });
@@ -105,12 +129,26 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
         return (
             <div className={style.info}>
-                <h2 className={style.infoItem}>
-                    {t('%selectedDirNum%').replace('%{selectedDirNum}', selectedDirNum.toString())}
-                </h2>
-                <h2 className={style.infoItem}>
-                    {t('%dirNum%').replace('%{dirNum}', dirNum.toString())}
-                </h2>
+                {this.state.deepMode ?
+                    <h2 className={style.infoItem}>
+                        {t('%dirNum%').replace('%{dirNum}', dirNum.toString())}
+                    </h2>
+                    :
+                    <h2 className={style.infoItem}>
+                        {t('%selectedDirNum%').replace('%{selectedDirNum}', selectedDirNum.toString())}
+                    </h2>
+                }
+                <Button
+                    className={this.state.deepMode ? 'active' : ''}
+                    type='primary'
+                    icon={< ApartmentOutlined />}
+                    tabIndex={-1}
+                    onClick={() => {
+                        this.setState({ deepMode: !this.state.deepMode });
+                    }}
+                >
+                    {t('%deepMode%')}
+                </Button>
             </div>
         );
     }
@@ -153,14 +191,26 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     }
 
     setReadingDirection = (value: any) => {
+        const urls = this.getUrls();
+        urls.forEach((url) => {
+            db.directory.update({ url }, { readingDirection: value }, { upsert: true });
+        });
         this.setState({ readingDirection: value });
     }
 
     setReadingMode = (value: any) => {
+        const urls = this.getUrls();
+        urls.forEach((url) => {
+            db.directory.update({ url }, { readingMode: value }, { upsert: true });
+        });
         this.setState({ readingMode: value });
     }
 
     setPageReAlign = (value: any) => {
+        const urls = this.getUrls();
+        urls.forEach((url) => {
+            db.directory.update({ url }, { pageReAlign: value }, { upsert: true });
+        });
         this.setState({ pageReAlign: value });
     }
 
@@ -209,7 +259,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
         const { tagSelectorIsShow, authorSelectorIsShow } = this.state;
 
-        return <div className={style.manageBar} style={{ backgroundImage: `url(${bgimg})` }}>
+        return <div className={`${style.manageBar} ${this.state.loading ? style.loading : ''}`} style={{ backgroundImage: `url(${bgimg})` }}>
             <div className={`${style.scrollWrapper} medium-scrollbar`}>
                 <Info />
                 <Category />

@@ -19,9 +19,6 @@ export function CompressedImage(props: { url: string; imageType?: string; resolu
             const { file, id } = data;
             if (id === url) setCompressedSrc(file);
 
-            console.log('----');
-            console.log(data);
-            console.log(id);
         });
     });
 

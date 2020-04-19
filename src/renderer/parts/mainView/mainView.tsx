@@ -57,7 +57,6 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         ipcRenderer.on(command.RECEIVE_PICTURE, (event, page: page) => {
             if (page.data.length === 0) return;
 
-            console.log(page);
             let newPages;
             const targetPage = this.state.pages.find(p => p.id === page.id);
             if (targetPage) {
