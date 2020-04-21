@@ -10,12 +10,16 @@ import { eventConstant } from '@/common/constant/event.constant';
 import { EventHub } from '@/common/eventHub';
 import { ITreeDataNode, DirectoryTree } from '../../../components/directoryTree/directoryTree';
 import { serviceConstant } from '@/common/constant/service.constant';
+import { readingDirection, readingMode, pageReAlign } from '../../manageBar/manageBar';
 
 export interface IDirectoryData {
     url: string;
     title: string;
-    tags: string[];
+    tag: string[];
     author: string[];
+    readingMode: readingMode;
+    readingDirection: readingDirection;
+    pageReAlign: pageReAlign;
     read_time: number;
     delay_time: number;
 }
@@ -71,7 +75,7 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
     addDirNodeToTree = (dirNode: ITreeDataNode) => {
         db.directory.update(
             { url: extractDirUrlFromKey(dirNode.key), auto: true },
-            { url: extractDirUrlFromKey(dirNode.key), auto: true },
+            { $set: { url: extractDirUrlFromKey(dirNode.key), auto: true } },
             { upsert: true }
         );
         this.setState({

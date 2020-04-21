@@ -9,10 +9,11 @@ import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { createPortal } from 'react-dom';
 import { db } from '@/common/nedb';
+import { IDirectoryData } from '@/renderer/parts/fileBar/directoryView/directoryView';
 
 export interface ITagSelectorProps {
     visible: boolean;
-    selectedTags: string[];
+    selectedTags: IDirectoryData['tag'] | '_different';
     onSubmit?(selectedTags: string[]): void;
     onCancel?(): void;
 }

@@ -14,17 +14,18 @@ import { command } from '@/common/constant/command.constant';
 import { Button } from 'antd';
 import { ApartmentOutlined } from '@ant-design/icons';
 import { upsertMany } from '@/common/utils/dbHelper';
+import { IDirectoryData } from '../fileBar/directoryView/directoryView';
 const { Option } = Select;
 
-type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
-type readingDirection = 'LR' | 'RL' | '_different';
-type pageReAlign = boolean | '_different';
+export type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
+export type readingDirection = 'LR' | 'RL' | '_different';
+export type pageReAlign = boolean | '_different';
 
 export interface IManageBarState {
     loading: boolean;
     deepMode: boolean;
     urls: string[];
-    tags: string[] | null;
+    tags: IDirectoryData['tag'] | '_different';
     authors: string[] | null;
     selectedUrls: string[];
     readingMode: readingMode;
@@ -81,28 +82,65 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         });
     }
 
-    handleRecieveUrlsFromService = async (urls: string[]) => {
-        this.setState({ urls });
-        const readingMode: readingMode = null;
-        const readingDirection: readingDirection = null;
-        const pageReAlign: pageReAlign = null;
+    handleRecieveUrlsFromService = (urlsWithSubDirs: string[]) => {
+        this.setState({ urls: urlsWithSubDirs });
 
-        const urlsData = await db.directory.find({ urls }).exec();
-        console.log(urlsData);
+        setTimeout(async () => {
+            if (this.state.deepMode) {
+                this.loadPreference(urlsWithSubDirs);
+            }
+        }, 0);
+    }
+
+    checkArrayIsInSameValue(arr: any[], ...path: string[]) {
+        let standardItem = arr[0];
+        path.forEach(p => {
+            standardItem = standardItem[p];
+        });
+        return arr.every(item => {
+            let checkItem = item;
+            path.forEach(p => {
+                checkItem = checkItem[p];
+            });
+            return checkItem === standardItem;
+        });
     }
 
     initEvent() {
-        EventHub.on(eventConstant.SHOW_MANAGE_BAR, this.loadPreference);
+        EventHub.on(eventConstant.SHOW_MANAGE_BAR, this.loadPreferenceAndSubUrls);
     }
 
     removeEvent() {
-        EventHub.cancel(eventConstant.SHOW_MANAGE_BAR, this.loadPreference);
+        EventHub.cancel(eventConstant.SHOW_MANAGE_BAR, this.loadPreferenceAndSubUrls);
     }
 
-    loadPreference = (data: string[]) => {
+    loadPreferenceAndSubUrls = (data: string[]) => {
         const selectedUrls = data.map(extractDirUrlFromKey);
         this.setState({ selectedUrls });
         ipcRenderer.send(command.LOAD_SUB_DIRECTORY_INFO, selectedUrls);
+        if (!this.state.deepMode) this.loadPreference(selectedUrls);
+    }
+
+    loadPreference = async (urls: string[]) => {
+        let readingMode: readingMode = null;
+        let readingDirection: readingDirection = null;
+        let pageReAlign: pageReAlign = null;
+        let tag: IManageBarState['tags'] = null;
+
+        const querys = urls.map(url => ({ url }));
+        const urlsData: IDirectoryData[] = (await db.directory.find({ $or: querys }).exec()) as any[];
+        if (urlsData?.length > 0) {
+            readingMode = this.checkArrayIsInSameValue(urlsData, 'readingMode') ? urlsData[0].readingMode : '_different';
+            readingDirection = this.checkArrayIsInSameValue(urlsData, 'readingDirection') ? urlsData[0].readingDirection : '_different';
+            pageReAlign = this.checkArrayIsInSameValue(urlsData, 'pageReAlign') ? urlsData[0].pageReAlign : '_different';
+            tag = this.checkArrayIsInSameValue(urlsData, 'tag') ? urlsData[0].tag : '_different';
+        }
+        this.setState({
+            readingMode,
+            readingDirection,
+            pageReAlign,
+            tags: tag
+        });
     }
 
     getUrls = () => this.state.deepMode ? this.state.urls : this.state.selectedUrls;
@@ -151,6 +189,10 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     tabIndex={-1}
                     onClick={() => {
                         this.setState({ deepMode: !this.state.deepMode });
+                        setTimeout(() => {
+                            const urls = this.getUrls();
+                            this.loadPreference(urls);
+                        }, 0);
                     }}
                 >
                     {t('%deepMode%')}
@@ -197,27 +239,24 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     }
 
     setReadingDirection = (value: any) => {
-        const urls = this.getUrls();
-        urls.forEach((url) => {
-            db.directory.update({ url }, { readingDirection: value }, { upsert: true });
-        });
+        this.upsertToUrls({ readingDirection: value });
         this.setState({ readingDirection: value });
     }
 
     setReadingMode = (value: any) => {
-        const urls = this.getUrls();
-        urls.forEach((url) => {
-            db.directory.update({ url }, { readingMode: value }, { upsert: true });
-        });
+        this.upsertToUrls({ readingMode: value });
         this.setState({ readingMode: value });
     }
 
     setPageReAlign = (value: any) => {
-        const urls = this.getUrls();
-        urls.forEach((url) => {
-            db.directory.update({ url }, { pageReAlign: value }, { upsert: true });
-        });
+        this.upsertToUrls({ pageReAlign: value });
         this.setState({ pageReAlign: value });
+    }
+
+    upsertToUrls = (upsertObj: { [key: string]: any }) => {
+        const urls = this.getUrls();
+        const querys = urls.map(url => ({ url }));
+        upsertMany(querys, upsertObj);
     }
 
     renderReadingSettings = () => {
