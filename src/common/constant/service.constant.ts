@@ -4,5 +4,6 @@ export const serviceConstant = {
     CONFIGURATION: 'configurationService',
     FILE: 'fileService',
     ENVIRONMENT: 'environmentService',
-    LOG: 'logService'
+    LOG: 'logService',
+    IPC: 'ipcService'
 };

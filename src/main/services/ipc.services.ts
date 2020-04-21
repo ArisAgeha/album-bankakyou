@@ -1,27 +1,22 @@
-// import { injectable } from '@/common/decorator/injectable';
-// import { ipcMain } from 'electron';
-// import { command } from '@/common/constant/command.constant';
-// import { workerWindow, mainWindow } from '@/main';
-// import { ICompressImageParams, ICompressImageReturn } from '@/worker/electronWorker';
+import { injectable } from '@/common/decorator/injectable';
+import { ipcMain, BrowserWindow } from 'electron';
+import { command } from '@/common/constant/command.constant';
+import { FileService } from './file.service';
+import { ConfigurationService } from './configuration.service';
+import { windowsConfig } from '@/common/constant/config.constant';
+import { isUndefinedOrNull, isBoolean } from '@/common/utils/types';
 
-// @injectable
-// export class IpcService {
-//     constructor() {}
+@injectable
+export class IpcService {
+    constructor(private readonly fileService: FileService, private readonly configurationService: ConfigurationService) {
+    }
 
-//     initial(): void {
-//         this.listenMainRendererIpc();
-//         this.listenWorkerRendererIpc();
-//     }
+    initial(): void {
+        ipcMain.on(command.TOGGLE_FULLSCREEN, (event: Electron.IpcMainEvent, setToFullscreen?: boolean) => {
+            const window = BrowserWindow.getAllWindows()[0];
+            const setVal = isBoolean(setToFullscreen) ? setToFullscreen : !window.isFullScreen();
+            window.setFullScreen(setVal);
+        });
+    }
 
-//     listenMainRendererIpc() {
-//         ipcMain.on(command.WORKER_COMPRESS_IMAGE, (event: Electron.IpcMainEvent, data: ICompressImageParams) => {
-//             workerWindow.webContents.send(command.WORKER_COMPRESS_IMAGE, data);
-//         });
-//     }
-
-//     listenWorkerRendererIpc() {
-//         ipcMain.on(command.WORKER_RETURN_COMPRESSED_IMAGE, (event: Electron.IpcMainEvent, data: ICompressImageReturn) => {
-//             mainWindow.webContents.send(command.WORKER_RETURN_COMPRESSED_IMAGE, data);
-//         });
-//     }
-// }
+}

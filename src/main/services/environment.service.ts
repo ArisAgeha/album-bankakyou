@@ -1,11 +1,10 @@
 import { injectable } from '@/common/decorator/injectable';
-import { FileService } from './file.service';
 import fs from 'fs';
 import path from 'path';
 
 @injectable
 export class EnvironmentService {
-    constructor(private readonly fileService: FileService) {}
+    constructor() { }
 
     initial(): void {
         this.initCfgDoc();

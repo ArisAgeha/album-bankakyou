@@ -124,13 +124,15 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
                     console.log(await db.tag.find({}).exec());
                 }
             },
+
             // swap view mode.
-            {
-                jsx: <SwapOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-                onClick: () => {
-                    EventHub.emit(eventConstant.SWITCH_PICTURE_MODE);
-                }
-            },
+            // {
+            //     jsx: <SwapOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+            //     onClick: () => {
+            //         EventHub.emit(eventConstant.SWITCH_PICTURE_MODE);
+            //     }
+            // },
+
             // import directory button
             {
                 jsx: <ImportOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,

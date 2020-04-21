@@ -11,6 +11,8 @@ export const command = {
     EXPAND_DIR: 'expand-dir',
     RESPONSE_EXPAND_DIR: 'response-expand-dir',
 
+    TOGGLE_FULLSCREEN: 'toggle-fullscreen',
+
     // worker renderer ipc commands
     WORKER_COMPRESS_IMAGE: 'worker_compress_image',
     WORKER_RETURN_COMPRESSED_IMAGE: 'worker_return_compressed_image'

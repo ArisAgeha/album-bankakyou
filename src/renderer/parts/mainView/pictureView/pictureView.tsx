@@ -16,6 +16,8 @@ import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-
 import { isNumber, isUndefinedOrNull } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background02.jpg';
 import { isVideo } from '@/common/utils/tools';
+import { ipcRenderer } from 'electron';
+import { command } from '@/common/constant/command.constant';
 
 export interface ISwitchPageEvent {
     delta?: number;
@@ -88,11 +90,11 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
     }
 
     initEvent() {
-        EventHub.on(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
+        // EventHub.on(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
     }
 
     removeEvent() {
-        EventHub.cancel(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
+        // EventHub.cancel(eventConstant.SWITCH_PICTURE_MODE, this.switchPictureMode);
     }
 
     switchPictureMode = (mode: IPictureViewState['viewMode']) => {
@@ -260,6 +262,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         e.preventDefault();
         if (e.button === 1) {
             const fullScreen = !this.state.fullScreen;
+            ipcRenderer.send(command.TOGGLE_FULLSCREEN, !this.state.fullScreen);
             this.setState({
                 fullScreen
             });

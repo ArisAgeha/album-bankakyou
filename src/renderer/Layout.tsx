@@ -5,7 +5,7 @@ import { ManageBar } from './parts/manageBar/manageBar';
 import { ToolsBar } from './parts/toolsBar/toolsBar';
 import { InfoBar } from './parts/infoBar/infoBar';
 import style from './Layout.scss';
-import { Event, app, remote } from 'electron';
+import { Event, app, remote, ipcRenderer } from 'electron';
 import { ConfigurationService } from '@/main/services/configuration.service';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { workbenchConfig } from '@/common/constant/config.constant';
@@ -18,6 +18,7 @@ import { isUndefinedOrNull } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background03.jpg';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
+import { command } from '@/common/constant/command.constant';
 
 interface ILayoutState {
     fileBarIsShow: boolean;
@@ -59,6 +60,13 @@ class Layout extends React.PureComponent<any, ILayoutState> {
     }
 
     initEvent() {
+        // set fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F11') {
+                ipcRenderer.send(command.TOGGLE_FULLSCREEN);
+            }
+        });
+
         // show manage bar
         EventHub.on(eventConstant.SHOW_MANAGE_BAR, () => {
             const layoutStyle = this.layoutRef.current.getBoundingClientRect();
@@ -86,6 +94,7 @@ class Layout extends React.PureComponent<any, ILayoutState> {
             this.setState({ manageBarIsShow: false });
         });
 
+        // set blur while show modal
         EventHub.on(eventConstant.SET_BLUR_BODY, () => {
             this.setState({ isBlur: true });
         });
