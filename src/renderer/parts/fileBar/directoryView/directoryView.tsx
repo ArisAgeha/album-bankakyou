@@ -58,24 +58,20 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
             }
         );
 
-        ipcRenderer.on(
-            command.RESPONSE_EXPAND_DIR,
-            this.handleLoadedData
-        );
+        ipcRenderer.on(command.RESPONSE_EXPAND_DIR, this.handleLoadedData);
     }
 
     async autoImportDir() {
-        const dirs: string[] = (await db.directory.find({}).exec()).map((item: any) => item.url);
+        const dirs: string[] = (await db.directory.find({ auto: true }).exec()).map((item: any) => item.url);
         dirs.forEach(dir => {
             ipcRenderer.send(command.IMPORT_DIR, { dir });
         });
     }
 
     addDirNodeToTree = (dirNode: ITreeDataNode) => {
-        console.log(dirNode);;
         db.directory.update(
-            { url: extractDirUrlFromKey(dirNode.key) },
-            { url: extractDirUrlFromKey(dirNode.key) },
+            { url: extractDirUrlFromKey(dirNode.key), auto: true },
+            { url: extractDirUrlFromKey(dirNode.key), auto: true },
             { upsert: true }
         );
         this.setState({

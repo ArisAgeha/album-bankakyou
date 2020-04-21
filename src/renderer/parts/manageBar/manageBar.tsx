@@ -13,6 +13,7 @@ import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { command } from '@/common/constant/command.constant';
 import { Button } from 'antd';
 import { ApartmentOutlined } from '@ant-design/icons';
+import { upsertMany } from '@/common/utils/dbHelper';
 const { Option } = Select;
 
 type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
@@ -76,15 +77,18 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     initIpc() {
         ipcRenderer.on(command.REPLY_LOAD_SUB_DIRECTORY_INFO, (event: IpcRendererEvent, data: { urls: string[] }) => {
-            const { urls } = data;
-            this.setState({ urls });
-            const readingMode: readingMode = null;
-            const readingDirection: readingDirection = null;
-            const pageReAlign: pageReAlign = null;
-
-            const urlsData = db.directory.find({ $or: urls });
-            console.log(urlsData);
+            this.handleRecieveUrlsFromService(data.urls);
         });
+    }
+
+    handleRecieveUrlsFromService = async (urls: string[]) => {
+        this.setState({ urls });
+        const readingMode: readingMode = null;
+        const readingDirection: readingDirection = null;
+        const pageReAlign: pageReAlign = null;
+
+        const urlsData = await db.directory.find({ urls }).exec();
+        console.log(urlsData);
     }
 
     initEvent() {
@@ -111,14 +115,16 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         });
     }
 
-    handleTagsChange = (tags: string[]) => {
-        const dirs = this.state.urls;
-        tags.forEach(tag => {
-            db.tag.update({ tag_name: tag }, { tag_name: tag }, { upsert: true });
-            dirs.forEach(dir => {
-                db.directory.update({ url: dir }, { tag }, { upsert: true });
-            });
-        });
+    handleTagsChange = async (tags: string[]) => {
+        const urls = this.getUrls();
+        const querys = urls.map(url => ({ url }));
+        const updateObjs = { tag: tags };
+
+        await upsertMany(querys, updateObjs);
+
+        for (const tag of tags) {
+            await db.tag.update({ tag_name: tag }, { tag_name: tag }, { upsert: true });
+        }
         this.setState({ tags, tagSelectorIsShow: false });
     }
 
