@@ -96,7 +96,8 @@ export class FileService {
         }
     }
 
-    private readonly getSubDirectoryInfo = async (event: Electron.IpcMainEvent, urls: string[]) => {
+    private readonly getSubDirectoryInfo = async (event: Electron.IpcMainEvent, data: {urls: string[]; flag: number}) => {
+        const { urls, flag } = data;
         const allDirectory: string[] = [];
 
         (this as any).test = 0;
@@ -108,7 +109,7 @@ export class FileService {
 
             await this.getDirectory(url, allDirectory);
         }
-        event.reply(command.REPLY_LOAD_SUB_DIRECTORY_INFO, { urls: allDirectory });
+        event.reply(command.REPLY_LOAD_SUB_DIRECTORY_INFO, { urls: allDirectory, flag });
     }
 
     private readonly getDirectory = async (url: string, allDirectory: string[]) => {

@@ -11,7 +11,7 @@ import { db } from '@/common/nedb';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { command } from '@/common/constant/command.constant';
 import { Button } from 'antd';
-import { ApartmentOutlined } from '@ant-design/icons';
+import { ApartmentOutlined, SyncOutlined, LoadingOutlined } from '@ant-design/icons';
 import { upsertMany } from '@/common/utils/dbHelper';
 import { IDirectoryData } from '../fileBar/directoryView/directoryView';
 import { deepEqual, primitiveArrayDeepEqual } from '@/common/utils/functionTools';
@@ -24,7 +24,8 @@ export type readingDirection = 'LR' | 'RL' | '_different';
 export type pageReAlign = boolean | '_different';
 
 export interface IManageBarState {
-    loading: boolean;
+    normalModeLoading: false | 'saving' | 'loading';
+    deepModeLoading: false | 'saving' | 'loading';
     deepMode: boolean;
     urls: string[];
     tags: IDirectoryData['tag'] | '_different';
@@ -45,12 +46,14 @@ export interface IManageBarState {
 export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     MAX_MESSAGE_LENGTH: number = 10;
+    SYNC_FLAGS: number = 0;
 
     constructor(props: {}) {
         super(props);
 
         this.state = {
-            loading: true,
+            normalModeLoading: false,
+            deepModeLoading: false,
             deepMode: false,
             selectedUrls: [],
             urls: [],
@@ -79,17 +82,23 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     }
 
     initIpc() {
-        ipcRenderer.on(command.REPLY_LOAD_SUB_DIRECTORY_INFO, (event: IpcRendererEvent, data: { urls: string[] }) => {
-            this.handleRecieveUrlsFromService(data.urls);
+        ipcRenderer.on(command.REPLY_LOAD_SUB_DIRECTORY_INFO, (event: IpcRendererEvent, data: { urls: string[]; flag: number }) => {
+            const { urls, flag } = data;
+            console.log('+++++++++');
+            console.log(flag);
+            console.log(this.SYNC_FLAGS);
+            if (flag === this.SYNC_FLAGS) this.handleRecieveUrlsFromService(urls);
         });
     }
 
     handleRecieveUrlsFromService = (urlsWithSubDirs: string[]) => {
         this.setState({ urls: urlsWithSubDirs });
 
+        console.warn('isDeepMode', this.state.deepMode); 
         setTimeout(async () => {
+            console.warn('isDeepMode', this.state.deepMode); 
             if (this.state.deepMode) {
-                this.loadPreference(urlsWithSubDirs);
+                this.loadPreference(urlsWithSubDirs, 'deep');
             }
         }, 0);
     }
@@ -123,12 +132,18 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     loadPreferenceAndSubUrls = (data: string[]) => {
         const selectedUrls = data.map(extractDirUrlFromKey);
-        this.setState({ selectedUrls });
-        ipcRenderer.send(command.LOAD_SUB_DIRECTORY_INFO, selectedUrls);
-        if (!this.state.deepMode) this.loadPreference(selectedUrls);
+        this.setState({ selectedUrls, normalModeLoading: 'loading', deepModeLoading: 'loading' });
+        if (!this.state.deepMode) this.loadPreference(selectedUrls, 'normal');
+        this.SYNC_FLAGS++;
+        console.warn(selectedUrls, this.SYNC_FLAGS);
+        ipcRenderer.send(command.LOAD_SUB_DIRECTORY_INFO, { urls: selectedUrls, flag: this.SYNC_FLAGS });
     }
 
-    loadPreference = async (urls: string[]) => {
+    loadPreference = async (urls: string[], mode: 'deep' | 'normal') => {
+        this.setState({ deepModeLoading: 'loading', normalModeLoading: 'loading' });
+        console.log(mode);
+        const selectedUrls = this.state.selectedUrls;
+        console.log(selectedUrls);
         let readingMode: readingMode = null;
         let readingDirection: readingDirection = null;
         let pageReAlign: pageReAlign = null;
@@ -161,13 +176,17 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 });
             }
         }
-        this.setState({
+        const setStateObj: Partial<IManageBarState> = {
             readingMode,
             readingDirection,
             pageReAlign,
             tags: tag,
             authors: author
-        });
+        };
+        if (mode === 'deep') setStateObj.deepModeLoading = false;
+        else setStateObj.normalModeLoading = false;
+        if (this.state.selectedUrls !== selectedUrls) return;
+        this.setState(setStateObj as Pick<IManageBarState, keyof IManageBarState>);
     }
 
     getUrls = () => this.state.deepMode ? this.state.urls : this.state.selectedUrls;
@@ -198,6 +217,27 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         this.setState({ tags, tagSelectorIsShow: false });
     }
 
+    setReadingDirection = (value: any) => {
+        this.upsertToUrls({ readingDirection: value });
+        this.setState({ readingDirection: value });
+    }
+
+    setReadingMode = (value: any) => {
+        this.upsertToUrls({ readingMode: value });
+        this.setState({ readingMode: value });
+    }
+
+    setPageReAlign = (value: any) => {
+        this.upsertToUrls({ pageReAlign: value });
+        this.setState({ pageReAlign: value });
+    }
+
+    upsertToUrls = (upsertObj: { [key: string]: any }) => {
+        const urls = this.getUrls();
+        const querys = urls.map(url => ({ url }));
+        upsertMany(querys, upsertObj);
+    }
+
     renderInfo = () => {
         const { t, i18n } = useTranslation();
         const selectedDirNum = this.state.selectedUrls.length;
@@ -220,10 +260,12 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     icon={< ApartmentOutlined />}
                     tabIndex={-1}
                     onClick={() => {
+                        console.error('===========;');
+                        console.log(this.state.deepModeLoading);
                         this.setState({ deepMode: !this.state.deepMode });
                         setTimeout(() => {
                             const urls = this.getUrls();
-                            this.loadPreference(urls);
+                            if (!this.state.deepModeLoading) this.loadPreference(urls, !this.state.deepMode ? 'normal' : 'deep');
                         }, 0);
                     }}
                 >
@@ -300,27 +342,6 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         );
     }
 
-    setReadingDirection = (value: any) => {
-        this.upsertToUrls({ readingDirection: value });
-        this.setState({ readingDirection: value });
-    }
-
-    setReadingMode = (value: any) => {
-        this.upsertToUrls({ readingMode: value });
-        this.setState({ readingMode: value });
-    }
-
-    setPageReAlign = (value: any) => {
-        this.upsertToUrls({ pageReAlign: value });
-        this.setState({ pageReAlign: value });
-    }
-
-    upsertToUrls = (upsertObj: { [key: string]: any }) => {
-        const urls = this.getUrls();
-        const querys = urls.map(url => ({ url }));
-        upsertMany(querys, upsertObj);
-    }
-
     renderReadingSettings = () => {
         const { t, i18n } = useTranslation();
 
@@ -368,19 +389,43 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         );
     }
 
+    renderLoadingModal = () => {
+        const { t } = useTranslation();
+        const loadingType = this.state.deepMode ? this.state.deepModeLoading : this.state.normalModeLoading;
+        return (
+            <div className={style.loadingModal}>
+                {loadingType === 'saving' ? <SyncOutlined spin /> : <LoadingOutlined />}
+                <span className={style.loadingText}>{loadingType === 'saving' ? t('%saving%') : t('%loading%')}</span>
+            </div>
+        );
+    }
+
     render(): JSX.Element {
         const Info = this.renderInfo;
         const Category = this.renderCategory;
         const ReadingSettings = this.renderReadingSettings;
+        const LoadingModal = this.renderLoadingModal;
 
         const { tagSelectorIsShow, authorSelectorIsShow } = this.state;
 
-        return <div className={`${style.manageBar} ${this.state.loading ? style.loading : ''}`} style={{ backgroundImage: `url(${bgimg})` }}>
-            <div className={`${style.scrollWrapper} medium-scrollbar`}>
+        const isLoading = this.state.deepMode ? this.state.deepModeLoading : this.state.normalModeLoading;
+        console.warn('====');
+        console.log(isLoading);
+        // console.log(this.state.deepMode);
+        // console.log(this.state.deepModeLoading);
+        console.log('====');
+
+        const mainContent = (
+            <div className={`${style.scrollWrapper} medium-scrollbar`} style={{ filter: isLoading !== false ? 'blur(4px)' : '' }}>
                 <Info />
                 <Category />
                 <ReadingSettings />
             </div>
+        );
+
+        return <div className={`${style.manageBar}`} style={{ backgroundImage: `url(${bgimg})` }}>
+            {mainContent}
+            {isLoading && <LoadingModal />}
 
             {tagSelectorIsShow ?
                 <TagSelector

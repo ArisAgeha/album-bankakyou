@@ -68,6 +68,24 @@
             }
         }
     }
+
+    .loadingModal {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 3;
+        font-size: 18px;
+        color: $fontColor;
+
+        .loadingText {
+            margin-left: 9px;
+        }
+    }
 }
 
 .manageBar::before {
