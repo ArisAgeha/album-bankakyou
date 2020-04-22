@@ -2,7 +2,7 @@ import * as React from 'react';
 import style from './doublePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
-import { isVideo } from '@/common/utils/businessTools';
+import { isVideo, encodeChar } from '@/common/utils/businessTools';
 const sizeOf = require('image-size');
 
 type dimension = {
@@ -231,11 +231,11 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         <div className={style.mainContainer}>
             {isVideo(props.url) ? (
                 <div className={style.mainContainer}>
-                    <video src={props.url} autoPlay loop muted> </video>
+                    <video src={encodeChar(props.url)} autoPlay loop muted> </video>
                 </div>
             ) : (
                     <div className={style.mainContainer}>
-                        <img draggable={false} src={props.url} alt='' />
+                        <img draggable={false} src={encodeChar(props.url)} alt='' />
                     </div>
                 )}
         </div>
@@ -248,10 +248,10 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         return (
             <React.Fragment>
                 <div className={style.leftContainer}>
-                    {isVideo(urlLeft) ? <video src={urlLeft} autoPlay loop muted></video> : <img src={urlLeft} alt='' draggable={false} />}
+                    {isVideo(urlLeft) ? <video src={encodeChar(urlLeft)} autoPlay loop muted></video> : <img src={encodeChar(urlLeft)} alt='' draggable={false} />}
                 </div>
                 <div className={style.rightContainer}>
-                    {isVideo(urlRight) ? <video src={urlRight} autoPlay loop muted></video> : <img src={urlRight} alt='' draggable={false} />}
+                    {isVideo(urlRight) ? <video src={encodeChar(urlRight)} autoPlay loop muted></video> : <img src={encodeChar(urlRight)} alt='' draggable={false} />}
                 </div>
             </React.Fragment>
         );

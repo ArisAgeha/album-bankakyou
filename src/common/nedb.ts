@@ -5,7 +5,8 @@ export const db: {
 } = {
     collection: DataStore.create({ filename: '../userdata/collection' }),
     directory: DataStore.create({ filename: '../userdata/directory' }),
-    tag: DataStore.create({ filename: '../userdata/tag' })
+    tag: DataStore.create({ filename: '../userdata/tag' }),
+    author: DataStore.create({ filename: '../userdata/author' })
 };
 
-export type dbName = 'collection' | 'directory' | 'tag';
+export type dbName = 'collection' | 'directory' | 'tag' | 'author';

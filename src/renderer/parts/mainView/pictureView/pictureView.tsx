@@ -15,7 +15,7 @@ import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 import { isNumber, isUndefinedOrNull } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background02.jpg';
-import { isVideo } from '@/common/utils/businessTools';
+import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { ipcRenderer } from 'electron';
 import { command } from '@/common/constant/command.constant';
 
@@ -124,8 +124,8 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
             <div className={style.coverBox}>
                 {
                     isVideo(album[0].url)
-                        ? <video autoPlay draggable={false} muted loop src={album[0].url}></video>
-                        : <img draggable={false} src={album[0].url} alt='' />
+                        ? <video autoPlay draggable={false} muted loop src={encodeChar(album[0].url)}></video>
+                        : <img draggable={false} src={encodeChar(album[0].url)} alt='' />
                 }
             </div>
         );

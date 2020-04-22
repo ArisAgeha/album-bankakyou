@@ -3,7 +3,7 @@ import style from './singlePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent } from '../pictureView';
 import { isNumber } from '@/common/utils/types';
-import { isVideo } from '@/common/utils/businessTools';
+import { isVideo, encodeChar } from '@/common/utils/businessTools';
 
 export interface ISinglePageState {
     x: number;
@@ -148,9 +148,9 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
             >
                 {
                     isVideo(imgSrc)
-                        ? <video src={imgSrc} loop autoPlay muted></video>
+                        ? <video src={encodeChar(imgSrc)} loop autoPlay muted></video>
                         : (<img
-                            src={imgSrc}
+                            src={encodeChar(imgSrc)}
                             alt=''
                             draggable={false}
                             style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }}

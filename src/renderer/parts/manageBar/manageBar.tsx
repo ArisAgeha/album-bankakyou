@@ -151,12 +151,17 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     getUrls = () => this.state.deepMode ? this.state.urls : this.state.selectedUrls;
 
-    handleAuthorsChange = (authors: string[]) => {
-        // TODO: save into database
-        this.setState({
-            authors,
-            authorSelectorIsShow: false
-        });
+    handleAuthorsChange = async (authors: string[]) => {
+        const urls = this.getUrls();
+        const querys = urls.map(url => ({ url }));
+        const updateObjs = { author: authors };
+
+        await upsertMany(querys, updateObjs);
+
+        for (const author of authors) {
+            await db.author.update({ author_name: author }, { author_name: author }, { upsert: true });
+        }
+        this.setState({ authors, authorSelectorIsShow: false });
     }
 
     handleTagsChange = async (tags: string[]) => {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import style from './preview.scss';
 import { picture } from '../pictureView';
 import LazyLoad from '@arisageha/react-lazyload-fixed';
-import { isVideo } from '@/common/utils/businessTools';
+import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { emptyCall } from '@/common/utils/functionTools';
 
 export interface IPreviewState {
@@ -139,9 +139,9 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
                     let content: JSX.Element = null;
                     if (isVideo(picture.url)) {
-                        content = <video src={picture.url} autoPlay muted loop></video>;
+                        content = <video src={encodeChar(picture.url)} autoPlay muted loop></video>;
                     } else {
-                        content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || <img draggable={false} src={picture.url} />;
+                        content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || <img draggable={false} src={encodeChar(picture.url)} />;
                         this.imageMap[picture.id] ? emptyCall() : (this.imageMap[picture.id] = {});
                         this.imageMap[picture.id][resolution] = content;
                     }

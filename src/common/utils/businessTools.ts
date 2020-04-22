@@ -23,3 +23,7 @@ export function extractDirNameFromKey(key: string): string {
 export function extractDirNameFromUrl(url: string): string {
     return (url.match(/[^\\/]+$/) || []).pop();
 }
+
+export function encodeChar(url: string): string {
+    return url.replace('#', encodeURIComponent('#'));
+}

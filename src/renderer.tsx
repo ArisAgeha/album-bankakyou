@@ -24,6 +24,7 @@ async function bootstrap() {
     await db.directory.load();
     await db.tag.load();
     await db.collection.load();
+    await db.author.load();
     db.directory.ensureIndex({ fieldName: 'url', unique: true });
     initApp();
 }

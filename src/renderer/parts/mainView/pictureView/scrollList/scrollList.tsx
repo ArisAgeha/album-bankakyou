@@ -4,6 +4,7 @@ import { page } from '../../mainView';
 import { picture } from '../pictureView';
 import LazyLoad from '@arisageha/react-lazyload-fixed';
 import * as ReactDOM from 'react-dom';
+import { encodeChar } from '@/common/utils/businessTools';
 
 export type mode = 'TB' | 'BT' | 'LR' | 'RL';
 
@@ -145,7 +146,7 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
         const Album = album.map(picture =>
             <LazyLoad scrollContainer={`#scrollListContainer`} overflow offset={150} placeholder={placeholder} once key={picture.id}>
-                <img draggable={false} src={picture.url} alt='' style={imgStyle} />
+                <img draggable={false} src={encodeChar(picture.url)} alt='' style={imgStyle} />
             </LazyLoad>
         );
 
