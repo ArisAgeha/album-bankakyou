@@ -58,11 +58,11 @@ export function deepEqual(actual: any, expected: any, strict: boolean) {
 function objEquiv(a: any, b: any, strict: boolean): boolean {
     if (a === null || a === undefined || b === null || b === undefined)
         return false;
-    // if one is a primitive, the other must be same
     if (isPrimitive(a) || isPrimitive(b))
         return a === b;
     if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b))
         return false;
+
     const aIsArgs = isArguments(a);
     const bIsArgs = isArguments(b);
     if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
@@ -72,10 +72,9 @@ function objEquiv(a: any, b: any, strict: boolean): boolean {
         b = Array.prototype.slice.call(b);
         return deepEqual(a, b, strict);
     }
+
     const ka = Object.keys(a);
     const kb = Object.keys(b);
-    let key;
-    let i;
 
     if (ka.length !== kb.length)
         return false;
@@ -83,13 +82,13 @@ function objEquiv(a: any, b: any, strict: boolean): boolean {
     ka.sort();
     kb.sort();
 
-    for (i = ka.length - 1; i >= 0; i--) {
+    for (let i = 0; i < ka.length; i++) {
         if (ka[i] !== kb[i])
             return false;
     }
 
-    for (i = ka.length - 1; i >= 0; i--) {
-        key = ka[i];
+    for (let i = 0; i < ka.length; i++) {
+        const key = ka[i];
         if (!deepEqual(a[key], b[key], strict)) return false;
     }
     return true;

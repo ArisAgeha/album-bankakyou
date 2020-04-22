@@ -103,12 +103,12 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             path.forEach(p => {
                 checkItem = checkItem[p];
             });
-            console.log('-----');
-            console.log(path);
-            console.log(checkItem);
-            console.log(standardItem);
-
-            return deepEqual(checkItem, standardItem, true);
+            if (Array.isArray(checkItem) && Array.isArray(standardItem)) {
+                return checkItem.every((ci, index) => ci === standardItem[index]);
+            }
+            else {
+                return checkItem === standardItem;
+            }
         });
     }
 
@@ -139,8 +139,6 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             readingMode = this.checkArrayIsInSameValue(urlsData, 'readingMode') ? urlsData[0].readingMode : '_different';
             readingDirection = this.checkArrayIsInSameValue(urlsData, 'readingDirection') ? urlsData[0].readingDirection : '_different';
             pageReAlign = this.checkArrayIsInSameValue(urlsData, 'pageReAlign') ? urlsData[0].pageReAlign : '_different';
-            console.log('++++++');
-            console.log(this.checkArrayIsInSameValue(urlsData, 'tag'));
             tag = this.checkArrayIsInSameValue(urlsData, 'tag') ? urlsData[0].tag : '_different';
         }
         this.setState({
