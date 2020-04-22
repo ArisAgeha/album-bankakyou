@@ -120,8 +120,9 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
     }
 
     getScaleContainerStyle(): React.CSSProperties {
-        const albumSize = `${this.state.zoomLevel}%`;
-        return this.isVertical() ? { width: albumSize } : { height: albumSize };
+        const albumSize = this.state.zoomLevel / 100;
+        // return this.isVertical() ? { width: albumSize } : { height: albumSize };
+        return { transform: `scale(${albumSize})`};
     }
 
     getViewerStyle(): React.CSSProperties {

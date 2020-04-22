@@ -79,9 +79,8 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
     async fetchPageDetail() {
         const url = this.props.page.id;
         const dir: IDirectoryData = await db.directory.findOne({ url });
-        console.log(dir);
-        const tags = dir?.tag || ['test', 'aaa', 'bbb', 'ddd', 'eee', 'fff', 'gggggggggg', 'wefewfewfwef', 'dfdsfsdfdsf', 'dsfdsfsdfsdfsdfds'];
-        const author = dir?.author || ['test', 'aaa', 'bbb', 'ddd'];
+        const tags = dir?.tag || [];
+        const author = dir?.author || [];
         this.setState({
             pageDetail: {
                 tags,

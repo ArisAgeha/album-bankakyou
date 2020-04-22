@@ -6,7 +6,7 @@ import { useTranslation, withTranslation } from 'react-i18next';
 import bgimg from '@/renderer/static/image/background02.jpg';
 import { Select } from '@/renderer/components/select/select';
 import { TagSelector } from '@/renderer/components/tagSelector/tagSelector';
-import { isArray } from '@/common/utils/types';
+import { isArray, isUndefinedOrNull, isString, isNumber } from '@/common/utils/types';
 import { db } from '@/common/nedb';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { command } from '@/common/constant/command.constant';
@@ -14,8 +14,9 @@ import { Button } from 'antd';
 import { ApartmentOutlined } from '@ant-design/icons';
 import { upsertMany } from '@/common/utils/dbHelper';
 import { IDirectoryData } from '../fileBar/directoryView/directoryView';
-import { deepEqual } from '@/common/utils/functionTools';
+import { deepEqual, primitiveArrayDeepEqual } from '@/common/utils/functionTools';
 import { extractDirUrlFromKey } from '@/common/utils/businessTools';
+import { AuthorSelector } from '@/renderer/components/authorSelector/authorSelector';
 const { Option } = Select;
 
 export type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
@@ -27,7 +28,7 @@ export interface IManageBarState {
     deepMode: boolean;
     urls: string[];
     tags: IDirectoryData['tag'] | '_different';
-    authors: string[] | null;
+    authors: string[] | '_different';
     selectedUrls: string[];
     readingMode: readingMode;
     readingDirection: readingDirection;
@@ -43,7 +44,7 @@ export interface IManageBarState {
 
 export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
-    MAX_TAGS_MESSAGE_LENGTH: number = 10;
+    MAX_MESSAGE_LENGTH: number = 10;
 
     constructor(props: {}) {
         super(props);
@@ -55,9 +56,9 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             urls: [],
             tags: null,
             authors: null,
-            readingMode: '_different',
-            readingDirection: '_different',
-            pageReAlign: '_different',
+            readingMode: null,
+            readingDirection: null,
+            pageReAlign: null,
             historyState: {
                 readingMode: 'double_page',
                 readingDirection: 'LR',
@@ -132,20 +133,40 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         let readingDirection: readingDirection = null;
         let pageReAlign: pageReAlign = null;
         let tag: IManageBarState['tags'] = null;
+        let author: IManageBarState['authors'] = null;
 
         const querys = urls.map(url => ({ url }));
         const urlsData: IDirectoryData[] = (await db.directory.find({ $or: querys }).exec()) as any[];
         if (urlsData?.length > 0) {
-            readingMode = this.checkArrayIsInSameValue(urlsData, 'readingMode') ? urlsData[0].readingMode : '_different';
-            readingDirection = this.checkArrayIsInSameValue(urlsData, 'readingDirection') ? urlsData[0].readingDirection : '_different';
-            pageReAlign = this.checkArrayIsInSameValue(urlsData, 'pageReAlign') ? urlsData[0].pageReAlign : '_different';
-            tag = this.checkArrayIsInSameValue(urlsData, 'tag') ? urlsData[0].tag : '_different';
+            if (urlsData.length < urls.length) {
+                readingMode = '_different';
+                readingDirection = '_different';
+                pageReAlign = '_different';
+                tag = '_different';
+                author = '_different';
+            }
+            else {
+                readingMode = urlsData[0].readingMode;
+                readingDirection = urlsData[0].readingDirection;
+                pageReAlign = urlsData[0].pageReAlign;
+                tag = urlsData[0].tag;
+                author = urlsData[0].author;
+
+                urlsData.forEach((urlData) => {
+                    readingMode = readingMode === urlData.readingMode ? readingMode : '_different';
+                    readingDirection = readingDirection === urlData.readingDirection ? readingDirection : '_different';
+                    pageReAlign = pageReAlign === urlData.pageReAlign ? pageReAlign : '_different';
+                    tag = (primitiveArrayDeepEqual(tag, urlData.tag)) ? tag : '_different';
+                    author = (primitiveArrayDeepEqual(author, urlData.author)) ? author : '_different';
+                });
+            }
         }
         this.setState({
             readingMode,
             readingDirection,
             pageReAlign,
-            tags: tag
+            tags: tag,
+            authors: author
         });
     }
 
@@ -215,12 +236,17 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     renderCategory = () => {
         const { t, i18n } = useTranslation();
         const tags = this.state.tags;
+        const authors = this.state.authors;
 
         let tagsMessage = null;
+        let authorsMessage = null;
+
+        // get ellipsis text of tags, e.g: [animal]、[fruit] => animal, frui...
+        // the maxium text length is decide by `MAX_MESSAGE_LENGTH`
         if (isArray(tags)) {
             if (tags.length > 0) {
                 tagsMessage = tags.reduce((preVal, curVal) => `${preVal}, ${curVal}`, '').slice(2);
-                if (tagsMessage.length > this.MAX_TAGS_MESSAGE_LENGTH) {
+                if (tagsMessage.length > this.MAX_MESSAGE_LENGTH) {
                     tagsMessage = tags.length > 1
                         ? `${tagsMessage.slice(0, 10)}...${t('%totallyTagCount%')}`.replace('%{totallyTagCount}', tags.length.toString())
                         : tagsMessage.slice(0, 10);
@@ -230,8 +256,33 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 tagsMessage = t('%noTags%');
             }
         }
-        else {
+        else if (isUndefinedOrNull(tags)) {
+            tagsMessage = t('%noTags%');
+        }
+        else if (tags === '_different') {
             tagsMessage = t('%differentSetting%');
+        }
+
+        // get ellipsis text of authors. e.g: [Johnson], [Washinton] => Johnson, Washin...
+        // the maxium text length is decide by `MAX_MESSAGE_LENGTH`
+        if (isArray(authors)) {
+            if (authors.length > 0) {
+                authorsMessage = authors.reduce((preVal, curVal) => `${preVal}, ${curVal}`, '').slice(2);
+                if (authorsMessage.length > this.MAX_MESSAGE_LENGTH) {
+                    authorsMessage = authors.length > 1
+                        ? `${authorsMessage.slice(0, 10)}...${t('%totallyAuthorCount%')}`.replace('%{totallyAuthorCount}', authors.length.toString())
+                        : authorsMessage.slice(0, 10);
+                }
+            }
+            else {
+                authorsMessage = t('%noAuthors%');
+            }
+        }
+        else if (isUndefinedOrNull(authors)) {
+            authorsMessage = t('%noAuthors%');
+        }
+        else if (authors === '_different') {
+            authorsMessage = t('%differentSetting%');
         }
 
         return (
@@ -243,7 +294,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 </div>
                 <div className={style.item}>
                     <h3>{t('%author%')}</h3>
-                    <div className={style.selectorButton} onClick={() => { this.setState({ authorSelectorIsShow: true }); }}>{tagsMessage}</div>
+                    <div className={style.selectorButton} onClick={() => { this.setState({ authorSelectorIsShow: true }); }}>{authorsMessage}</div>
                 </div>
             </div>
         );
@@ -279,7 +330,10 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 <div className={style.item}>
                     <h3>{t('%readingMode%')}</h3>
                     <div>
-                        <Select value={this.state.readingMode} onChange={this.setReadingMode} placeholder={t('%differentSetting%')}>
+                        <Select
+                            value={this.state.readingMode}
+                            onChange={this.setReadingMode}
+                            placeholder={isUndefinedOrNull(this.state.readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={'scroll'}>{t('%scrollMode%')}</Option>
                             <Option value={'single_page'}>{t('%singlePageMode%')}</Option>
                             <Option value={'double_page'}>{t('%doublePageMode%')}</Option>
@@ -289,7 +343,10 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 <div className={style.item}>
                     <h3>{t('%readingDirection%')}</h3>
                     <div>
-                        <Select value={this.state.readingDirection} onChange={this.setReadingDirection} placeholder={t('%differentSetting%')}>
+                        <Select
+                            value={this.state.readingDirection}
+                            onChange={this.setReadingDirection}
+                            placeholder={isUndefinedOrNull(this.state.readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={'LR'}>{t('%fromLeftToRight%')}</Option>
                             <Option value={'RL'}>{t('%fromRightToLeft%')}</Option>
                         </Select>
@@ -298,7 +355,10 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 <div className={style.item}>
                     <h3>{t('%pageReAlign%')}</h3>
                     <div>
-                        <Select value={this.state.pageReAlign} onChange={this.setPageReAlign} placeholder={t('%differentSetting%')}>
+                        <Select
+                            value={this.state.pageReAlign}
+                            onChange={this.setPageReAlign}
+                            placeholder={isUndefinedOrNull(this.state.readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={true}>{t('%yes%')}</Option>
                             <Option value={false}>{t('%no%')}</Option>
                         </Select>
@@ -321,12 +381,21 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 <Category />
                 <ReadingSettings />
             </div>
+
             {tagSelectorIsShow ?
                 <TagSelector
                     visible={tagSelectorIsShow}
                     selectedTags={this.state.tags}
                     onSubmit={this.handleTagsChange}
                     onCancel={() => { this.setState({ tagSelectorIsShow: false }); }} />
+                : ''}
+
+            {authorSelectorIsShow ?
+                <AuthorSelector
+                    visible={authorSelectorIsShow}
+                    selectedAuthors={this.state.authors}
+                    onSubmit={this.handleAuthorsChange}
+                    onCancel={() => { this.setState({ authorSelectorIsShow: false }); }} />
                 : ''}
         </div>;
     }

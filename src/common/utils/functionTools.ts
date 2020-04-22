@@ -1,4 +1,4 @@
-import { isRegExp, isDate, isPrimitive, isArguments } from './types';
+import { isRegExp, isDate, isPrimitive, isArguments, isArray } from './types';
 import { app } from 'electron';
 
 export function toCamelCase(str: string, mark: string = '_') {
@@ -14,6 +14,15 @@ export function isProd() {
 }
 
 export function emptyCall(): void { }
+
+export function primitiveArrayDeepEqual(actual: any, expected: any) {
+    if (!isArray(actual) || !isArray(expected)) return false;
+    if (actual.length !== expected.length) return false;
+    for (let i = 0; i < actual.length; i++) {
+        if (actual[i] !== expected[i]) return false;
+    }
+    return true;
+}
 
 export function naturalCompare(a: any, b: any) {
     const ax: any[] = [];

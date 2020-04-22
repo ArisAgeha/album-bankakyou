@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createElement } from 'react';
-import style from './tagSelector.scss';
+import style from './authorSelector.scss';
 import { Tag } from '../tag/tag';
 import { isArray } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background03.jpg';
@@ -11,78 +11,78 @@ import { createPortal } from 'react-dom';
 import { db } from '@/common/nedb';
 import { IDirectoryData } from '@/renderer/parts/fileBar/directoryView/directoryView';
 
-export interface ITagSelectorProps {
+export interface IAuthorSelectorProps {
     visible: boolean;
-    selectedTags: IDirectoryData['tag'] | '_different';
-    onSubmit?(selectedTags: string[]): void;
+    selectedAuthors: IDirectoryData['author'] | '_different';
+    onSubmit?(selectedAuthors: string[]): void;
     onCancel?(): void;
 }
 
-export interface ITagSelectorState {
-    tags: string[];
-    selectedTags: string[];
-    newTagName: string;
+export interface IAuthorSelectorState {
+    authors: string[];
+    selectedAuthors: string[];
+    newAuthorName: string;
 }
 
 const modalRoot = document.getElementById('modal-root');
 
-export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSelectorState> {
+export class AuthorSelector extends React.PureComponent<IAuthorSelectorProps, IAuthorSelectorState> {
     el: HTMLDivElement;
 
-    constructor(props: ITagSelectorProps) {
+    constructor(props: IAuthorSelectorProps) {
         super(props);
 
         this.el = document.createElement('div');
 
         this.state = {
-            tags: [],
-            selectedTags: [],
-            newTagName: ''
+            authors: [],
+            selectedAuthors: [],
+            newAuthorName: ''
         };
     }
 
     componentDidMount() {
         modalRoot.appendChild(this.el);
-        this.initSelectedTags();
-        this.fetchTags();
+        this.initSelectedAuthors();
+        this.fetchAuthors();
     }
 
     componentWillUnmount() {
         modalRoot.removeChild(this.el);
     }
 
-    componentDidUpdate(prevProps: ITagSelectorProps) {
+    componentDidUpdate(prevProps: IAuthorSelectorProps) {
         if (this.props.visible) EventHub.emit(eventConstant.SET_BLUR_BODY);
-        if (prevProps.selectedTags !== this.props.selectedTags) this.fetchTags();
+        if (prevProps.selectedAuthors !== this.props.selectedAuthors) this.fetchAuthors();
     }
 
-    initSelectedTags() {
-        const selectedTags = isArray(this.props.selectedTags) ? [...this.props.selectedTags] : [];
-        this.setState({ selectedTags });
+    initSelectedAuthors() {
+        const selectedAuthors = isArray(this.props.selectedAuthors) ? [...this.props.selectedAuthors] : [];
+        this.setState({ selectedAuthors });
     }
 
-    fetchTags() {
+    fetchAuthors() {
         this.setState({
-            tags: []
+            authors: []
         });
     }
 
-    toggleTag(tag: string) {
-        if (!tag) return;
-        if (this.state.selectedTags.includes(tag)) this.closeTag(tag);
-        else this.addTag(tag);
+    toggleAuthor(author: string) {
+        if (!author) return;
+        if (this.state.selectedAuthors.includes(author)) this.closeAuthor(author);
+        else this.addAuthor(author);
     }
 
-    addTag(tag: string) {
-        const selectedTags = [...this.state.selectedTags, tag];
-        this.setState({ selectedTags });
+    addAuthor(author: string) {
+        const selectedAuthors = [...this.state.selectedAuthors, author];
+        this.setState({ selectedAuthors });
     }
 
-    closeTag(tag: string) {
-        const selectedTags = [...this.state.selectedTags];
-        const index = selectedTags.indexOf(tag);
-        selectedTags.splice(index, 1);
-        this.setState({ selectedTags });
+    closeAuthor(author: string) {
+        const selectedAuthors = [...this.state.selectedAuthors];
+        const index = selectedAuthors.indexOf(author);
+        selectedAuthors.splice(index, 1);
+        this.setState({ selectedAuthors });
     }
 
     hiddenPanel = () => {
@@ -94,11 +94,11 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
     }
 
     checkHasChange = () => {
-        const selectedTags = this.state.selectedTags;
-        const originTags = this.props.selectedTags;
-        if (isArray(originTags)
-            && !(originTags.length === selectedTags.length && (Array.from(new Set([...originTags, ...selectedTags])).length === originTags.length))) return true;
-        else if ((!isArray(originTags) || originTags.length === 0) && selectedTags.length !== 0) return true;
+        const selectedAuthors = this.state.selectedAuthors;
+        const originAuthors = this.props.selectedAuthors;
+        if (isArray(originAuthors)
+            && !(originAuthors.length === selectedAuthors.length && (Array.from(new Set([...originAuthors, ...selectedAuthors])).length === originAuthors.length))) return true;
+        else if ((!isArray(originAuthors) || originAuthors.length === 0) && selectedAuthors.length !== 0) return true;
         return false;
     }
 
@@ -107,36 +107,36 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
         if (!hasChange) return;
 
         const { onSubmit } = this.props;
-        const tags = this.state.selectedTags;
+        const authors = this.state.selectedAuthors;
         if (onSubmit) {
-            onSubmit(tags);
+            onSubmit(authors);
             EventHub.emit(eventConstant.UNSET_BLUR_BODY);
         }
     }
 
     handleInputSubmit = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') { this.toggleTag(this.state.newTagName); }
+        if (e.key === 'Enter') { this.toggleAuthor(this.state.newAuthorName); }
     }
 
     renderInput = () => {
         const { t, i18n } = useTranslation();
         return <input
             type='text'
-            className={style.addTagInput}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { this.setState({ newTagName: e.target.value }); }}
-            value={this.state.newTagName}
-            placeholder={t('%addTagHere%')}
+            className={style.addAuthorInput}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { this.setState({ newAuthorName: e.target.value }); }}
+            value={this.state.newAuthorName}
+            placeholder={t('%addAuthorHere%')}
             onKeyDown={this.handleInputSubmit} />;
     }
 
     render() {
         const Input = this.renderInput;
-        const selectedTags = this.state.selectedTags;
-        const originTags = this.props.selectedTags;
-        const tags = this.state.tags;
+        const selectedAuthors = this.state.selectedAuthors;
+        const originAuthors = this.props.selectedAuthors;
+        const authors = this.state.authors;
         const hasChange = this.checkHasChange();
 
-        const children = (<div className={style.tagSelector} style={{ display: this.props.visible ? 'flex' : 'none' }}>
+        const children = (<div className={style.authorSelector} style={{ display: this.props.visible ? 'flex' : 'none' }}>
             <div className={style.mask} onClick={this.hiddenPanel}></div>
             <div className={`${style.panelWrapper} useBlurBg`} style={{ backgroundImage: `url(${bgimg})` }}>
 
@@ -144,8 +144,8 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
                     <div className={`${style.scrollWrapper} medium-scrollbar`}>
                         <Input />
                         {
-                            selectedTags.map(tag =>
-                                <Tag key={tag} onClose={() => { this.closeTag(tag); }} closeByWheelClick>{tag}</Tag>)
+                            selectedAuthors.map(author =>
+                                <Tag key={author} onClose={() => { this.closeAuthor(author); }} closeByWheelClick>{author}</Tag>)
                         }
                     </div>
                 </div>
@@ -153,9 +153,9 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
                 <div className={style.selectPanel}>
                     <div className={`${style.scrollWrapper} medium-scrollbar`}>
                         {
-                            tags.map(tag => {
-                                if (!tag.includes(this.state.newTagName)) return '';
-                                return <Tag key={tag} onClick={() => { this.toggleTag(tag); }} isActive={selectedTags.includes(tag)}>{tag}</Tag>;
+                            authors.map(author => {
+                                if (!author.includes(this.state.newAuthorName)) return '';
+                                return <Tag key={author} onClick={() => { this.toggleAuthor(author); }} isActive={selectedAuthors.includes(author)}>{author}</Tag>;
                             })
                         }
                     </div>

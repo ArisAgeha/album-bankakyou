@@ -27,8 +27,10 @@
     "%selectedDirNum%": "选择了 %{selectedDirNum} 个目录",
     "%dirNum%": "共包含 %{dirNum} 个目录及子目录",
 
+    "%notSettingYet%": "（未设置）",
     "%differentSetting%": "（不同的设置）",
     "%noTags%": "（无标签）",
+    "%noAuthors%": "（无作者）",
     "%addTagHere%": "添加标签...",
     "%addAuthorHere%": "添加作者...",
 

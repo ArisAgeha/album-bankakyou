@@ -1,0 +1,110 @@
+.authorSelector {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .mask {
+        background-color: rgba(0, 0, 0, 0.3);
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: -1;
+    }
+
+    .panelWrapper {
+        width: 800px;
+        height: 450px;
+        background-color: #fff;
+        border-radius: 8px;
+        flex-direction: column;
+        box-shadow: 0px 0px 48px 24px;
+
+        .submitPanel {
+            display: flex;
+            font-size: 24px;
+            border-top: 1px solid $borderColor;
+
+            .submitButton {
+                color: $fontColor;
+                border-right: 1px solid $borderColor;
+                color: rgba(204, 204, 204, 1);
+                cursor: not-allowed;
+            }
+
+            .cancelButton {
+                color: $fontColor;
+                color: rgb(205, 57, 75);
+                cursor: pointer;
+            }
+
+            .submitButton,
+            .cancelButton {
+                width: 50%;
+                padding: 6px 0;
+                text-align: center;
+                transition: 0.2s ease-in-out;
+            }
+
+            .submitButton:hover {
+                background-color: rgba(204, 204, 204, 0.4);
+                transition: 0s ease-in-out;
+            }
+
+            .cancelButton:hover {
+                background-color: rgba(205, 57, 75, 0.4);
+                transition: 0s ease-in-out;
+            }
+
+            .submitButton.active {
+                color: $fontColor;
+                border-right: 1px solid $borderColor;
+                color: rgb(40, 152, 44);
+                cursor: pointer;
+            }
+
+            .submitButton.active:hover {
+                background-color: rgba(40, 152, 44, 0.4);
+                transition: 0s ease-in-out;
+            }
+        }
+
+        .controlPanel {
+            width: 100%;
+            height: 33.33%;
+            padding: 12px;
+            border-bottom: 1px solid $borderColor;
+
+            .addAuthorInput {
+                font-size: inherit;
+                border: none;
+                border-bottom: 2px solid $tagBorderColor;
+                background-color: rgba(0, 0, 0, 0);
+                outline: none;
+                color: $tagFontColor;
+                margin: 7px 12px 7px 0;
+            }
+        }
+
+        .selectPanel {
+            width: 100%;
+            flex: 1;
+            padding: 12px;
+        }
+
+        .controlPanel .scrollWrapper,
+        .selectPanel .scrollWrapper {
+            overflow: scroll;
+            height: 100%;
+            width: 100%;
+            padding: 12px;
+        }
+    }
+}
