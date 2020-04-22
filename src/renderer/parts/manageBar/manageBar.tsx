@@ -195,7 +195,14 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     getUrls = () => this.state.deepMode ? this.state.urls : this.state.selectedUrls;
 
+    setSavingStatus = () => {
+        if (this.state.deepMode) this.setState({ deepModeLoading: 'saving' });
+        else this.setState({ normalModeLoading: 'saving' });
+    }
+
     handleAuthorsChange = async (authors: string[]) => {
+        this.setSavingStatus();
+        this.setState({ authorSelectorIsShow: false });
         const urls = this.getUrls();
         const querys = urls.map(url => ({ url }));
         const updateObjs = { author: authors };
@@ -205,11 +212,13 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         for (const author of authors) {
             await db.author.update({ author_name: author }, { author_name: author }, { upsert: true });
         }
-        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, authors }, authorSelectorIsShow: false });
-        else this.setState({ normalData: { ...this.state.normalData, authors }, authorSelectorIsShow: false });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, authors }, deepModeLoading: false });
+        else this.setState({ normalData: { ...this.state.normalData, authors }, authorSelectorIsShow: false, normalModeLoading: false });
     }
 
     handleTagsChange = async (tags: string[]) => {
+        this.setSavingStatus();
+        this.setState({ tagSelectorIsShow: false });
         const urls = this.getUrls();
         const querys = urls.map(url => ({ url }));
         const updateObjs = { tag: tags };
@@ -219,32 +228,35 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         for (const tag of tags) {
             await db.tag.update({ tag_name: tag }, { tag_name: tag }, { upsert: true });
         }
-        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, tags }, tagSelectorIsShow: false });
-        else this.setState({ normalData: { ...this.state.normalData, tags }, tagSelectorIsShow: false });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, tags }, deepModeLoading: false });
+        else this.setState({ normalData: { ...this.state.normalData, tags }, tagSelectorIsShow: false, normalModeLoading: false });
     }
 
-    setReadingDirection = (value: any) => {
-        this.upsertToUrls({ readingDirection: value });
-        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, readingDirection: value } });
-        else this.setState({ normalData: { ...this.state.normalData, readingDirection: value } });
+    setReadingDirection = async (value: any) => {
+        this.setSavingStatus();
+        await this.upsertToUrls({ readingDirection: value });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, readingDirection: value }, deepModeLoading: false });
+        else this.setState({ normalData: { ...this.state.normalData, readingDirection: value }, normalModeLoading: false });
     }
 
-    setReadingMode = (value: any) => {
-        this.upsertToUrls({ readingMode: value });
-        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, readingMode: value } });
-        else this.setState({ normalData: { ...this.state.normalData, readingMode: value } });
+    setReadingMode = async (value: any) => {
+        this.setSavingStatus();
+        await this.upsertToUrls({ readingMode: value });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, readingMode: value }, deepModeLoading: false });
+        else this.setState({ normalData: { ...this.state.normalData, readingMode: value }, normalModeLoading: false });
     }
 
-    setPageReAlign = (value: any) => {
-        this.upsertToUrls({ pageReAlign: value });
-        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, pageReAlign: value } });
-        else this.setState({ normalData: { ...this.state.normalData, pageReAlign: value } });
+    setPageReAlign = async (value: any) => {
+        this.setSavingStatus();
+        await this.upsertToUrls({ pageReAlign: value });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, pageReAlign: value }, deepModeLoading: false });
+        else this.setState({ normalData: { ...this.state.normalData, pageReAlign: value }, normalModeLoading: false });
     }
 
-    upsertToUrls = (upsertObj: { [key: string]: any }) => {
+    upsertToUrls = async (upsertObj: { [key: string]: any }) => {
         const urls = this.getUrls();
         const querys = urls.map(url => ({ url }));
-        upsertMany(querys, upsertObj);
+        await upsertMany(querys, upsertObj);
     }
 
     // getValue: <T extends manageData, K extends keyof T>(key: K) => T[K]
