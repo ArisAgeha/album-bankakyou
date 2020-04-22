@@ -22,18 +22,22 @@ const { Option } = Select;
 export type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
 export type readingDirection = 'LR' | 'RL' | '_different';
 export type pageReAlign = boolean | '_different';
+export type manageData = {
+    tags: IDirectoryData['tag'] | '_different';
+    authors: string[] | '_different';
+    readingMode: readingMode;
+    readingDirection: readingDirection;
+    pageReAlign: pageReAlign;
+};
 
 export interface IManageBarState {
     normalModeLoading: false | 'saving' | 'loading';
     deepModeLoading: false | 'saving' | 'loading';
     deepMode: boolean;
     urls: string[];
-    tags: IDirectoryData['tag'] | '_different';
-    authors: string[] | '_different';
     selectedUrls: string[];
-    readingMode: readingMode;
-    readingDirection: readingDirection;
-    pageReAlign: pageReAlign;
+    deepData: manageData;
+    normalData: manageData;
     historyState: {
         readingMode: readingMode;
         readingDirection: readingDirection;
@@ -57,11 +61,20 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             deepMode: false,
             selectedUrls: [],
             urls: [],
-            tags: null,
-            authors: null,
-            readingMode: null,
-            readingDirection: null,
-            pageReAlign: null,
+            deepData: {
+                tags: null,
+                authors: null,
+                readingMode: null,
+                readingDirection: null,
+                pageReAlign: null
+            },
+            normalData: {
+                tags: null,
+                authors: null,
+                readingMode: null,
+                readingDirection: null,
+                pageReAlign: null
+            },
             historyState: {
                 readingMode: 'double_page',
                 readingDirection: 'LR',
@@ -84,23 +97,13 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     initIpc() {
         ipcRenderer.on(command.REPLY_LOAD_SUB_DIRECTORY_INFO, (event: IpcRendererEvent, data: { urls: string[]; flag: number }) => {
             const { urls, flag } = data;
-            console.log('+++++++++');
-            console.log(flag);
-            console.log(this.SYNC_FLAGS);
             if (flag === this.SYNC_FLAGS) this.handleRecieveUrlsFromService(urls);
         });
     }
 
     handleRecieveUrlsFromService = (urlsWithSubDirs: string[]) => {
         this.setState({ urls: urlsWithSubDirs });
-
-        console.warn('isDeepMode', this.state.deepMode); 
-        setTimeout(async () => {
-            console.warn('isDeepMode', this.state.deepMode); 
-            if (this.state.deepMode) {
-                this.loadPreference(urlsWithSubDirs, 'deep');
-            }
-        }, 0);
+        this.loadPreference(urlsWithSubDirs, 'deep');
     }
 
     checkArrayIsInSameValue(arr: any[], ...path: string[]) {
@@ -133,22 +136,17 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     loadPreferenceAndSubUrls = (data: string[]) => {
         const selectedUrls = data.map(extractDirUrlFromKey);
         this.setState({ selectedUrls, normalModeLoading: 'loading', deepModeLoading: 'loading' });
-        if (!this.state.deepMode) this.loadPreference(selectedUrls, 'normal');
+        this.loadPreference(selectedUrls, 'normal');
         this.SYNC_FLAGS++;
-        console.warn(selectedUrls, this.SYNC_FLAGS);
         ipcRenderer.send(command.LOAD_SUB_DIRECTORY_INFO, { urls: selectedUrls, flag: this.SYNC_FLAGS });
     }
 
     loadPreference = async (urls: string[], mode: 'deep' | 'normal') => {
-        this.setState({ deepModeLoading: 'loading', normalModeLoading: 'loading' });
-        console.log(mode);
-        const selectedUrls = this.state.selectedUrls;
-        console.log(selectedUrls);
         let readingMode: readingMode = null;
         let readingDirection: readingDirection = null;
         let pageReAlign: pageReAlign = null;
-        let tag: IManageBarState['tags'] = null;
-        let author: IManageBarState['authors'] = null;
+        let tag: manageData['tags'] = null;
+        let author: manageData['authors'] = null;
 
         const querys = urls.map(url => ({ url }));
         const urlsData: IDirectoryData[] = (await db.directory.find({ $or: querys }).exec()) as any[];
@@ -176,16 +174,22 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 });
             }
         }
-        const setStateObj: Partial<IManageBarState> = {
+        const manageDataObj: manageData = {
             readingMode,
             readingDirection,
             pageReAlign,
             tags: tag,
             authors: author
         };
-        if (mode === 'deep') setStateObj.deepModeLoading = false;
-        else setStateObj.normalModeLoading = false;
-        if (this.state.selectedUrls !== selectedUrls) return;
+        const setStateObj: Partial<IManageBarState> = {};
+        if (mode === 'deep') {
+            setStateObj.deepModeLoading = false;
+            setStateObj.deepData = manageDataObj;
+        }
+        else {
+            setStateObj.normalModeLoading = false;
+            setStateObj.normalData = manageDataObj;
+        }
         this.setState(setStateObj as Pick<IManageBarState, keyof IManageBarState>);
     }
 
@@ -201,7 +205,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         for (const author of authors) {
             await db.author.update({ author_name: author }, { author_name: author }, { upsert: true });
         }
-        this.setState({ authors, authorSelectorIsShow: false });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, authors }, authorSelectorIsShow: false });
+        else this.setState({ normalData: { ...this.state.normalData, authors }, authorSelectorIsShow: false });
     }
 
     handleTagsChange = async (tags: string[]) => {
@@ -214,22 +219,26 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         for (const tag of tags) {
             await db.tag.update({ tag_name: tag }, { tag_name: tag }, { upsert: true });
         }
-        this.setState({ tags, tagSelectorIsShow: false });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, tags }, tagSelectorIsShow: false });
+        else this.setState({ normalData: { ...this.state.normalData, tags }, tagSelectorIsShow: false });
     }
 
     setReadingDirection = (value: any) => {
         this.upsertToUrls({ readingDirection: value });
-        this.setState({ readingDirection: value });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, readingDirection: value } });
+        else this.setState({ normalData: { ...this.state.normalData, readingDirection: value } });
     }
 
     setReadingMode = (value: any) => {
         this.upsertToUrls({ readingMode: value });
-        this.setState({ readingMode: value });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, readingMode: value } });
+        else this.setState({ normalData: { ...this.state.normalData, readingMode: value } });
     }
 
     setPageReAlign = (value: any) => {
         this.upsertToUrls({ pageReAlign: value });
-        this.setState({ pageReAlign: value });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, pageReAlign: value } });
+        else this.setState({ normalData: { ...this.state.normalData, pageReAlign: value } });
     }
 
     upsertToUrls = (upsertObj: { [key: string]: any }) => {
@@ -237,6 +246,11 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         const querys = urls.map(url => ({ url }));
         upsertMany(querys, upsertObj);
     }
+
+    // getValue: <T extends manageData, K extends keyof T>(key: K) => T[K]
+
+    getValue = <K extends keyof manageData>(key: K): manageData[K] =>
+        this.state.deepMode ? this.state.deepData[key] : this.state.normalData[key]
 
     renderInfo = () => {
         const { t, i18n } = useTranslation();
@@ -260,13 +274,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     icon={< ApartmentOutlined />}
                     tabIndex={-1}
                     onClick={() => {
-                        console.error('===========;');
-                        console.log(this.state.deepModeLoading);
                         this.setState({ deepMode: !this.state.deepMode });
-                        setTimeout(() => {
-                            const urls = this.getUrls();
-                            if (!this.state.deepModeLoading) this.loadPreference(urls, !this.state.deepMode ? 'normal' : 'deep');
-                        }, 0);
                     }}
                 >
                     {t('%deepMode%')}
@@ -277,8 +285,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     renderCategory = () => {
         const { t, i18n } = useTranslation();
-        const tags = this.state.tags;
-        const authors = this.state.authors;
+        const tags = this.getValue('tags');
+        const authors = this.getValue('authors');
 
         let tagsMessage = null;
         let authorsMessage = null;
@@ -344,6 +352,9 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     renderReadingSettings = () => {
         const { t, i18n } = useTranslation();
+        const readingMode = this.getValue('readingMode');
+        const readingDirection = this.getValue('readingDirection');
+        const pageReAlign = this.getValue('pageReAlign');
 
         return (
             <div className={style.group}>
@@ -352,9 +363,9 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     <h3>{t('%readingMode%')}</h3>
                     <div>
                         <Select
-                            value={this.state.readingMode}
+                            value={readingMode}
                             onChange={this.setReadingMode}
-                            placeholder={isUndefinedOrNull(this.state.readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
+                            placeholder={isUndefinedOrNull(readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={'scroll'}>{t('%scrollMode%')}</Option>
                             <Option value={'single_page'}>{t('%singlePageMode%')}</Option>
                             <Option value={'double_page'}>{t('%doublePageMode%')}</Option>
@@ -365,9 +376,9 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     <h3>{t('%readingDirection%')}</h3>
                     <div>
                         <Select
-                            value={this.state.readingDirection}
+                            value={readingDirection}
                             onChange={this.setReadingDirection}
-                            placeholder={isUndefinedOrNull(this.state.readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
+                            placeholder={isUndefinedOrNull(readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={'LR'}>{t('%fromLeftToRight%')}</Option>
                             <Option value={'RL'}>{t('%fromRightToLeft%')}</Option>
                         </Select>
@@ -377,9 +388,9 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     <h3>{t('%pageReAlign%')}</h3>
                     <div>
                         <Select
-                            value={this.state.pageReAlign}
+                            value={pageReAlign}
                             onChange={this.setPageReAlign}
-                            placeholder={isUndefinedOrNull(this.state.readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
+                            placeholder={isUndefinedOrNull(readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={true}>{t('%yes%')}</Option>
                             <Option value={false}>{t('%no%')}</Option>
                         </Select>
@@ -409,11 +420,6 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         const { tagSelectorIsShow, authorSelectorIsShow } = this.state;
 
         const isLoading = this.state.deepMode ? this.state.deepModeLoading : this.state.normalModeLoading;
-        console.warn('====');
-        console.log(isLoading);
-        // console.log(this.state.deepMode);
-        // console.log(this.state.deepModeLoading);
-        console.log('====');
 
         const mainContent = (
             <div className={`${style.scrollWrapper} medium-scrollbar`} style={{ filter: isLoading !== false ? 'blur(4px)' : '' }}>
@@ -430,7 +436,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             {tagSelectorIsShow ?
                 <TagSelector
                     visible={tagSelectorIsShow}
-                    selectedTags={this.state.tags}
+                    selectedTags={this.getValue('tags')}
                     onSubmit={this.handleTagsChange}
                     onCancel={() => { this.setState({ tagSelectorIsShow: false }); }} />
                 : ''}
@@ -438,7 +444,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             {authorSelectorIsShow ?
                 <AuthorSelector
                     visible={authorSelectorIsShow}
-                    selectedAuthors={this.state.authors}
+                    selectedAuthors={this.getValue('authors')}
                     onSubmit={this.handleAuthorsChange}
                     onCancel={() => { this.setState({ authorSelectorIsShow: false }); }} />
                 : ''}
