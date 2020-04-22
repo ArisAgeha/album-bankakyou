@@ -16,7 +16,7 @@ import { upsertMany } from '@/common/utils/dbHelper';
 import { IDirectoryData } from '../fileBar/directoryView/directoryView';
 import { deepEqual, primitiveArrayDeepEqual } from '@/common/utils/functionTools';
 import { extractDirUrlFromKey } from '@/common/utils/businessTools';
-import { AuthorSelector } from '@/renderer/components/authorSelector/authorSelector';
+import { AuthorSelector } from '@/renderer/components/tagSelector/authorSelector';
 const { Option } = Select;
 
 export type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';

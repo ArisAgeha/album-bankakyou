@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createElement } from 'react';
-import style from './tagSelector.scss';
+import style from './selector.scss';
 import { Tag } from '../tag/tag';
 import { isArray } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background03.jpg';
@@ -61,9 +61,10 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
         this.setState({ selectedTags });
     }
 
-    fetchTags() {
+    async fetchTags() {
+        const tags: string[] = (await db.tag.find({}).exec()).map((tag: any) => tag.tag_name);
         this.setState({
-            tags: []
+            tags
         });
     }
 
@@ -122,7 +123,7 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
         const { t, i18n } = useTranslation();
         return <input
             type='text'
-            className={style.addTagInput}
+            className={style.addItemInput}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => { this.setState({ newTagName: e.target.value }); }}
             value={this.state.newTagName}
             placeholder={t('%addTagHere%')}
@@ -136,7 +137,7 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
         const tags = this.state.tags;
         const hasChange = this.checkHasChange();
 
-        const children = (<div className={style.tagSelector} style={{ display: this.props.visible ? 'flex' : 'none' }}>
+        const children = (<div className={style.itemSelector} style={{ display: this.props.visible ? 'flex' : 'none' }}>
             <div className={style.mask} onClick={this.hiddenPanel}></div>
             <div className={`${style.panelWrapper} useBlurBg`} style={{ backgroundImage: `url(${bgimg})` }}>
 
@@ -155,7 +156,12 @@ export class TagSelector extends React.PureComponent<ITagSelectorProps, ITagSele
                         {
                             tags.map(tag => {
                                 if (!tag.includes(this.state.newTagName)) return '';
-                                return <Tag key={tag} onClick={() => { this.toggleTag(tag); }} isActive={selectedTags.includes(tag)}>{tag}</Tag>;
+                                return <Tag
+                                    key={tag}
+                                    onClick={() => {
+                                        this.toggleTag(tag);
+                                    }}
+                                    isActive={selectedTags.includes(tag)}>{tag}</Tag>;
                             })
                         }
                     </div>

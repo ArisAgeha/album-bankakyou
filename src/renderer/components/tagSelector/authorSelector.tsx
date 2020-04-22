@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createElement } from 'react';
-import style from './authorSelector.scss';
+import style from './selector.scss';
 import { Tag } from '../tag/tag';
 import { isArray } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background03.jpg';
@@ -61,9 +61,10 @@ export class AuthorSelector extends React.PureComponent<IAuthorSelectorProps, IA
         this.setState({ selectedAuthors });
     }
 
-    fetchAuthors() {
+    async fetchAuthors() {
+        const authors: string[] = (await db.author.find({}).exec()).map((author: any) => author.author_name);
         this.setState({
-            authors: []
+            authors
         });
     }
 
@@ -122,7 +123,7 @@ export class AuthorSelector extends React.PureComponent<IAuthorSelectorProps, IA
         const { t, i18n } = useTranslation();
         return <input
             type='text'
-            className={style.addAuthorInput}
+            className={style.addItemInput}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => { this.setState({ newAuthorName: e.target.value }); }}
             value={this.state.newAuthorName}
             placeholder={t('%addAuthorHere%')}
@@ -136,7 +137,7 @@ export class AuthorSelector extends React.PureComponent<IAuthorSelectorProps, IA
         const authors = this.state.authors;
         const hasChange = this.checkHasChange();
 
-        const children = (<div className={style.authorSelector} style={{ display: this.props.visible ? 'flex' : 'none' }}>
+        const children = (<div className={style.itemSelector} style={{ display: this.props.visible ? 'flex' : 'none' }}>
             <div className={style.mask} onClick={this.hiddenPanel}></div>
             <div className={`${style.panelWrapper} useBlurBg`} style={{ backgroundImage: `url(${bgimg})` }}>
 
