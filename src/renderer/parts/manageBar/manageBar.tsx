@@ -84,8 +84,10 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     handleRecieveUrlsFromService = (urlsWithSubDirs: string[]) => {
         this.setState({ urls: urlsWithSubDirs });
+        console.log(urlsWithSubDirs);
 
         setTimeout(async () => {
+            console.log(this.state.urls);
             if (this.state.deepMode) {
                 this.loadPreference(urlsWithSubDirs);
             }

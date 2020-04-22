@@ -98,6 +98,7 @@ export class FileService {
     private readonly getSubDirectoryInfo = async (event: Electron.IpcMainEvent, urls: string[]) => {
         const allDirectory: string[] = [];
 
+        (this as any).test = 0;
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];
             const resolvedUrl = this.pr(url);
@@ -110,7 +111,10 @@ export class FileService {
     }
 
     private readonly getDirectory = async (url: string, allDirectory: string[]) => {
+        (this as any).test++;
         const resolvedUrl = this.pr(url);
+        if (allDirectory.includes(resolvedUrl)) return;
+        allDirectory.push(resolvedUrl);
 
         const dirIsExists = fs.existsSync(resolvedUrl);
         if (!dirIsExists) return;
@@ -121,7 +125,6 @@ export class FileService {
         for (let i = 0; i < dirInfoWithNaturalOrder.length; i++) {
             const dirent = dirInfoWithNaturalOrder[i];
             if (dirent.isDirectory()) {
-                allDirectory.push(url);
                 await this.getDirectory(this.pr(url, dirent.name), allDirectory);
             }
         }

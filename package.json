@@ -6,7 +6,7 @@
   "main": ".webpack/main",
   "scripts": {
     "test": "electron .webpack/main/index.js",
-    "start": "cross-env NODE_ENV=production electron-forge start",
+    "start": "chcp 65001 && cross-env NODE_ENV=production electron-forge start",
     "start:dev": "electron-forge start",
     "start:prod": "cross-env NODE_ENV=production npm run get-nls && npm run build-constant && electron-forge start",
     "package": "electron-forge package && npm run create-cfg-file",

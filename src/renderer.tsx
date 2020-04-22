@@ -21,14 +21,11 @@ async function bootstrap() {
     await initI18n(languageSetting);
 
     //init nedb
-    let initCount = 0;
-    const dbs = Object.values(db);
-    dbs.forEach(db =>
-        db.load().then(() => {
-            initCount++;
-            if (initCount === dbs.length) initApp();
-        })
-    );
+    await db.directory.load();
+    await db.tag.load();
+    await db.collection.load();
+    db.directory.ensureIndex({ fieldName: 'url', unique: true });
+    initApp();
 }
 
 function initApp() {
