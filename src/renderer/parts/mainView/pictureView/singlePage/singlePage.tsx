@@ -3,7 +3,7 @@ import style from './singlePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent } from '../pictureView';
 import { isNumber } from '@/common/utils/types';
-import { isVideo } from '@/common/utils/tools';
+import { isVideo } from '@/common/utils/businessTools';
 
 export interface ISinglePageState {
     x: number;

@@ -2,7 +2,7 @@ import React, { Component, PureComponent, cloneElement } from 'react';
 import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined, NodeExpandOutlined } from '@ant-design/icons';
 import { isUndefinedOrNull, isArray } from '@/common/utils/types';
 import style from './directoryTree.scss';
-import { extractDirUrlFromKey } from '@/common/utils/tools';
+import { extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 

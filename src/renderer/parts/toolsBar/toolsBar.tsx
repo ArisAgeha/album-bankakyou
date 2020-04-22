@@ -15,12 +15,9 @@ import 'reflect-metadata';
 import { remote } from 'electron';
 import { FileService } from '@/main/services/file.service';
 import { ServiceCollection } from '@/common/serviceCollection';
-import { ChokidarService } from '@/main/services/chokidar.service';
 import { db } from '@/common/nedb';
 import { serviceConstant } from '@/common/constant/service.constant';
-import { EventHub } from '@/common/eventHub';
-import { eventConstant } from '@/common/constant/event.constant';
-import { isDev } from '@/common/utils/tools';
+import { isDev } from '@/common/utils/functionTools';
 
 export interface IToolsBarProps {
     toolsBarWidth: number;

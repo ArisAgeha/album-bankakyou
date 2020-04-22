@@ -134,3 +134,28 @@ export function getTypeof<T>(value: T) {
             return typeof value;
     }
 }
+
+export function isDate(d: any) {
+    return isObject(d) && objectToString(d) === '[object Date]';
+}
+
+export function objectToString(o: any) {
+    return Object.prototype.toString.call(o);
+}
+
+export function isRegExp(re: any) {
+    return isObject(re) && objectToString(re) === '[object RegExp]';
+}
+
+export function isPrimitive(arg: any) {
+    return arg === null ||
+        typeof arg === 'boolean' ||
+        typeof arg === 'number' ||
+        typeof arg === 'string' ||
+        typeof arg === 'symbol' ||
+        typeof arg === 'undefined';
+}
+
+export function isArguments(object: any) {
+    return Object.prototype.toString.call(object) == '[object Arguments]';
+}

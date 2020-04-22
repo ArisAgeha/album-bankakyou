@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { injectable } from '@/common/decorator/injectable';
 import { LogService } from './log.service';
-import { isPicture, naturalCompare, extractDirNameFromUrl } from '@/common/utils/tools';
+import { isPicture } from '@/common/utils/businessTools';
 import { ipcMain, ipcRenderer } from 'electron';
 import { mainWindow } from '@/main';
 import { isArray, isUndefinedOrNull } from '@/common/utils/types';
@@ -11,6 +11,7 @@ import { ITreeDataNode } from '@/renderer/components/directoryTree/directoryTree
 import { page, LoadPictureRequest } from '@/renderer/parts/mainView/mainView';
 import { readdir, readdirWithFileTypes } from '@/common/utils/fsHelper';
 import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
+import { naturalCompare } from '@/common/utils/functionTools';
 
 @injectable
 export class FileService {

@@ -2,7 +2,8 @@ import * as React from 'react';
 import style from './preview.scss';
 import { picture } from '../pictureView';
 import LazyLoad from '@arisageha/react-lazyload-fixed';
-import { emptyCall, isVideo } from '@/common/utils/tools';
+import { isVideo } from '@/common/utils/businessTools';
+import { emptyCall } from '@/common/utils/functionTools';
 
 export interface IPreviewState {
     zoomLevel: number;

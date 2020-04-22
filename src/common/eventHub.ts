@@ -1,4 +1,4 @@
-import { emptyCall } from './utils/tools';
+import { emptyCall } from './utils/functionTools';
 import { isArray } from './utils/types';
 
 export class EventHub {

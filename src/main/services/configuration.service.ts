@@ -3,8 +3,6 @@ import { FileService } from './file.service';
 import { isObject, getTypeof } from '@/common/utils/types';
 import { LogService } from './log.service';
 import { throttle, debounce } from '@/common/decorator/decorator';
-import { isDev } from '@/common/utils/tools';
-import { app } from 'electron';
 
 @injectable
 export class ConfigurationService {

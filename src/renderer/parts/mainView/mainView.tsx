@@ -9,7 +9,7 @@ import { ServiceCollection } from '@/common/serviceCollection';
 import { remote, ipcRenderer } from 'electron';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { FileService } from '@/main/services/file.service';
-import { extractDirNameFromUrl } from '@/common/utils/tools';
+import { extractDirNameFromUrl } from '@/common/utils/businessTools';
 import { command } from '@/common/constant/command.constant';
 import { isUndefinedOrNull, isObject } from '@/common/utils/types';
 import { useTranslation } from 'react-i18next';

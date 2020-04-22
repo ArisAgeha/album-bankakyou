@@ -4,7 +4,7 @@ import { ServiceCollection } from '@/common/serviceCollection';
 import style from './directoryView.scss';
 import { FileService } from '@/main/services/file.service';
 import { db } from '@/common/nedb';
-import { extractDirUrlFromKey, extractSuffixFromKey } from '@/common/utils/tools';
+import { extractDirUrlFromKey, extractSuffixFromKey } from '@/common/utils/businessTools';
 import { command } from '@/common/constant/command.constant';
 import { eventConstant } from '@/common/constant/event.constant';
 import { EventHub } from '@/common/eventHub';

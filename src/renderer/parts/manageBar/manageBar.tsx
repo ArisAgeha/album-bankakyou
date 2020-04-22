@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
-import { extractDirUrlFromKey } from '@/common/utils/tools';
 import style from './manageBar.scss';
 import { useTranslation, withTranslation } from 'react-i18next';
 import bgimg from '@/renderer/static/image/background02.jpg';
@@ -15,6 +14,8 @@ import { Button } from 'antd';
 import { ApartmentOutlined } from '@ant-design/icons';
 import { upsertMany } from '@/common/utils/dbHelper';
 import { IDirectoryData } from '../fileBar/directoryView/directoryView';
+import { deepEqual } from '@/common/utils/functionTools';
+import { extractDirUrlFromKey } from '@/common/utils/businessTools';
 const { Option } = Select;
 
 export type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
@@ -84,10 +85,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     handleRecieveUrlsFromService = (urlsWithSubDirs: string[]) => {
         this.setState({ urls: urlsWithSubDirs });
-        console.log(urlsWithSubDirs);
 
         setTimeout(async () => {
-            console.log(this.state.urls);
             if (this.state.deepMode) {
                 this.loadPreference(urlsWithSubDirs);
             }
@@ -104,7 +103,12 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             path.forEach(p => {
                 checkItem = checkItem[p];
             });
-            return checkItem === standardItem;
+            console.log('-----');
+            console.log(path);
+            console.log(checkItem);
+            console.log(standardItem);
+
+            return deepEqual(checkItem, standardItem, true);
         });
     }
 
@@ -135,6 +139,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             readingMode = this.checkArrayIsInSameValue(urlsData, 'readingMode') ? urlsData[0].readingMode : '_different';
             readingDirection = this.checkArrayIsInSameValue(urlsData, 'readingDirection') ? urlsData[0].readingDirection : '_different';
             pageReAlign = this.checkArrayIsInSameValue(urlsData, 'pageReAlign') ? urlsData[0].pageReAlign : '_different';
+            console.log('++++++');
+            console.log(this.checkArrayIsInSameValue(urlsData, 'tag'));
             tag = this.checkArrayIsInSameValue(urlsData, 'tag') ? urlsData[0].tag : '_different';
         }
         this.setState({

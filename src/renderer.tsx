@@ -8,8 +8,8 @@ import { ServiceCollection } from './common/serviceCollection';
 import { ConfigurationService } from './main/services/configuration.service';
 import { processConfig } from './common/constant/config.constant';
 import { db } from './common/nedb';
-import { isDev } from './common/utils/tools';
 import { serviceConstant } from './common/constant/service.constant';
+import { isDev } from './common/utils/functionTools';
 
 bootstrap();
 

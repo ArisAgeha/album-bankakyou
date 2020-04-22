@@ -15,7 +15,7 @@ import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 import { isNumber, isUndefinedOrNull } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background02.jpg';
-import { isVideo } from '@/common/utils/tools';
+import { isVideo } from '@/common/utils/businessTools';
 import { ipcRenderer } from 'electron';
 import { command } from '@/common/constant/command.constant';
 
