@@ -3290,6 +3290,11 @@ gensync@^1.0.0-beta.1:
   resolved "https://registry.npmjs.org/gensync/-/gensync-1.0.0-beta.1.tgz#58f4361ff987e5ff6e1e7a210827aa371eaac269"
   integrity sha512-r8EC6NO1sngH/zdD9fiRDLdcgnbayXah+mLgManTaIZJqEC1MZstmnox8KpnI2/fxQwrp5OpCOYWLp4rBl4Jcg==
 
+gesture-customizer@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/gesture-customizer/-/gesture-customizer-1.0.2.tgz#ed2c28eb4345c2c718ba177264d1550a11198f18"
+  integrity sha512-rOMQtQK5jvdmwoTJ4N8EvsfyHKPqKUpiHpfj8Xdn9VOLDBI7fHahO24l9UeWBYkgbGuej80kPmVh84FoZ3mkkg==
+
 get-caller-file@^1.0.1:
   version "1.0.3"
   resolved "https://registry.npmjs.org/get-caller-file/-/get-caller-file-1.0.3.tgz#f978fa4c90d1dfe7ff2d6beda2a515e713bdcf4a"
