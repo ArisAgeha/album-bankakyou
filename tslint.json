@@ -110,7 +110,9 @@
         "switch-default": false,
         "unnecessary-else": false,
         "prefer-for-of": false,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "interface-name": false,
+        "cyclomatic-complexity": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"

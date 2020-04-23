@@ -5,6 +5,7 @@ import style from './directoryTree.scss';
 import { extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
+import { Gesture } from '@/renderer/utils/gesture';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     test: any = {};
@@ -29,30 +30,12 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     }
 
     initEvent = () => {
-        window.addEventListener('mousedown', (downEvent: MouseEvent) => {
-            let deltaX = 0;
-            let deltaY = 0;
-
-            const onMove = (moveEvent: MouseEvent) => {
-                deltaX += moveEvent.movementX;
-                deltaY += moveEvent.movementY;
-            };
-
-            if (downEvent.buttons === 3) {
-                window.addEventListener('mousemove', onMove);
-                window.addEventListener('mouseup', (upEvent: MouseEvent) => {
-                    window.removeEventListener('mousemove', onMove);
-                    this.checkOpenModal(deltaX, deltaY);
-                }, { once: true });
-            }
-        });
+        Gesture.registry({ mouseType: 'LR' }, [{ direction: 'B', minDistance: 300 }], this.openModal);
     }
 
-    checkOpenModal(x: number, y: number) {
-        if (x > 300 && Math.abs(x / y) > 3) {
-            const selectedKeys = this.state.selectedNodes.map(node => node.key);
-            EventHub.emit(eventConstant.SHOW_MANAGE_BAR, selectedKeys);
-        }
+    openModal = () => {
+        const selectedKeys = this.state.selectedNodes.map(node => node.key);
+        EventHub.emit(eventConstant.SHOW_MANAGE_BAR, selectedKeys);
     }
 
     handleCloseManagePanel = () => {
