@@ -148,11 +148,9 @@ class GestureFactory {
         this.isPause = true;
     }
 
-    resumu() {
+    resume() {
         this.isPause = false;
     }
-
-    destroy() { }
 
     private getDirection(x: number, y: number): Direction {
         let direction: Direction = 'T';
