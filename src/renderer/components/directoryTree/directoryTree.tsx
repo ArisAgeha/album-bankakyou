@@ -5,7 +5,7 @@ import style from './directoryTree.scss';
 import { extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
-import { Gesture } from 'gesture-customizer';
+import { Gesture } from '@/renderer/utils/gesture';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     test: any = {};
@@ -30,7 +30,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
     }
 
     initEvent = () => {
-        Gesture.registry({ mouseType: 'LR' }, [{ direction: 'B', minDistance: 300 }], this.openModal);
+        Gesture.registry({ mouseType: 'LR' }, [{ direction: 'T', minDistance: 200 }], this.openModal);
     }
 
     openModal = () => {

@@ -19,6 +19,7 @@ import bgimg from '@/renderer/static/image/background03.jpg';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { command } from '@/common/constant/command.constant';
+import { Gesture } from './utils/gesture';
 
 interface ILayoutState {
     fileBarIsShow: boolean;
@@ -60,6 +61,13 @@ class Layout extends React.PureComponent<any, ILayoutState> {
     }
 
     initEvent() {
+        Gesture.registry({ mouseType: 'LR' }, [{ direction: 'B' }], () => {
+            this.configurationService.upadteUserConfig([
+                { id: 'workbench', key: workbenchConfig.MANAGEBAR_SHOW, value: false }
+            ]);
+            this.setState({ manageBarIsShow: false });
+        });
+
         // set fullscreen
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F11') {
