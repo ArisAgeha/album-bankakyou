@@ -5,12 +5,13 @@ import { picture } from '../pictureView';
 import LazyLoad from '@arisageha/react-lazyload-fixed';
 import * as ReactDOM from 'react-dom';
 import { encodeChar } from '@/common/utils/businessTools';
+import { db } from '@/common/nedb';
 
-export type mode = 'TB' | 'BT' | 'LR' | 'RL';
+export type scrollModeDirection = 'TB' | 'BT' | 'LR' | 'RL';
 
 export interface IScrollListState {
     zoomLevel: number;
-    mode: mode;
+    scrollModeDirection: scrollModeDirection;
     isDragging: boolean;
 }
 
@@ -22,7 +23,7 @@ export interface IScrollListProps {
 
 export class ScrollList extends React.PureComponent<IScrollListProps, IScrollListState> {
     private readonly scrollListRef: React.RefObject<HTMLDivElement>;
-    private lastDirection: mode = 'LR';
+    private lastDirection: scrollModeDirection = 'LR';
 
     constructor(props: IScrollListProps) {
         super(props);
@@ -30,13 +31,21 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
         this.state = {
             zoomLevel: 100,
-            mode: 'LR',
+            scrollModeDirection: 'LR',
             isDragging: false
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         this.initEvent();
+        const urlData: any = await db.directory.findOne({ url: this.props.page.id });
+        const scrollModeDirection = urlData?.scrollModeDirection || 'LR';
+
+        this.setState({
+            zoomLevel: 100,
+            scrollModeDirection,
+            isDragging: false
+        });
     }
 
     componentWillUnmount() {
@@ -45,13 +54,13 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
     componentDidUpdate() {
         const el = this.scrollListRef.current;
-        if (this.state.mode !== this.lastDirection) {
-            if (this.state.mode === 'RL') el.scrollLeft = el.scrollWidth;
-            else if (this.state.mode === 'LR') el.scrollLeft = 0;
-            else if (this.state.mode === 'TB') el.scrollTop = 0;
-            else if (this.state.mode === 'BT') el.scrollTop = el.scrollHeight;
+        if (this.state.scrollModeDirection !== this.lastDirection) {
+            if (this.state.scrollModeDirection === 'RL') el.scrollLeft = el.scrollWidth;
+            else if (this.state.scrollModeDirection === 'LR') el.scrollLeft = 0;
+            else if (this.state.scrollModeDirection === 'TB') el.scrollTop = 0;
+            else if (this.state.scrollModeDirection === 'BT') el.scrollTop = el.scrollHeight;
 
-            this.lastDirection = this.state.mode;
+            this.lastDirection = this.state.scrollModeDirection;
         }
     }
 
@@ -75,17 +84,25 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
     handleKeydown = (e: KeyboardEvent) => {
         if (!this.props.isShow) return;
-        let mode: mode = this.state.mode;
+        let scrollModeDirection: scrollModeDirection = this.state.scrollModeDirection;
         let zoomLevel = this.state.zoomLevel;
 
-        if (e.key === '2') mode = 'TB';
-        if (e.key === '8') mode = 'BT';
-        if (e.key === '4') mode = 'RL';
-        if (e.key === '6') mode = 'LR';
-        if (e.key === '+') zoomLevel *= Math.sqrt(2);
-        if (e.key === '-') zoomLevel /= Math.sqrt(2);
+        if (['2', '4', '6', '8'].includes(e.key)) {
+            if (e.key === '2') scrollModeDirection = 'TB';
+            else if (e.key === '8') scrollModeDirection = 'BT';
+            else if (e.key === '4') scrollModeDirection = 'RL';
+            else if (e.key === '6') scrollModeDirection = 'LR';
 
-        this.setState({ mode, zoomLevel });
+            db.directory.update(
+                { url: this.props.page.id },
+                { $set: {scrollModeDirection}},
+                {upsert: true}
+            );
+        }
+        else if (e.key === '+') zoomLevel *= Math.sqrt(2);
+        else if (e.key === '-') zoomLevel /= Math.sqrt(2);
+
+        this.setState({ scrollModeDirection, zoomLevel });
     }
 
     handleWheel = (e: WheelEvent) => {
@@ -122,15 +139,15 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
     getScaleContainerStyle(): React.CSSProperties {
         const albumSize = this.state.zoomLevel / 100;
         // return this.isVertical() ? { width: albumSize } : { height: albumSize };
-        return { transform: `scale(${albumSize})`};
+        return { transform: `scale(${albumSize})` };
     }
 
     getViewerStyle(): React.CSSProperties {
-        const mode = this.state.mode;
-        const flexDirection = mode === 'TB' ? 'column' : mode === 'BT' ? 'column-reverse' : mode === 'LR' ? 'row' : 'row-reverse';
+        const scrollModeDirection = this.state.scrollModeDirection;
+        const flexDirection = scrollModeDirection === 'TB' ? 'column' : scrollModeDirection === 'BT' ? 'column-reverse' : scrollModeDirection === 'LR' ? 'row' : 'row-reverse';
         return this.isVertical()
             ? { width: '100%', justifyContent: 'center', flexDirection }
-            : { height: '100%', whiteSpace: 'nowrap', flexDirection, justifyContent: mode === 'LR' ? 'flex-start' : 'flex-end' };
+            : { height: '100%', whiteSpace: 'nowrap', flexDirection, justifyContent: scrollModeDirection === 'LR' ? 'flex-start' : 'flex-end' };
     }
 
     getImgStyle(): React.CSSProperties {
@@ -167,14 +184,14 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
     }
 
     isHorizontal() {
-        return ['LR', 'RL'].includes(this.state.mode);
+        return ['LR', 'RL'].includes(this.state.scrollModeDirection);
     }
 
     isVertical() {
-        return ['TB', 'BT'].includes(this.state.mode);
+        return ['TB', 'BT'].includes(this.state.scrollModeDirection);
     }
 
     isReverse() {
-        return ['BT', 'RL'].includes(this.state.mode);
+        return ['BT', 'RL'].includes(this.state.scrollModeDirection);
     }
 }

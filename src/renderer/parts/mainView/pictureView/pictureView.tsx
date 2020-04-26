@@ -15,7 +15,7 @@ import { Button } from 'antd';
 import { BarsOutlined, BookOutlined, ReadOutlined, ProfileOutlined } from '@ant-design/icons';
 import { isNumber, isUndefinedOrNull } from '@/common/utils/types';
 import bgimg from '@/renderer/static/image/background02.jpg';
-import { isVideo, encodeChar } from '@/common/utils/businessTools';
+import { isVideo, encodeChar, extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { ipcRenderer } from 'electron';
 import { command } from '@/common/constant/command.constant';
 
@@ -30,12 +30,11 @@ export type picture = {
     id: string | number;
 };
 
+export type viewMode = 'preview' | 'scroll' | 'single_page' | 'double_page';
+
 export interface IPictureViewState {
-    viewMode: 'preview' | 'scroll_list' | 'single_page' | 'double_page';
+    viewMode: viewMode;
     singlePageShowIndex: number;
-    doublePageShowIndex: number;
-    scrollList: number;
-    doublePage: number;
     pageDetail: {
         tags: IDirectoryData['tag'];
         author: string[];
@@ -50,15 +49,14 @@ export interface IPictureViewProps {
 }
 
 export class PictureView extends React.PureComponent<IPictureViewProps, IPictureViewState> {
+    defaultReadingMode: 'double_page' | 'scroll' | 'single_page' = 'double_page';
+
     constructor(props: IPictureViewProps) {
         super(props);
 
         this.state = {
             viewMode: 'preview',
             singlePageShowIndex: 0,
-            doublePageShowIndex: 0,
-            scrollList: 0.6,
-            doublePage: 1,
             pageDetail: {
                 tags: [],
                 author: []
@@ -70,10 +68,18 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
     componentDidMount() {
         this.initEvent();
         this.fetchPageDetail();
+        this.fetchUserHabbit();
     }
 
     componentWillUnmount() {
         this.removeEvent();
+    }
+
+    fetchUserHabbit = async () => {
+        const urlData: any = await db.directory.findOne({ url: this.props.page.id });
+        if (urlData?.readingMode) {
+            this.defaultReadingMode = urlData.readingMode;
+        }
     }
 
     async fetchPageDetail() {
@@ -107,8 +113,18 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         const { targetIndex } = data;
         this.setState({
             singlePageShowIndex: targetIndex,
-            viewMode: 'double_page'
+            viewMode: this.defaultReadingMode
         });
+    }
+
+    setDefaultReadingMode = (val: 'scroll' | 'double_page' | 'single_page') => {
+        const url = this.props.page.id;
+        db.directory.update(
+            { url },
+            { $set: { readingMode: val } },
+            { upsert: true }
+        );
+        this.defaultReadingMode = val;
     }
 
     renderPageDetail = () => {
@@ -167,7 +183,8 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                     icon={<ProfileOutlined />}
                     tabIndex={-1}
                     onClick={() => {
-                        this.switchPictureMode('scroll_list');
+                        this.setDefaultReadingMode('scroll');
+                        this.switchPictureMode('scroll');
                     }}
                 >
                     {t('%scrollMode%')}
@@ -178,6 +195,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                     icon={<BookOutlined />}
                     tabIndex={-1}
                     onClick={() => {
+                        this.setDefaultReadingMode('single_page');
                         this.switchPictureMode('single_page');
                     }}
                 >
@@ -189,6 +207,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                     icon={<ReadOutlined />}
                     tabIndex={-1}
                     onClick={() => {
+                        this.setDefaultReadingMode('double_page');
                         this.switchPictureMode('double_page');
                     }}
                 >
@@ -241,7 +260,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         let Album = null;
 
         switch (this.state.viewMode) {
-            case 'scroll_list':
+            case 'scroll':
                 Album = <ScrollList page={this.props.page} currentShowIndex={this.state.singlePageShowIndex} isShow={this.props.isShow} />;
                 break;
 

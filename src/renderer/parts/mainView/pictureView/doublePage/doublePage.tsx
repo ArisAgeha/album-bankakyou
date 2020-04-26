@@ -3,6 +3,7 @@ import style from './doublePage.scss';
 import { page } from '../../mainView';
 import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
+import { db } from '@/common/nedb';
 const sizeOf = require('image-size');
 
 type dimension = {
@@ -13,6 +14,8 @@ type dimension = {
 };
 
 type DoublePicture = string[];
+
+export type readingDirection = 'LR' | 'RL';
 
 export interface IDoublePageState {
     zoomLevel: number;
@@ -31,7 +34,7 @@ export interface IDoublePageProps {
 
 export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePageState> {
     pageReAlign: boolean;
-    mode: 'LR' | 'RL';
+    readingDirection: 'LR' | 'RL';
     curPage: number;
     hasBeenLoadIndex: {
         [key: number]: boolean;
@@ -41,7 +44,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         super(props);
 
         this.pageReAlign = false;
-        this.mode = 'LR';
+        this.readingDirection = 'LR';
         this.hasBeenLoadIndex = [];
         this.curPage = this.props.curPage;
 
@@ -55,12 +58,22 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        await this.loadUserHabbits();
         this.initImgOrVideoInfo();
         setTimeout(() => {
             this.jumpPage();
         }, 0);
         this.initEvent();
+    }
+
+    loadUserHabbits = async () => {
+        const urlData: any = await db.directory.findOne({ url: this.props.page.id });
+        if (urlData) {
+            const { pageReAlign, readingDirection } = urlData;
+            if (pageReAlign) this.pageReAlign = pageReAlign;
+            if (readingDirection) this.readingDirection = readingDirection;
+        }
     }
 
     initEvent() {
@@ -90,7 +103,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
     }
 
     initImgOrVideoInfo = (options: { reverse: boolean } = { reverse: false }) => {
-        const insert = (target: any[], data: any) => (this.mode === 'LR' ? target.push(data) : target.unshift(data));
+        const insert = (target: any[], data: any) => (this.readingDirection === 'LR' ? target.push(data) : target.unshift(data));
         const dimensions = this.getImgOrVideoDimensions();
         const album: DoublePicture[] = [];
 
@@ -164,9 +177,28 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         else if (e.key === '-') this.zoomOut();
         else if (e.key === '0') {
             this.pageReAlign = !this.pageReAlign;
+
+            // save user habbit to database
+            const url = this.props.page.id;
+            db.directory.update(
+                { url },
+                { $set: { pageReAlign: this.pageReAlign } },
+                { upsert: true }
+            );
+
             this.initImgOrVideoInfo();
-        } else if (e.key === '5') {
-            this.mode = this.mode === 'RL' ? 'LR' : 'RL';
+        }
+        else if (e.key === '5') {
+            this.readingDirection = this.readingDirection === 'RL' ? 'LR' : 'RL';
+
+            // save user habbit to database
+            const url = this.props.page.id;
+            db.directory.update(
+                { url },
+                { $set: { readingDirection: this.readingDirection } },
+                { upsert: true }
+            );
+
             this.initImgOrVideoInfo({ reverse: true });
         }
     }
@@ -174,11 +206,11 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
     handleWheel = (e: React.WheelEvent) => {
         if (e.deltaY > 0) {
             if (e.ctrlKey || e.buttons === 2) this.zoomOut();
-            else this.mode === 'LR' ? this.gotoRightPage() : this.gotoLeftPage();
+            else this.readingDirection === 'LR' ? this.gotoRightPage() : this.gotoLeftPage();
 
         } else if (e.deltaY < 0) {
             if (e.ctrlKey || e.buttons === 2) this.zoomIn();
-            else this.mode === 'LR' ? this.gotoLeftPage() : this.gotoRightPage();
+            else this.readingDirection === 'LR' ? this.gotoLeftPage() : this.gotoRightPage();
         }
     }
 

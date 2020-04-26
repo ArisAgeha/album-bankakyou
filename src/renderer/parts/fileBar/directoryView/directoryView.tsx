@@ -10,7 +10,9 @@ import { eventConstant } from '@/common/constant/event.constant';
 import { EventHub } from '@/common/eventHub';
 import { ITreeDataNode, DirectoryTree } from '../../../components/directoryTree/directoryTree';
 import { serviceConstant } from '@/common/constant/service.constant';
-import { readingDirection, readingMode, pageReAlign } from '../../manageBar/manageBar';
+import { readingMode, pageReAlign } from '../../manageBar/manageBar';
+import { scrollModeDirection } from '../../mainView/pictureView/scrollList/scrollList';
+import { readingDirection } from '../../mainView/pictureView/doublePage/doublePage';
 
 export interface IDirectoryData {
     url: string;
@@ -19,6 +21,7 @@ export interface IDirectoryData {
     author: string[];
     readingMode: readingMode;
     readingDirection: readingDirection;
+    scrollModeDirection: scrollModeDirection;
     pageReAlign: pageReAlign;
     read_time: number;
     delay_time: number;

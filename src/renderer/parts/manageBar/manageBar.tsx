@@ -17,16 +17,18 @@ import { IDirectoryData } from '../fileBar/directoryView/directoryView';
 import { deepEqual, primitiveArrayDeepEqual } from '@/common/utils/functionTools';
 import { extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { AuthorSelector } from '@/renderer/components/tagSelector/authorSelector';
+import { scrollModeDirection } from '../mainView/pictureView/scrollList/scrollList';
+import { readingDirection } from '../mainView/pictureView/doublePage/doublePage';
 const { Option } = Select;
 
 export type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
-export type readingDirection = 'LR' | 'RL' | '_different';
 export type pageReAlign = boolean | '_different';
 export type manageData = {
     tags: IDirectoryData['tag'] | '_different';
     authors: string[] | '_different';
     readingMode: readingMode;
-    readingDirection: readingDirection;
+    readingDirection: readingDirection | '_different';
+    scrollModeDirection: scrollModeDirection | '_different';
     pageReAlign: pageReAlign;
 };
 
@@ -66,6 +68,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 authors: null,
                 readingMode: null,
                 readingDirection: null,
+                scrollModeDirection: null,
                 pageReAlign: null
             },
             normalData: {
@@ -73,6 +76,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 authors: null,
                 readingMode: null,
                 readingDirection: null,
+                scrollModeDirection: null,
                 pageReAlign: null
             },
             historyState: {
@@ -143,7 +147,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
 
     loadPreference = async (urls: string[], mode: 'deep' | 'normal') => {
         let readingMode: readingMode = null;
-        let readingDirection: readingDirection = null;
+        let readingDirection: manageData['readingDirection'] = null;
+        let scrollModeDirection: manageData['scrollModeDirection'] = null;
         let pageReAlign: pageReAlign = null;
         let tag: manageData['tags'] = null;
         let author: manageData['authors'] = null;
@@ -154,6 +159,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             if (urlsData.length < urls.length) {
                 readingMode = '_different';
                 readingDirection = '_different';
+                scrollModeDirection = '_different';
                 pageReAlign = '_different';
                 tag = '_different';
                 author = '_different';
@@ -161,6 +167,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
             else {
                 readingMode = urlsData[0].readingMode;
                 readingDirection = urlsData[0].readingDirection;
+                scrollModeDirection = urlsData[0].scrollModeDirection;
                 pageReAlign = urlsData[0].pageReAlign;
                 tag = urlsData[0].tag;
                 author = urlsData[0].author;
@@ -168,6 +175,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                 urlsData.forEach((urlData) => {
                     readingMode = readingMode === urlData.readingMode ? readingMode : '_different';
                     readingDirection = readingDirection === urlData.readingDirection ? readingDirection : '_different';
+                    scrollModeDirection = scrollModeDirection === urlData.scrollModeDirection ? scrollModeDirection : '_different';
                     pageReAlign = pageReAlign === urlData.pageReAlign ? pageReAlign : '_different';
                     tag = (primitiveArrayDeepEqual(tag, urlData.tag)) ? tag : '_different';
                     author = (primitiveArrayDeepEqual(author, urlData.author)) ? author : '_different';
@@ -177,6 +185,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         const manageDataObj: manageData = {
             readingMode,
             readingDirection,
+            scrollModeDirection,
             pageReAlign,
             tags: tag,
             authors: author
@@ -230,6 +239,13 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         }
         if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, tags }, deepModeLoading: false });
         else this.setState({ normalData: { ...this.state.normalData, tags }, tagSelectorIsShow: false, normalModeLoading: false });
+    }
+
+    setScrollModeDirection = async (value: any) => {
+        this.setSavingStatus();
+        await this.upsertToUrls({ scrollModeDirection: value });
+        if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, scrollModeDirection: value }, deepModeLoading: false });
+        else this.setState({ normalData: { ...this.state.normalData, scrollModeDirection: value }, normalModeLoading: false });
     }
 
     setReadingDirection = async (value: any) => {
@@ -365,6 +381,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
     renderReadingSettings = () => {
         const { t, i18n } = useTranslation();
         const readingMode = this.getValue('readingMode');
+        const scrollModeDirection = this.getValue('scrollModeDirection');
         const readingDirection = this.getValue('readingDirection');
         const pageReAlign = this.getValue('pageReAlign');
 
@@ -381,6 +398,20 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                             <Option value={'scroll'}>{t('%scrollMode%')}</Option>
                             <Option value={'single_page'}>{t('%singlePageMode%')}</Option>
                             <Option value={'double_page'}>{t('%doublePageMode%')}</Option>
+                        </Select>
+                    </div>
+                </div>
+                <div className={style.item}>
+                    <h3>{t('%scrollModeDirection%')}</h3>
+                    <div>
+                        <Select
+                            value={scrollModeDirection}
+                            onChange={this.setScrollModeDirection}
+                            placeholder={isUndefinedOrNull(scrollModeDirection) ? t('%notSettingYet%') : t('%differentSetting%')}>
+                            <Option value={'LR'}>{t('%fromLeftToRight%')}</Option>
+                            <Option value={'RL'}>{t('%fromRightToLeft%')}</Option>
+                            <Option value={'TB'}>{t('%fromTopToBottom%')}</Option>
+                            <Option value={'BT'}>{t('%fromBottomToTop%')}</Option>
                         </Select>
                     </div>
                 </div>

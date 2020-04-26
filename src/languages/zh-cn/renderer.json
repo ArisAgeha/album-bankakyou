@@ -18,11 +18,14 @@
     "%singlePageMode%": "单页模式",
     "%doublePageMode%": "对页模式",
 
-    "%readingDirection%": "阅读方向",
+    "%pageReAlign%": "对页模式重对齐",
+
+    "%readingDirection%": "对页模式阅读方向",
+    "%scrollModeDirection%": "滚动模式方向",
     "%fromLeftToRight%": "从左到右",
     "%fromRightToLeft%": "从右到左",
-
-    "%pageReAlign%": "对页模式重对齐",
+    "%fromTopToBottom%": "从上到下",
+    "%fromBottomToTop%": "从下到上",
 
     "%selectedDirNum%": "选择了 %{selectedDirNum} 个目录",
     "%dirNum%": "共包含 %{dirNum} 个目录及子目录",
