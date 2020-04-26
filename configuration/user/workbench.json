@@ -1,7 +1,8 @@
 {
     "id": "workbench",
     "properties": {
-        "workbench.fileBar.width": 426,
-        "workbench.manageBar.height": 709.6
+        "workbench.fileBar.width": 564,
+        "workbench.manageBar.height": 709.6,
+        "workbench.manageBar.show": false
     }
 }

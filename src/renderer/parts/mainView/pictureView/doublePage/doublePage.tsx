@@ -103,6 +103,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                 if (pages.length !== 0) insert(album, [...pages]);
                 insert(album, [data.url]);
                 pages.length = 0;
+                hasReAlign = false;
             } else {
                 if (shouldReAlign && !hasReAlign) {
                     insert(album, [data.url]);
