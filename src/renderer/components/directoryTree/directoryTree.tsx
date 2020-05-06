@@ -1,11 +1,12 @@
 import React, { Component, PureComponent, cloneElement } from 'react';
-import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined, NodeExpandOutlined } from '@ant-design/icons';
+import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined, NodeExpandOutlined, CloseOutlined } from '@ant-design/icons';
 import { isUndefinedOrNull, isArray } from '@/common/utils/types';
 import style from './directoryTree.scss';
 import { extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { Gesture } from '@/renderer/utils/gesture';
+import { emptyCall } from '@/common/utils/functionTools';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     test: any = {};
@@ -176,6 +177,13 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
 
     handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
+        const dt = e.dataTransfer;
+        // dt.dropEffect = 'copy';
+    }
+
+    deleteDir = (e: React.MouseEvent, key: string) => {
+        e.stopPropagation();
+        this.props.onDeleteUrl ? this.props.onDeleteUrl(key) : emptyCall();
     }
 
     renderLeaf(node: ITreeDataNode) {
@@ -190,12 +198,12 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         return res;
     }
 
-    renderRoot(node: ITreeDataNode) {
+    renderRoot(node: ITreeDataNode, isChild?: boolean) {
         const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
 
         const NodeChildren = (
             <div className={style.nodeRootChildren}>
-                {isArray(node.children) ? node.children.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node))) : ''}
+                {isArray(node.children) ? node.children.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node, true))) : ''}
             </div>
         );
 
@@ -217,6 +225,8 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                         {isExpanded ? <DownOutlined /> : <RightOutlined />}
                     </div>
                     <div className={`${style.nodeRootTitle}`}>{!isUndefinedOrNull(node.title) ? node.title : node.key}</div>
+
+                    {!isChild ? (<div className={style.closeButton} onClick={(e: React.MouseEvent) => { this.deleteDir(e, node.key); }}> <CloseOutlined /> </div>) : ''}
                 </div>
                 {isExpanded ? NodeChildren : ''}
             </div>
@@ -263,6 +273,7 @@ export interface IDirectoryTreeProps {
     loadData?(treeNode: ITreeDataNode): Promise<void>;
     onFold?(treeNode: ITreeDataNode): void;
     selectAwaitLoad?: boolean;
+    onDeleteUrl?(key: string): void;
 }
 
 export interface ITreeDataNode {

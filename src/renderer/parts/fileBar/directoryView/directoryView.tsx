@@ -133,6 +133,16 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         });
     }
 
+    handleDeleteUrl = async (key: string) => {
+        const url = extractDirUrlFromKey(key);
+        const closeIndex = this.state.treeData.findIndex((data) => data.key === key);
+        const newTreeData = [...this.state.treeData];
+        newTreeData.splice(closeIndex, 1);
+        this.setState({ treeData: newTreeData });
+
+        await db.directory.update({ url }, { $set: { auto: false } });
+    }
+
     render(): JSX.Element {
         return (
             <div className={`${style.dirTreeWrapper} medium-scrollbar`}>
@@ -142,6 +152,7 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
                     treeData={this.state.treeData}
                     loadData={this.onLoadData}
                     onFold={this.handleFold}
+                    onDeleteUrl={this.handleDeleteUrl}
                 />
             </div>
         );

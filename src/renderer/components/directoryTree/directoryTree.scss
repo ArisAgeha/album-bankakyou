@@ -17,6 +17,7 @@
             border-radius: 4px;
             cursor: pointer;
             transition: 0.2s ease-in-out;
+            position: relative;
 
             .icon {
                 padding-right: 8px;
@@ -31,11 +32,25 @@
                 word-break: break-all;
                 padding-bottom: 1px;
             }
+
+            .closeButton {
+                display: none;
+                position: absolute;
+                right: 10px;
+                height: 100%;
+                width: 30px;
+                justify-content: center;
+                align-items: center;
+            }
         }
         .nodeRootTitleWrapper:hover {
             background-color: rgba(255, 255, 255, 0.7);
             color: $fontColorHover;
             transition: 0s;
+
+            .closeButton {
+                display: flex;
+            }
         }
 
         .nodeRootTitleWrapper.selected {
