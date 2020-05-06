@@ -40,6 +40,19 @@ export class AuthorView extends PureComponent<IAuthorViewProps, IAuthorViewState
     }
 
     async componentDidMount() {
+        this.initEvent();
+        this.fetchAuthors();
+    }
+
+    componentWillUnmount() {
+        EventHub.cancel(eventConstant.UPDATE_AUTHORS, this.fetchAuthors);
+    }
+
+    initEvent() {
+        EventHub.on(eventConstant.UPDATE_AUTHORS, this.fetchAuthors);
+    }
+
+    fetchAuthors = async () => {
         const directoryData: Directory[] = (await db.directory.find({}).exec()) as any[];
         const authorMap: { [key: string]: number } = {};
         directoryData.forEach(item => {

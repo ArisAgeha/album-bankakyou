@@ -223,6 +223,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         }
         if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, authors }, deepModeLoading: false });
         else this.setState({ normalData: { ...this.state.normalData, authors }, authorSelectorIsShow: false, normalModeLoading: false });
+
+        EventHub.emit(eventConstant.UPDATE_AUTHORS);
     }
 
     handleTagsChange = async (tags: string[]) => {
@@ -239,6 +241,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
         }
         if (this.state.deepMode) this.setState({ deepData: { ...this.state.deepData, tags }, deepModeLoading: false });
         else this.setState({ normalData: { ...this.state.normalData, tags }, tagSelectorIsShow: false, normalModeLoading: false });
+
+        EventHub.emit(eventConstant.UPDATE_TAGS);
     }
 
     setScrollModeDirection = async (value: any) => {

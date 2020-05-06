@@ -46,6 +46,7 @@
         .pictureBox {
             padding: 20px;
             width: 16.66%;
+            max-height: 400px;
 
             .innerBox {
                 box-shadow: 2px 2px 7px 1px rgb(0, 0, 0);
@@ -63,11 +64,11 @@
                     align-items: center;
                     flex: 1;
                     min-height: 120px;
+                    overflow: hidden;
 
                     img,
                     video {
                         max-width: 100%;
-                        max-height: 100%;
                         transition: 0.2s ease-in-out;
                     }
                 }

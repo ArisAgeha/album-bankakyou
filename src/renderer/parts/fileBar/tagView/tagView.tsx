@@ -40,6 +40,19 @@ export class TagView extends PureComponent<ITagViewProps, ITagViewState> {
     }
 
     async componentDidMount() {
+        this.initEvent();
+        this.fetchTags();
+    }
+
+    componentWillUnmount() {
+        EventHub.cancel(eventConstant.UPDATE_TAGS, this.fetchTags);
+    }
+
+    initEvent() {
+        EventHub.on(eventConstant.UPDATE_TAGS, this.fetchTags);
+    }
+
+    fetchTags = async () => {
         const directoryData: Directory[] = (await db.directory.find({}).exec()) as any[];
         const tagMap: { [key: string]: number } = {};
         directoryData.forEach(item => {

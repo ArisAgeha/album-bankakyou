@@ -6,5 +6,7 @@ export const eventConstant = {
     SHOW_MANAGE_BAR: 'show-manage-bar',
     HIDDEN_MANAGE_BAR: 'hidden-manage-bar',
     SELECT_TAGS: 'select-tags',
-    SELECT_AUTHORS: 'select-authors'
+    SELECT_AUTHORS: 'select-authors',
+    UPDATE_TAGS: 'update-tags',
+    UPDATE_AUTHORS: 'update-authors'
 };

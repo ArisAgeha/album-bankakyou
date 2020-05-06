@@ -66,10 +66,10 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
                 jsx: <ProfileOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
                 view: 'directory'
             },
-            {
-                jsx: <BarsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-                view: 'collection'
-            },
+            // {
+            //     jsx: <BarsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+            //     view: 'collection'
+            // },
             {
                 jsx: <TagsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
                 view: 'tag'
@@ -121,15 +121,6 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
                     console.log(await db.tag.find({}).exec());
                 }
             },
-
-            // swap view mode.
-            // {
-            //     jsx: <SwapOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-            //     onClick: () => {
-            //         EventHub.emit(eventConstant.SWITCH_PICTURE_MODE);
-            //     }
-            // },
-
             // import directory button
             {
                 jsx: <ImportOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
@@ -138,16 +129,16 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
                     const dirs = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections', 'showHiddenFiles'] });
                     this.handleOpenMultipleDir(dirs);
                 }
-            },
-            // setting button
-            {
-                jsx: <SettingOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-                onClick: () => {}
             }
+            // setting button
+            // {
+            //     jsx: <SettingOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
+            //     onClick: () => { }
+            // }
         ];
 
         const buttonsJSX = buttons
-            .filter(buttonObj => isDev || !buttonObj.isDev)
+            .filter(buttonObj => (isDev() && buttonObj.isDev) || !buttonObj.isDev)
             .map((buttonObj, index) => (
                 <ButtonBox icon={buttonObj.jsx} index={index} key={index} shouldActive={false} onClick={buttonObj.onClick}></ButtonBox>
             ));
