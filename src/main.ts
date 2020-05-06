@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu } from 'electron';
 import { CodeMain } from './main/code/main';
+import { isDev } from './common/utils/functionTools';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 declare const WORKER_WINDOW_WEBPACK_ENTRY: any;
 
@@ -37,7 +38,7 @@ function createMainWindow() {
 
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-    mainWindow.webContents.openDevTools();
+    if (!app.isPackaged) mainWindow.webContents.openDevTools();
 
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -58,7 +59,7 @@ function createWorkerWindow() {
 
     workerWindow.loadURL(WORKER_WINDOW_WEBPACK_ENTRY);
 
-    workerWindow.webContents.openDevTools();
+    if (!app.isPackaged) mainWindow.webContents.openDevTools();
 
     workerWindow.on('closed', () => {
         workerWindow = null;
