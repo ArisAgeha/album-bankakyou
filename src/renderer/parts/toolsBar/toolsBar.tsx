@@ -76,7 +76,7 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
             },
             {
                 jsx: <TeamOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-                view: 'tag'
+                view: 'author'
             }
         ];
 

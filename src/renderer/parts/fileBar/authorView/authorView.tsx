@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import style from './tagView.scss';
+import style from './authorView.scss';
 import { db, Directory } from '@/common/nedb';
 import { useTranslation } from 'react-i18next';
 import { OrderedListOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
@@ -10,45 +10,45 @@ import { eventConstant } from '@/common/constant/event.constant';
 
 type SortMode = 'count' | 'countDesc' | 'name' | 'nameDesc';
 
-export interface ITagViewProps {
+export interface IAuthorViewProps {
 }
 
-export interface ITagViewState {
+export interface IAuthorViewState {
     searchData: string;
     sortMode: SortMode;
-    tagMap: { [key: string]: number };
-    selectedTags: string[];
-    lastSelectedTag: string;
-    lastSelectedTags: string[];
+    authorMap: { [key: string]: number };
+    selectedAuthors: string[];
+    lastSelectedAuthor: string;
+    lastSelectedAuthors: string[];
 }
 
-export class TagView extends PureComponent<ITagViewProps, ITagViewState> {
+export class AuthorView extends PureComponent<IAuthorViewProps, IAuthorViewState> {
 
-    tagsArray: Array<[string, number]> = [];
+    authorsArray: Array<[string, number]> = [];
 
-    constructor(props: ITagViewProps) {
+    constructor(props: IAuthorViewProps) {
         super(props);
 
         this.state = {
-            selectedTags: [],
-            lastSelectedTag: '',
-            lastSelectedTags: [],
+            selectedAuthors: [],
+            lastSelectedAuthor: '',
+            lastSelectedAuthors: [],
             searchData: '',
             sortMode: 'nameDesc',
-            tagMap: {}
+            authorMap: {}
         };
     }
 
     async componentDidMount() {
         const directoryData: Directory[] = (await db.directory.find({}).exec()) as any[];
-        const tagMap: { [key: string]: number } = {};
+        const authorMap: { [key: string]: number } = {};
         directoryData.forEach(item => {
-            item?.tag?.forEach(tag => {
-                tagMap[tag] ? tagMap[tag]++ : tagMap[tag] = 1;
+            item?.author?.forEach(author => {
+                authorMap[author] ? authorMap[author]++ : authorMap[author] = 1;
             });
         });
         this.setState({
-            tagMap
+            authorMap
         });
     }
 
@@ -89,111 +89,111 @@ export class TagView extends PureComponent<ITagViewProps, ITagViewState> {
         );
     }
 
-    handleSelectTags = (e: React.MouseEvent, tag: string) => {
+    handleSelectAuthors = (e: React.MouseEvent, author: string) => {
         e.stopPropagation();
 
         if (e.buttons === 0) {
             if (e.ctrlKey) {
-                const selectedTags = toggleArrayItem(this.state.selectedTags, tag);
+                const selectedAuthors = toggleArrayItem(this.state.selectedAuthors, author);
 
                 this.setState({
-                    selectedTags,
-                    lastSelectedTag: tag,
-                    lastSelectedTags: selectedTags
+                    selectedAuthors,
+                    lastSelectedAuthor: author,
+                    lastSelectedAuthors: selectedAuthors
                 });
             }
             else if (e.shiftKey) {
-                const { lastSelectedTag, lastSelectedTags } = this.state;
-                const lastSelectedIndex = this.tagsArray.findIndex(tagItem => tagItem[0] === lastSelectedTag);
-                const curSelectedIndex = this.tagsArray.findIndex(tagItem => tagItem[0] === tag);
+                const { lastSelectedAuthor, lastSelectedAuthors } = this.state;
+                const lastSelectedIndex = this.authorsArray.findIndex(authorItem => authorItem[0] === lastSelectedAuthor);
+                const curSelectedIndex = this.authorsArray.findIndex(authorItem => authorItem[0] === author);
 
                 if (lastSelectedIndex === curSelectedIndex) {
                     return;
                 }
                 else {
-                    const newSelectedTags = this.tagsArray
-                        .map((tagItem, index) => {
+                    const newSelectedAuthors = this.authorsArray
+                        .map((authorItem, index) => {
                             const startIndex = Math.min(curSelectedIndex, lastSelectedIndex);
                             const endIndex = Math.max(curSelectedIndex, lastSelectedIndex);
 
-                            if ((index <= endIndex) && (index >= startIndex)) return tagItem[0];
+                            if ((index <= endIndex) && (index >= startIndex)) return authorItem[0];
                             return null;
                         })
                         .filter(isString);
 
                     this.setState({
-                        selectedTags: Array.from(new Set([...lastSelectedTags, ...newSelectedTags]))
+                        selectedAuthors: Array.from(new Set([...lastSelectedAuthors, ...newSelectedAuthors]))
                     });
                 }
             }
             else {
-                EventHub.emit(eventConstant.SELECT_TAGS, [tag]);
+                EventHub.emit(eventConstant.SELECT_AUTHORS, [author]);
 
                 this.setState({
-                    selectedTags: [tag],
-                    lastSelectedTag: tag,
-                    lastSelectedTags: [tag]
+                    selectedAuthors: [author],
+                    lastSelectedAuthor: author,
+                    lastSelectedAuthors: [author]
                 });
             }
         }
     }
 
-    handleDragNodeStart = (e: React.DragEvent, tag: string) => {
+    handleDragNodeStart = (e: React.DragEvent, author: string) => {
         e.stopPropagation();
-        let transferTags: string = '';
+        let transferAuthors: string = '';
 
-        const curSelectedTags = this.state.selectedTags;
-        if (curSelectedTags.includes(tag)) transferTags = curSelectedTags.join('?|?');
-        else transferTags = tag;
+        const curSelectedAuthors = this.state.selectedAuthors;
+        if (curSelectedAuthors.includes(author)) transferAuthors = curSelectedAuthors.join('?|?');
+        else transferAuthors = author;
 
         const dt = e.dataTransfer;
         const img = new Image();
         dt.setDragImage(img, 0, 0);
-        dt.setData('tags', transferTags);
+        dt.setData('authors', transferAuthors);
     }
 
     cancelSelected = () => {
         this.setState({
-            selectedTags: []
+            selectedAuthors: []
         });
     }
 
     renderContent = () => {
         const sortMode = this.state.sortMode;
-        let tagsArray = Object.entries(this.state.tagMap);
+        let authorsArray = Object.entries(this.state.authorMap);
 
         if (sortMode.includes('count')) {
-            tagsArray = tagsArray.sort((tagItemA, tagItemB) => tagItemB[1] - tagItemA[1]);
+            authorsArray = authorsArray.sort((authorItemA, authorItemB) => authorItemB[1] - authorItemA[1]);
         }
         else {
-            tagsArray = tagsArray.sort((tagItemA, tagItemB) => naturalCompare(tagItemA[0], tagItemB[0]));
+            authorsArray = authorsArray.sort((authorItemA, authorItemB) => naturalCompare(authorItemA[0], authorItemB[0]));
         }
 
         if (!sortMode.toLowerCase().includes('desc')) {
-            tagsArray.reverse();
+            authorsArray.reverse();
         }
 
         if (this.state.searchData !== '') {
-            tagsArray = tagsArray.filter(tagItem => tagItem[0].includes(this.state.searchData));
+            authorsArray = authorsArray.filter(authorItem => authorItem[0].includes(this.state.searchData));
         }
 
-        this.tagsArray = tagsArray;
+        this.authorsArray = authorsArray;
 
-        return <div className={style.tagsWrapper}>
+        return <div className={style.authorsWrapper}>
             {
-                tagsArray.map(tagItem => {
-                    const tagName = tagItem[0];
-                    const tagCount = tagItem[1];
+                authorsArray.map(authorItem => {
+                    const authorName = authorItem[0];
+                    const authorCount = authorItem[1];
 
                     return <div
-                        onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, tagName); }}
+                        onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, authorName); }}
                         draggable
-                        className={`${style.tagItem} ${this.state.selectedTags.includes(tagName) ? style.selected : ''}`}
-                        onClick={(e: React.MouseEvent) => { this.handleSelectTags(e, tagName); }}
-                        key={tagName}
+                        className={`${style.authorItem} ${this.state.selectedAuthors.includes(authorName) ? style.selected : ''}`}
+                        onClick={(e: React.MouseEvent) => { this.handleSelectAuthors(e, authorName); }}
+                        key={authorName}
                     >
-                        <div className={`${style.tagName} text-ellipsis-1`}>{tagName}</div>
-                        <div>{tagCount}</div>
+                        <div className={`${style.authorName} text-ellipsis-1`}>{authorName}</div>
+                        <div>{authorCount}</div>
                     </div>;
                 })
             }
@@ -204,7 +204,7 @@ export class TagView extends PureComponent<ITagViewProps, ITagViewState> {
         const FilterBar = this.renderFilterBar;
         const Content = this.renderContent;
 
-        return <div className={`${style.tagsTreeWrapper} medium-scrollbar text-ellipsis-1`} onClick={this.cancelSelected}>
+        return <div className={`${style.authorsTreeWrapper} medium-scrollbar text-ellipsis-1`} onClick={this.cancelSelected}>
             <FilterBar />
             <Content />
         </div>;

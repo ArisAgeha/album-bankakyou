@@ -1,5 +1,5 @@
 export function isPicture(fileOrDirUrl: string): boolean {
-    return ['bmp', 'jpg', 'png', 'jpeg', 'exif', 'psd', 'webp', 'tif', 'tiff', 'gif', 'webm', '.mp4']
+    return ['bmp', 'jpg', 'png', 'jpeg', 'exif', 'webp', 'tif', 'tiff', 'gif', 'webm', '.mp4']
         .some(suffix => fileOrDirUrl.toLowerCase().endsWith(suffix));
 }
 
@@ -30,5 +30,5 @@ export function extractDirNameFromUrl(url: string): string {
 
 export function encodeChar(url: string): string {
     if (url.indexOf('|') !== -1) console.warn('warning: given props is not format likes `url` but `key`, please make sure that your code logic is right.');
-    return url.replace('#', encodeURIComponent('#'));
+    return url.replace(/#/g, encodeURIComponent('#'));
 }

@@ -421,7 +421,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                         <Select
                             value={readingDirection}
                             onChange={this.setReadingDirection}
-                            placeholder={isUndefinedOrNull(readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
+                            placeholder={isUndefinedOrNull(readingDirection) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={'LR'}>{t('%fromLeftToRight%')}</Option>
                             <Option value={'RL'}>{t('%fromRightToLeft%')}</Option>
                         </Select>
@@ -433,7 +433,7 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                         <Select
                             value={pageReAlign}
                             onChange={this.setPageReAlign}
-                            placeholder={isUndefinedOrNull(readingMode) ? t('%notSettingYet%') : t('%differentSetting%')}>
+                            placeholder={isUndefinedOrNull(pageReAlign) ? t('%notSettingYet%') : t('%differentSetting%')}>
                             <Option value={true}>{t('%yes%')}</Option>
                             <Option value={false}>{t('%no%')}</Option>
                         </Select>

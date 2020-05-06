@@ -176,8 +176,6 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
 
     handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
-        const dt = e.dataTransfer;
-        // dt.dropEffect = 'copy';
     }
 
     renderLeaf(node: ITreeDataNode) {

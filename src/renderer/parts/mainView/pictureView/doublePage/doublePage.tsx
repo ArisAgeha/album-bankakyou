@@ -153,9 +153,18 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
                     url
                 });
             } else {
-                const dimension = sizeOf(url);
-                dimension.url = url;
-                imgDimensions.push(dimension);
+                try {
+                    const dimension = sizeOf(url);
+                    dimension.url = url;
+                    imgDimensions.push(dimension);
+                }
+                catch (err) {
+                    imgDimensions.push({
+                        width: 1,
+                        height: 0,
+                        url
+                    });
+                }
             }
         }
         return imgDimensions;

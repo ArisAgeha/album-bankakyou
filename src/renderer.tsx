@@ -34,7 +34,7 @@ function initApp() {
     const App: FC = (): JSX.Element => <Layout />;
 
     // init hot module if NODE_ENV is in dev
-    if (isDev) hot(module)(App);
+    if (isDev()) hot(module)(App);
 
     ReactDOM.render(<App />, document.getElementById('app'));
 }

@@ -1,5 +1,5 @@
 import { isRegExp, isDate, isPrimitive, isArguments, isArray } from './types';
-import { app } from 'electron';
+import { remote } from 'electron';
 
 export function toCamelCase(str: string, mark: string = '_') {
     const regexp: RegExp = new RegExp(`${mark}\\w`, 'g');
@@ -7,13 +7,34 @@ export function toCamelCase(str: string, mark: string = '_') {
 }
 
 export function isDev() {
-    return !app.isPackaged;
+    return !remote.app.isPackaged;
 }
 export function isProd() {
-    return process.env.NODE_ENV !== 'development' || app.isPackaged;
+    return process.env.NODE_ENV !== 'development' || remote.app.isPackaged;
 }
 
 export function emptyCall(): void { }
+
+export function toggleArrayItem<T>(arr: T[], item: T): T[] {
+    const itemIndex = arr.indexOf(item);
+
+    if (itemIndex === -1) {
+        return [...arr, item];
+    } else {
+        const newArr = [...arr];
+        newArr.splice(itemIndex, 1);
+        return newArr;
+    }
+}
+
+export function isSubArray<T>(mainArray: T[], checkArray: T[]) {
+    const targetItemMap = new Map();
+    mainArray.forEach((item) => {
+        targetItemMap.set(item, true);
+    });
+
+    return checkArray.every(item => targetItemMap.has(item));
+}
 
 export function primitiveArrayDeepEqual(actual: any, expected: any) {
     if (!isArray(actual) || !isArray(expected)) return false;

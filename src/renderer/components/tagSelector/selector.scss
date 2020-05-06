@@ -93,6 +93,10 @@
                 color: $tagFontColor;
                 margin: 7px 12px 7px 0;
             }
+
+            .addItemInput::-webkit-input-placeholder {
+                color: rgba(255, 255, 255, 0.6);
+            }
         }
 
         .selectPanel {

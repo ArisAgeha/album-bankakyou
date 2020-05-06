@@ -11,6 +11,7 @@ import { resolveOnChange } from 'antd/lib/input/Input';
 import { DirectoryView } from './directoryView/directoryView';
 import { TagView } from './tagView/tagView';
 import { CollectionView } from './collectionView/collectionView';
+import { AuthorView } from './authorView/authorView';
 
 const { DirectoryTree } = Tree;
 
@@ -27,6 +28,7 @@ export class FileBar extends PureComponent<IFileBarProps, IFileBarState> {
         const showDirView = this.props.showView === 'directory' ? 'block' : 'none';
         const showCollectionView = this.props.showView === 'collection' ? 'block' : 'none';
         const showTagView = this.props.showView === 'tag' ? 'block' : 'none';
+        const showAuthorView = this.props.showView === 'author' ? 'block' : 'none';
 
         return (
             <div className={style.fileBar}>
@@ -39,6 +41,9 @@ export class FileBar extends PureComponent<IFileBarProps, IFileBarState> {
                 <div className={style.viewWrapper} style={{ display: showTagView }}>
                     <TagView></TagView>
                 </div>
+                <div className={style.viewWrapper} style={{ display: showAuthorView }}>
+                    <AuthorView></AuthorView>
+                </div>
             </div>
         );
     }
@@ -50,4 +55,4 @@ export interface IFileBarProps {
 
 export interface IFileBarState {}
 
-export type fileBarViewType = 'directory' | 'collection' | 'tag';
+export type fileBarViewType = 'directory' | 'collection' | 'tag' | 'author';

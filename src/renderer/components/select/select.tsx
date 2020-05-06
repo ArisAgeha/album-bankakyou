@@ -1,8 +1,9 @@
 import * as React from 'react';
 import style from './select.scss';
-import { isUndefinedOrNull, isNumber } from '@/common/utils/types';
+import { isUndefinedOrNull, isNumber, isArray } from '@/common/utils/types';
 import { render } from 'react-dom';
 import { ArrowDownOutlined, DownOutlined } from '@ant-design/icons';
+import { toggleArrayItem } from '@/common/utils/functionTools';
 
 export type OptionProps = {
     key?: string;
@@ -11,16 +12,16 @@ export type OptionProps = {
 };
 
 export interface ISelectProps {
-    value: any;
+    value: any | any[];
     children: JSX.Element[];
-    onChange?(value: any): void;
+    onChange?(value: any | any[]): void;
     placeholder?: string;
     tabIndex?: number;
 }
 
 export interface ISelectState {
     isVisible: boolean;
-    selectedIndex: number;
+    selectedIndex: number[];
 }
 
 // export const Option: React.FC<OptionProps> = (props: OptionProps) => <div></div>;
@@ -34,7 +35,7 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
         this.inputRef = React.createRef();
         this.state = {
             isVisible: false,
-            selectedIndex: 0
+            selectedIndex: [0]
         };
     }
 
@@ -50,18 +51,44 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
 
     updateSelectedIndex = () => {
         const value = this.props.value;
-        const selectedIndex = this.props.children.findIndex(option => option.props.value === value);
+        const selectedIndex: number[] = [];
+
+        if (isArray(value)) {
+            this.props.children.forEach((option, index) => {
+                if (value.includes(option.props.value)) {
+                    selectedIndex.push(index);
+                }
+            });
+        } else {
+            const index = this.props.children.findIndex(option => option.props.value === value);
+            if (index !== -1) selectedIndex.push(index);
+        }
+
         this.setState({
             selectedIndex
         });
     }
 
-    selectItem = (optionProps: OptionProps) => {
-        if (this.props.onChange) this.props.onChange(optionProps.value);
+    selectItem = (optionProps: OptionProps, index: number) => {
+        if (!isArray(this.props.value)) {
+            this.setState({
+                isVisible: false
+            });
 
-        this.setState({
-            isVisible: false
-        });
+            this.inputRef.current.blur();
+
+            if (this.props.onChange) this.props.onChange(optionProps.value);
+        }
+        else {
+            const selectedIndex = toggleArrayItem(this.state.selectedIndex, index);
+            const value = selectedIndex.map(i => this.props.children[i].props.value);
+
+            this.setState({
+                selectedIndex
+            });
+
+            if (this.props.onChange) this.props.onChange(value);
+        }
     }
 
     cancelSelectByTab = () => {
@@ -92,43 +119,66 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
     }
 
     handleKeydown = (e: React.KeyboardEvent) => {
-        if (!this.state.isVisible) return;
+        if (!this.state.isVisible || isArray(this.props.value)) return;
+        const firstSelectedIndex = this.state.selectedIndex[0];
 
         if (e.key === 'ArrowUp') {
-            const selectedIndex = Math.abs(this.state.selectedIndex - 1) % this.props.children.length;
+            const selectedIndex = Math.abs(firstSelectedIndex - 1) % this.props.children.length;
             this.setState({
-                selectedIndex
+                selectedIndex: [selectedIndex]
             });
         }
         else if (e.key === 'ArrowDown') {
-            const selectedIndex = Math.abs(this.state.selectedIndex + 1) % this.props.children.length;
+            const selectedIndex = Math.abs(firstSelectedIndex + 1) % this.props.children.length;
             this.setState({
-                selectedIndex
+                selectedIndex: [selectedIndex]
             });
         }
         else if (e.key === 'Enter') {
-            const value = this.props.children[this.state.selectedIndex].props.value;
+            const value = this.props.children[firstSelectedIndex].props.value;
             this.props.onChange(value);
             this.setState({ isVisible: false });
         }
     }
 
     handleMouseEnter = (index: number) => {
-        this.setState({ selectedIndex: index });
+        if (isArray(this.props.value)) return;
+        this.setState({ selectedIndex: [index] });
     }
 
     render() {
+        const MAX_TEXT_LENGTH = 12;
         const { children, placeholder } = this.props;
-
-        const curOpt = this.props.children.find(option => option.props.value === this.props.value);
-        const curOptProps = curOpt?.props || null;
-
         const tabIndex = isNumber(this.props.tabIndex) ? this.props.tabIndex : 1;
-        const value = isUndefinedOrNull(curOptProps)
-            ? placeholder
+
+        let value = null;
+
+        if (isArray(this.props.value)) {
+            const curOpts = this.props.children.filter(option => this.props.value.includes(option.props.value));
+            const curOptProps = curOpts.map(curOpt => curOpt?.props?.children || null).filter(opt => !isUndefinedOrNull(opt));
+            value = curOptProps
+                .reduce((prevVal, curVal) => prevVal + ', ' + curVal, '')
+                .slice(2, MAX_TEXT_LENGTH + 2);
+            if (value.length === 0 && placeholder) value = placeholder;
+            else if (this.props.value.length > 1) value += '...';
+
+        } else {
+            const curOpt = this.props.children.find(option => option.props.value === this.props.value);
+            const curOptProps = curOpt?.props || null;
+
+            value = isUndefinedOrNull(curOptProps)
                 ? placeholder
-                : ''
-            : curOptProps.children;
+                    ? placeholder
+                    : ''
+                : curOptProps.children;
+        }
+
+        const span = document.createElement('span');
+        span.innerText = value;
+        document.body.appendChild(span);
+        const textWidth = span.getBoundingClientRect().width;
+        document.body.removeChild(span);
+
         return (
             <div className={style.select}>
                 <div onMouseDown={this.toggleDropdownByArrow} className={style.iconWrapper}>
@@ -142,7 +192,7 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
                     readOnly
                     placeholder={isUndefinedOrNull(placeholder) ? '' : placeholder}
                     value={value}
-                    style={{ width: `${value.length * 14 + 56}px` }}
+                    style={{ width: `${textWidth + 72}px` }}
                     onSelect={this.cancelSelectByTab}
                     onMouseDown={this.toggleDropdown}
                     onFocus={this.openDropdown}
@@ -154,10 +204,13 @@ export class Select extends React.PureComponent<ISelectProps, ISelectState> {
                         children.map((option, index) =>
                             (
                                 <div
-                                    className={`${style.option} ${this.state.selectedIndex === index ? style.active : ''}`}
+                                    className={`${style.option} ${this.state.selectedIndex.includes(index) ? style.active : ''}`}
                                     key={option.key || index}
                                     onMouseEnter={() => { this.handleMouseEnter(index); }}
-                                    onMouseDown={() => { this.selectItem(option.props); }}>
+                                    onMouseDown={(e: React.MouseEvent) => {
+                                        e.preventDefault();
+                                        this.selectItem(option.props, index);
+                                    }}>
                                     {option.props.children}
                                 </div>
                             ))

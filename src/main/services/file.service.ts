@@ -41,6 +41,24 @@ export class FileService {
         });
     }
 
+    getCovers = async (urls: string[]) => {
+        const covers = [];
+
+        for (const url of urls) {
+            if (!fs.existsSync(url)) {
+                covers.push('');
+                continue;
+            }
+
+            let dirInfo = (await readdirWithFileTypes(url));
+            dirInfo = dirInfo.filter(dirent => dirent.isFile() && isPicture(dirent.name));
+            dirInfo.sort((a, b) => naturalCompare(a.name, b.name));
+            dirInfo[0] ? covers.push(this.pr(url, dirInfo[0].name)) : covers.push('');
+        }
+
+        return covers;
+    }
+
     getSingleLevelDirInfo = async (
         event: Electron.IpcMainEvent,
         data: {
@@ -96,7 +114,7 @@ export class FileService {
         }
     }
 
-    private readonly getSubDirectoryInfo = async (event: Electron.IpcMainEvent, data: {urls: string[]; flag: number}) => {
+    private readonly getSubDirectoryInfo = async (event: Electron.IpcMainEvent, data: { urls: string[]; flag: number }) => {
         const { urls, flag } = data;
         const allDirectory: string[] = [];
 

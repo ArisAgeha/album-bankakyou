@@ -41,5 +41,15 @@
     "%deepMode%": "深层模式",
 
     "%saving%": "保存中...",
-    "%loading%": "加载中..."
+    "%loading%": "加载中...",
+
+    "%searchContent%": "搜索内容...",
+    "%searchTitle%": "搜索标题...",
+
+    "%orderByName%": "按名称排序",
+    "%orderByCount%": "按数量排序",
+    "%orderByTime%": "按时间排序",
+
+    "%authorFilter%": "过滤作者",
+    "%tagFilter%": "过滤标签"
 }

@@ -13,6 +13,8 @@ import { extractDirNameFromUrl } from '@/common/utils/businessTools';
 import { command } from '@/common/constant/command.constant';
 import { isUndefinedOrNull, isObject } from '@/common/utils/types';
 import { useTranslation } from 'react-i18next';
+import { db, Directory } from '@/common/nedb';
+import Item from 'antd/lib/list/Item';
 
 export interface IMainViewProps { }
 
@@ -76,12 +78,83 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
 
     initEvent() {
         EventHub.on(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, this.loadPictureBySelectSingleDir);
+        EventHub.on(eventConstant.SELECT_TAGS, this.loadTagsAlbum);
+        EventHub.on(eventConstant.SELECT_AUTHORS, this.loadAuthorsAlbum);
         window.addEventListener('keydown', this.handleKeyDown);
     }
 
     componentWillUnmount() {
         EventHub.cancel(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, this.loadPictureBySelectSingleDir);
+        EventHub.cancel(eventConstant.SELECT_TAGS, this.loadTagsAlbum);
         window.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    loadTagsAlbum = async (tags: string[]) => {
+
+        const newTabName = tags.length > 1 ? '%multipleSources%' : tags[0];
+        const targetPage = this.state.pages.find(pageInState => pageInState.id === newTabName + ' | tag');
+
+        if (newTabName !== '%multipleSources%' && isObject(targetPage)) {
+            this.setState({
+                currentPage: targetPage.id
+            });
+            return;
+        }
+
+        const directoryItem: Directory[] = (await db.directory.find({ tag: { $in: tags } }).exec()) as any[];
+        const gallery: album[] = directoryItem.map((item) => ({
+            id: item.url + ' | tag',
+            url: item.url,
+            tags: item.tag,
+            authors: item.author,
+            title: extractDirNameFromUrl(item.url)
+        }));
+
+        const page: page = {
+            id: newTabName + ' | tag',
+            title: newTabName,
+            type: 'gallery',
+            data: gallery
+        };
+
+        this.setState({
+            pages: [...this.state.pages, page],
+            currentPage: page.id
+        });
+    }
+
+    loadAuthorsAlbum = async (authors: string[]) => {
+        const newTabName = authors.length > 1 ? '%multipleSources%' : authors[0];
+        const targetPage = this.state.pages.find(pageInState => pageInState.id === newTabName + ' | author');
+
+        if (newTabName !== '%multipleSources%' && isObject(targetPage)) {
+            this.setState({
+                currentPage: targetPage.id
+            });
+            return;
+        }
+
+        const directoryItem: Directory[] = (await db.directory.find({ author: { $in: authors } }).exec()) as any[];
+        const gallery: album[] = directoryItem.map((item) => ({
+            id: item.url + ' | author',
+            url: item.url,
+            authors: item.author,
+            tags: item.tag,
+            title: extractDirNameFromUrl(item.url)
+        }));
+
+        const page: page = {
+            id: newTabName + ' | author',
+            title: newTabName,
+            type: 'gallery',
+            data: gallery
+        };
+
+        this.setState({
+            pages: [...this.state.pages, page],
+            currentPage: page.id
+        });
+
     }
 
     loadPictureBySelectSingleDir = (data: { url: string; type: 'NEW' | 'REPLACE' }) => {
@@ -110,7 +183,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             id: Math.random().toString().slice(2),
             urls,
             title: '%multipleSources%',
-            recursiveDepth: 10
+            recursiveDepth: 100
         };
         ipcRenderer.send(command.SELECT_DIR_IN_TREE, newTabData);
     }
@@ -164,8 +237,14 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     }
 
     handleDrop = (e: React.DragEvent) => {
-        const urls = e.dataTransfer.getData('urls').split('?|?');
-        this.loadPictureBySelectMultipleDir(urls);
+        const urls = e.dataTransfer.getData('urls');
+        if (urls) this.loadPictureBySelectMultipleDir(urls.split('?|?'));
+
+        const tags = e.dataTransfer.getData('tags');
+        if (tags) this.loadTagsAlbum(tags.split('?|?'));
+
+        const authors = e.dataTransfer.getData('authors');
+        if (authors) this.loadAuthorsAlbum(authors.split('?|?'));
     }
 
     handleDragOver = (e: React.DragEvent) => {
@@ -210,7 +289,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
             (page, index) =>
                 page?.data &&
                 (page?.type === 'gallery' ? (
-                    <GalleryView />
+                    <GalleryView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
                 ) : (
                         <PictureView key={page.id} page={page} isShow={currentPageId === page.id} index={index} />
                     ))
