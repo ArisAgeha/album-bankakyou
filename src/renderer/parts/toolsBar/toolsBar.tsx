@@ -43,7 +43,7 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
         const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
 
         dirs.forEach(async dir => {
-            const dirsInStore = await db.directory.find({ url: dir }).exec();
+            const dirsInStore = await db.directory.find({ url: dir, auto: true }).exec();
             if (dirsInStore.length === 0) fileService.openDirByImport(dir);
         });
     }

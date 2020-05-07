@@ -77,7 +77,7 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
 
     addDirNodeToTree = (dirNode: ITreeDataNode) => {
         db.directory.update(
-            { url: extractDirUrlFromKey(dirNode.key), auto: true },
+            { url: extractDirUrlFromKey(dirNode.key) },
             { $set: { url: extractDirUrlFromKey(dirNode.key), auto: true } },
             { upsert: true }
         );
