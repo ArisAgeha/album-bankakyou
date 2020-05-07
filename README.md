@@ -1,6 +1,6 @@
 ## 简介
 
-[点此下载](https://github.com/ArisAgeha/picture-manager-viewer/releases/download/Beta/album-bankakyou-1.0.0.Setup.exe)
+[点此下载](https://github.com/ArisAgeha/picture-manager-viewer/releases/download/beta-1.0.1/album-bankakyou-1.0.1.Setup.exe)
 
 一款用于`windows`下的看图软件，支持`图墙`、`滚动阅读`、`对页阅读`、`单页阅读`等多种阅读模式。
 
