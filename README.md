@@ -1,3 +1,13 @@
+## 题外
+
+如果有愿意跟我共同维护、迭代的朋友，欢迎联系我，我可以大致讲解一下代码结构和思路，然后一起优化它！
+
+<br>
+
+至于要求：
+1. 有Web前端经历即可，最好写过electron
+2. 🙌没有人👐比我👌更懂☝用户体验
+
 ## 简介
 
 [点此下载](https://github.com/ArisAgeha/picture-manager-viewer/releases/download/beta-1.0.2/album-bankakyou.exe)
