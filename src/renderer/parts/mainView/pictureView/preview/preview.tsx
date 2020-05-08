@@ -158,7 +158,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                             }}
                         >
                             <div className={style.imgBox}>
-                                <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={50} once>
+                                <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={50} throttle={300} once>
                                     {content}
                                 </LazyLoad>
                             </div>

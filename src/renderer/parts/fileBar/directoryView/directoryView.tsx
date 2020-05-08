@@ -13,6 +13,8 @@ import { serviceConstant } from '@/common/constant/service.constant';
 import { readingMode, pageReAlign } from '../../manageBar/manageBar';
 import { scrollModeDirection } from '../../mainView/pictureView/scrollList/scrollList';
 import { readingDirection } from '../../mainView/pictureView/doublePage/doublePage';
+import { WithTranslation, withTranslation } from 'react-i18next';
+import { openNotification } from '@/renderer/utils/tools';
 
 export interface IDirectoryData {
     url: string;
@@ -27,7 +29,7 @@ export interface IDirectoryData {
     delay_time: number;
 }
 
-export interface IDirectoryViewProps {
+export interface IDirectoryViewProps extends WithTranslation {
     initPath?: string;
 }
 
@@ -40,7 +42,7 @@ export interface IDirectoryStore {
     url: string;
 }
 
-export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
+class DirectoryView extends PureComponent<IDirectoryViewProps & WithTranslation, IDirectoryViewState> {
     constructor(props: any) {
         super(props);
     }
@@ -70,7 +72,9 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
 
     async autoImportDir() {
         const dirs: string[] = (await db.directory.find({ auto: true }).exec()).map((item: any) => item.url);
+        const t = this.props.t;
         dirs.forEach(dir => {
+            openNotification(t('%importingDir%'), dir, { duration: 2, closeOtherNotification: false });
             ipcRenderer.send(command.IMPORT_DIR, { dir });
         });
     }
@@ -158,3 +162,6 @@ export class DirectoryView extends PureComponent<any, IDirectoryViewState> {
         );
     }
 }
+
+const directoryView = withTranslation()(DirectoryView);
+export { directoryView as DirectoryView };

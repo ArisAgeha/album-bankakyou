@@ -18,8 +18,10 @@ import { ServiceCollection } from '@/common/serviceCollection';
 import { db } from '@/common/nedb';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { isDev } from '@/common/utils/functionTools';
+import { openNotification } from '@/renderer/utils/tools';
+import { WithTranslation, withTranslation } from 'react-i18next';
 
-export interface IToolsBarProps {
+export interface IToolsBarProps extends WithTranslation {
     toolsBarWidth: number;
     changeFilebarView: Function;
 }
@@ -28,7 +30,7 @@ export interface IToolsBarState {
     activeIndex: number;
 }
 
-export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
+class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBarState> {
     constructor(props: IToolsBarProps) {
         super(props);
 
@@ -41,10 +43,14 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
         if (!dirs) return;
         const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
         const fileService: FileService = serviceCollection.get(serviceConstant.FILE);
+        const t = this.props.t;
 
         dirs.forEach(async dir => {
             const dirsInStore = await db.directory.find({ url: dir, auto: true }).exec();
-            if (dirsInStore.length === 0) fileService.openDirByImport(dir);
+            if (dirsInStore.length === 0) {
+                openNotification(t('%importingDir%'), dir, { duration: 2, closeOtherNotification: false });
+                fileService.openDirByImport(dir);
+            }
         });
     }
 
@@ -157,3 +163,6 @@ export class ToolsBar extends PureComponent<IToolsBarProps, IToolsBarState> {
         );
     }
 }
+
+const toolsBar = withTranslation()(ToolsBar);
+export { toolsBar as ToolsBar };

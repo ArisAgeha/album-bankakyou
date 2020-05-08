@@ -6,6 +6,8 @@ import LazyLoad from '@arisageha/react-lazyload-fixed';
 import * as ReactDOM from 'react-dom';
 import { encodeChar } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
+import { withTranslation, WithTranslation } from 'react-i18next';
+import { openNotification } from '@/renderer/utils/tools';
 
 export type scrollModeDirection = 'TB' | 'BT' | 'LR' | 'RL';
 
@@ -14,13 +16,13 @@ export interface IScrollListState {
     isDragging: boolean;
 }
 
-export interface IScrollListProps {
+export interface IScrollListProps extends WithTranslation {
     page: page;
     currentShowIndex: number;
     isShow: boolean;
 }
 
-export class ScrollList extends React.PureComponent<IScrollListProps, IScrollListState> {
+class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation, IScrollListState> {
     private readonly scrollListRef: React.RefObject<HTMLDivElement>;
     private readonly scaleContainerRef: React.RefObject<HTMLDivElement>;
     private lastDirection: scrollModeDirection = 'LR';
@@ -94,10 +96,22 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
         let zoomLevel = this.zoomLevel;
 
         if (['2', '4', '6', '8'].includes(e.key)) {
-            if (e.key === '2') scrollModeDirection = 'TB';
-            else if (e.key === '8') scrollModeDirection = 'BT';
-            else if (e.key === '4') scrollModeDirection = 'RL';
-            else if (e.key === '6') scrollModeDirection = 'LR';
+            if (e.key === '2') {
+                openNotification(this.props.t('%scrollModeDirection%'), this.props.t('%fromTopToBottom%'));
+                scrollModeDirection = 'TB';
+            }
+            else if (e.key === '8') {
+                openNotification(this.props.t('%scrollModeDirection%'), this.props.t('%fromBottomToTop%'));
+                scrollModeDirection = 'BT';
+            }
+            else if (e.key === '4') {
+                openNotification(this.props.t('%scrollModeDirection%'), this.props.t('%fromRightToLeft%'));
+                scrollModeDirection = 'RL';
+            }
+            else if (e.key === '6') {
+                openNotification(this.props.t('%scrollModeDirection%'), this.props.t('%fromLeftToRight%'));
+                scrollModeDirection = 'LR';
+            }
 
             db.directory.update(
                 { url: this.props.page.id },
@@ -221,3 +235,6 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
         return ['BT', 'RL'].includes(this.state.scrollModeDirection);
     }
 }
+
+const scrollList = withTranslation()(ScrollList);
+export { scrollList as ScrollList };

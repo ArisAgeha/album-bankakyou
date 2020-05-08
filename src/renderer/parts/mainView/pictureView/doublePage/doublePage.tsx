@@ -4,6 +4,8 @@ import { page } from '../../mainView';
 import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
+import { withTranslation, WithTranslation } from 'react-i18next';
+import { openNotification } from '@/renderer/utils/tools';
 const sizeOf = require('image-size');
 
 type dimension = {
@@ -26,13 +28,13 @@ export interface IDoublePageState {
     y: number;
 }
 
-export interface IDoublePageProps {
+export interface IDoublePageProps extends WithTranslation {
     page: page;
     curPage: number;
     isShow: boolean;
 }
 
-export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePageState> {
+class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation, IDoublePageState> {
     pageReAlign: boolean;
     readingDirection: 'LR' | 'RL';
     curPage: number;
@@ -179,12 +181,16 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
     }
 
     handleKeydown = (e: KeyboardEvent) => {
+        const t = this.props.t;
+
         if (!this.props.isShow) return;
         if (e.key === 'ArrowRight') this.gotoRightPage();
         else if (e.key === 'ArrowLeft') this.gotoLeftPage();
         else if (e.key === '+') this.zoomIn();
         else if (e.key === '-') this.zoomOut();
         else if (e.key === '0') {
+            openNotification(t('%pageReAlign%'), t(`${this.pageReAlign ? '%no%' : '%yes%'}`));
+
             this.pageReAlign = !this.pageReAlign;
 
             // save user habbit to database
@@ -199,6 +205,7 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         }
         else if (e.key === '5') {
             this.readingDirection = this.readingDirection === 'RL' ? 'LR' : 'RL';
+            openNotification(t('%readingDirection%'), t(`${this.readingDirection === 'LR' ? '%fromLeftToRight%' : '%fromRightToLeft%'}`));
 
             // save user habbit to database
             const url = this.props.page.id;
@@ -350,3 +357,6 @@ export class DoublePage extends React.PureComponent<IDoublePageProps, IDoublePag
         );
     }
 }
+
+const doublePage = withTranslation()(DoublePage);
+export { doublePage as DoublePage };

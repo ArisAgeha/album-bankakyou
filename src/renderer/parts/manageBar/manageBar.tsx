@@ -180,6 +180,11 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     tag = (primitiveArrayDeepEqual(tag, urlData.tag)) ? tag : '_different';
                     author = (primitiveArrayDeepEqual(author, urlData.author)) ? author : '_different';
                 });
+
+                if (urlsData.length === 1) {
+                    tag = urlsData[0].tag;
+                    author = urlsData[0].author;
+                }
             }
         }
         const manageDataObj: manageData = {
