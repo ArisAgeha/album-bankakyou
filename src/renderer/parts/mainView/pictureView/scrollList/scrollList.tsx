@@ -10,7 +10,6 @@ import { db } from '@/common/nedb';
 export type scrollModeDirection = 'TB' | 'BT' | 'LR' | 'RL';
 
 export interface IScrollListState {
-    zoomLevel: number;
     scrollModeDirection: scrollModeDirection;
     isDragging: boolean;
 }
@@ -23,14 +22,22 @@ export interface IScrollListProps {
 
 export class ScrollList extends React.PureComponent<IScrollListProps, IScrollListState> {
     private readonly scrollListRef: React.RefObject<HTMLDivElement>;
+    private readonly scaleContainerRef: React.RefObject<HTMLDivElement>;
     private lastDirection: scrollModeDirection = 'LR';
+
+    mouseLeft: number;
+    mouseTop: number;
+    zoomLevel: number;
 
     constructor(props: IScrollListProps) {
         super(props);
         this.scrollListRef = React.createRef();
+        this.scaleContainerRef = React.createRef();
+        this.mouseLeft = 0;
+        this.mouseTop = 0;
+        this.zoomLevel = 100;
 
         this.state = {
-            zoomLevel: 100,
             scrollModeDirection: 'LR',
             isDragging: false
         };
@@ -42,7 +49,6 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
         const scrollModeDirection = urlData?.scrollModeDirection || 'LR';
 
         this.setState({
-            zoomLevel: 100,
             scrollModeDirection,
             isDragging: false
         });
@@ -85,7 +91,7 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
     handleKeydown = (e: KeyboardEvent) => {
         if (!this.props.isShow) return;
         let scrollModeDirection: scrollModeDirection = this.state.scrollModeDirection;
-        let zoomLevel = this.state.zoomLevel;
+        let zoomLevel = this.zoomLevel;
 
         if (['2', '4', '6', '8'].includes(e.key)) {
             if (e.key === '2') scrollModeDirection = 'TB';
@@ -95,25 +101,39 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
 
             db.directory.update(
                 { url: this.props.page.id },
-                { $set: {scrollModeDirection}},
-                {upsert: true}
+                { $set: { scrollModeDirection } },
+                { upsert: true }
             );
         }
         else if (e.key === '+') zoomLevel *= Math.sqrt(2);
         else if (e.key === '-') zoomLevel /= Math.sqrt(2);
 
-        this.setState({ scrollModeDirection, zoomLevel });
+        this.zoomLevel = zoomLevel;
+        this.setState({ scrollModeDirection });
     }
 
     handleWheel = (e: WheelEvent) => {
         e.preventDefault();
 
-        let zoomLevel = this.state.zoomLevel;
+        let zoomLevel = this.zoomLevel;
+        const prevZoomLevel = this.zoomLevel;
 
         if (e.ctrlKey || e.buttons === 2) {
             if (e.deltaY < 0) zoomLevel *= Math.sqrt(2);
             else if (e.deltaY > 0) zoomLevel /= Math.sqrt(2);
-            this.setState({ zoomLevel });
+            this.zoomLevel = zoomLevel;
+
+            const scaleRatio = zoomLevel / prevZoomLevel;
+
+            const scrollEl = this.scrollListRef.current;
+            const processHorizontal = scrollEl.scrollLeft / scrollEl.scrollWidth;
+            const processVertical = scrollEl.scrollTop / scrollEl.scrollHeight;
+
+            const scaleEl = this.scaleContainerRef.current;
+            scaleEl.style.transform = `scale(${zoomLevel / 100})`;
+
+            scrollEl.scrollLeft = (processHorizontal * scrollEl.scrollWidth);
+            scrollEl.scrollTop = (processVertical * scrollEl.scrollHeight);
         }
         else {
             if (this.isHorizontal()) {
@@ -129,17 +149,24 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
         }
     }
 
-    handleDrag = (e: React.MouseEvent) => {
-        if (!this.state.isDragging) return;
+    handleMouseMove = (e: React.MouseEvent) => {
+        if (this.state.isDragging) {
+            this.scrollListRef.current.scrollTop -= e.movementY * 5;
+            this.scrollListRef.current.scrollLeft -= e.movementX * 5;
+        }
 
-        this.scrollListRef.current.scrollTop -= e.movementY * 5;
-        this.scrollListRef.current.scrollLeft -= e.movementX * 5;
-    }
+        // const tabsWrapper = document.querySelector('#tabsWrapper');
+        // const tabsWrapperHeight = !this.props.isFullscreen ?
+        //     tabsWrapper?.getBoundingClientRect()?.height || 0
+        //     : 0;
+        // this.mouseTop = e.clientY - tabsWrapperHeight;
 
-    getScaleContainerStyle(): React.CSSProperties {
-        const albumSize = this.state.zoomLevel / 100;
-        // return this.isVertical() ? { width: albumSize } : { height: albumSize };
-        return { transform: `scale(${albumSize})` };
+        // const layoutLeft = document.querySelector('#layoutLeft');
+        // const layoutLeftWidth = !this.props.isFullscreen ?
+        //     layoutLeft?.getBoundingClientRect()?.width || 0
+        //     : 0;
+
+        // this.mouseLeft = e.clientX - layoutLeftWidth;
     }
 
     getViewerStyle(): React.CSSProperties {
@@ -158,7 +185,6 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
         const album = this.props.page.data as picture[];
         const placeholder = <span style={{ display: 'inline-block', minWidth: '120px', minHeight: '120px' }}></span>;
 
-        const scaleContainerStyle = this.getScaleContainerStyle();
         const viewerStyle = this.getViewerStyle();
         const imgStyle = this.getImgStyle();
 
@@ -172,10 +198,10 @@ export class ScrollList extends React.PureComponent<IScrollListProps, IScrollLis
             ref={this.scrollListRef}
             className={`${style.scrollListWrapper} large-scrollbar`}
             onMouseDown={(e: React.MouseEvent) => { this.setState({ isDragging: true }); }}
-            onMouseMove={this.handleDrag}
+            onMouseMove={this.handleMouseMove}
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
             id={`scrollListContainer`}>
-            <div className={style.scaleContainer} style={scaleContainerStyle}>
+            <div className={style.scaleContainer} ref={this.scaleContainerRef}>
                 <div className={style.scrollListViewer} style={viewerStyle}>
                     {Album}
                 </div>

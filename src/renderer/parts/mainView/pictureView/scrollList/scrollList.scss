@@ -4,14 +4,11 @@
     overflow: scroll;
 
     .scaleContainer {
-        height: 100%;
-        width: 100%;
         margin: auto;
-        transition: 0.15s ease-in-out;
+        height: 100%;
 
         .scrollListViewer {
             display: flex;
-            width: 0;
 
             img {
                 z-index: 2;

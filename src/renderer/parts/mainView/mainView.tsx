@@ -297,7 +297,10 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
 
         return (
             <div className={`${style.mainView}`} onDrop={this.handleDrop} onDragOver={this.handleDragOver}>
-                <div className={`${style.tabsWrapper} no-scrollbar`} ref={this.tabRef} style={{ display: this.state.pages.length > 0 ? 'flex' : 'none' }}>
+                <div
+                    className={`${style.tabsWrapper} no-scrollbar`}
+                    ref={this.tabRef}
+                    style={{ display: this.state.pages.length > 0 ? 'flex' : 'none' }}>
                     {this.state.pages.map(page => <Tab key={page.id} page={page} />)}
                 </div>
                 <div className={`${style.displayArea}`}> {Pages}</div>
