@@ -10,24 +10,27 @@
 
 <br>
 
-> ## 5.9 更新 版本 v1.1.0
+> ## 5.10 更新 版本 v1.2.0
 
 下载地址：
 
-[安装包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.exe)
+[安装包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.exe)
 
-[压缩包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.zip)
+[压缩包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.zip)
 
-链接：https://pan.baidu.com/s/1iYaeR0__BTsJ0enhD5tWVQ 
-提取码：gfwe 
+链接：https://pan.baidu.com/s/15cHHpmJBCv1WDXaqowtIBg 
+提取码：5eoz 
 
-1. 添加了各种场景下的气泡提示
-2. 任意阅读模式下，现在缩放行为是以鼠标为中心缩放了
-3. 滚动阅读模式下，修复了一个懒加载失效导致同时加载所有图片，以致卡顿的BUG
-4. 其他小BUG修复
+【新功能/特性】
 
-不算大改动，如果对之前的缩放行为感到厌烦的可以下载最新的
-如果用着没啥问题的就可以忽略这个版本了
+大幅度优化同时加载大量图片到【预览区 / 滚动模式】时的性能，现在可以无压力地丢任意数量图片到预览区了
+现在滚动模式也会显示部分视频格式的文件了
+现在退出滚动模式时，会自动取消正在加载的图片
+添加了进入对页模式的提示
+【BUG修复】
+
+修复滚动模式无法翻转阅读的BUG（从下到上、从右到左失效）
+修复滚动模式下部分情况下出现图片偏位的BUG
 
 注意网盘内.exe文件是安装包并不是软件本体
 会默认安装到 C:\Users\(你的用户名)\AppData\Local\album-bankakyou
@@ -35,7 +38,6 @@
 请不要每次打开软件都执行这个.exe文件
 （之前有人反映说打开慢…原来是把这个exe当作了软件本体…其实他只是自动安装完之后帮你打开软件而已。。        ）
 
-<br>
 
 > ## 简介
 
@@ -163,3 +165,20 @@
 
 1. 尝试将图片预览模式下的图片换为缩略图
 2. 更多内容`可配置化`，如所有快捷键的更改、默认窗口的大小比例、开机是否自启动等
+
+> ## 历史版本更新日志
+
+> ### 5.9 更新 版本 v1.1.0
+
+下载地址：
+
+[安装包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.exe)
+
+[压缩包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.zip)
+
+1. 添加了各种场景下的气泡提示
+2. 任意阅读模式下，现在缩放行为是以鼠标为中心缩放了
+3. 滚动阅读模式下，修复了一个懒加载失效导致同时加载所有图片，以致卡顿的BUG
+4. 其他小BUG修复
+
+<br>
