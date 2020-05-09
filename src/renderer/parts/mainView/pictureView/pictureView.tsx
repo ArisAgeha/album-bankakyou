@@ -50,9 +50,13 @@ export interface IPictureViewProps {
 
 export class PictureView extends React.PureComponent<IPictureViewProps, IPictureViewState> {
     defaultReadingMode: 'double_page' | 'scroll' | 'single_page' = 'double_page';
+    previewRef: React.RefObject<Preview>;
+    scrollRef: React.RefObject<HTMLDivElement>;
 
     constructor(props: IPictureViewProps) {
         super(props);
+        this.previewRef = React.createRef();
+        this.scrollRef = React.createRef();
 
         this.state = {
             viewMode: 'preview',
@@ -294,6 +298,15 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         });
     }
 
+    handleScroll = (e: React.UIEvent) => {
+        const el = this.scrollRef.current;
+
+        if (el.scrollTop >= el.scrollHeight - el.clientHeight - 200) {
+            const preview = this.previewRef.current;
+            preview.appendAlbum();
+        }
+    }
+
     render(): JSX.Element {
         const PageDetail = this.renderPageDetail;
         const Content = this.renderContent;
@@ -303,9 +316,12 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 id={`pictureViewScrollWrapper${this.props.index}`}
                 className={`${style.pictureViewWrapper} medium-scrollbar`}
                 style={{ display: this.props.isShow ? 'block' : 'none' }}
+                onScroll={this.handleScroll}
+                ref={this.scrollRef}
             >
                 <PageDetail />
                 <Preview
+                    ref={this.previewRef}
                     isShow={this.props.isShow && this.state.viewMode === 'preview'}
                     index={this.props.index}
                     album={this.props.page.data as picture[]}

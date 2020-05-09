@@ -7,6 +7,8 @@ import { emptyCall } from '@/common/utils/functionTools';
 
 export interface IPreviewState {
     zoomLevel: number;
+    loadedIndex: number;
+    album: picture[];
 }
 
 export type zoomEvent = 'ZOOM_IN' | 'ZOOM_OUT';
@@ -40,7 +42,9 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.imageMap = {};
 
         this.state = {
-            zoomLevel: 6
+            album: this.props.album.slice(0, 40),
+            zoomLevel: 6,
+            loadedIndex: 0
         };
     }
 
@@ -51,6 +55,14 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     componentWillUnmount() {
         this.removeEvent();
         this.abortRequestPicture();
+    }
+
+    componentDidUpdate() {
+        const boxWidth: string = String(100 / this.state.zoomLevel) + '%';
+
+        Object.values(this.pictureBoxRefs).forEach(ref => {
+            ref.style.width = boxWidth;
+        });
     }
 
     initEvent() {
@@ -125,12 +137,18 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         });
     }
 
+    appendAlbum = () => {
+        const curLength = this.state.album.length;
+        if (this.state.album.length < this.props.album.length) {
+            const album = this.props.album.slice(0, curLength + 10);
+            this.setState({ album });
+        }
+    }
+
     render(): JSX.Element {
-        const album = this.props.album;
+        const album = this.state.album;
         const zoomLevel = this.state.zoomLevel;
         const showTitle: boolean = zoomLevel === 11;
-
-        const scrollContainer = `#pictureViewScrollWrapper${this.props.index}`;
 
         return (
             <div className={style.preview} ref={this.previewRef} onWheel={this.handleWheel} style={{ opacity: this.props.isShow ? 1 : 0 }}>
@@ -158,9 +176,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                             }}
                         >
                             <div className={style.imgBox}>
-                                <LazyLoad height={300} scrollContainer={scrollContainer} overflow offset={50} throttle={300} once>
-                                    {content}
-                                </LazyLoad>
+                                {content}
                             </div>
                             <div className={`${style.title} text-ellipsis-2`} style={{ display: showTitle ? '-webkit-box' : 'none' }}>
                                 {picture.title}
