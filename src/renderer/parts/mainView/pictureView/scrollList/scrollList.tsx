@@ -63,6 +63,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
 
     componentWillUnmount() {
         this.removeEvent();
+        this.abortRequestPicture();
     }
 
     componentDidUpdate() {
@@ -75,6 +76,19 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
 
             this.lastDirection = this.state.scrollModeDirection;
         }
+    }
+
+    abortRequestPicture = () => {
+        const imgs = this.scrollListRef.current.querySelectorAll('img');
+        const videos = this.scrollListRef.current.querySelectorAll('video');
+
+        imgs.forEach(img => {
+            img.src = '';
+        });
+
+        videos.forEach(video => {
+            video.src = '';
+        });
     }
 
     initEvent() {
@@ -240,23 +254,19 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
 
     render(): JSX.Element {
         const album = this.props.page.data as picture[];
-        const placeholder = <span style={{ display: this.isVertical() ? 'block' : 'inline-block', minWidth: '120px', minHeight: '120px' }}></span>;
 
         const viewerStyle = this.getViewerStyle();
         const imgStyle = this.getImgStyle();
         const imgBoxStyle = this.getImgBoxStyle();
 
         const Album = album.map(picture =>
-            <LazyLoad scrollContainer={`#scrollListContainer`} overflow offset={150} placeholder={placeholder} once key={picture.id} throttle={300}>
-                <div className={style.imgBox} style={imgBoxStyle}>
-                    {
-                        isVideo(picture.url) ?
-                            <video src={encodeChar(picture.url)} muted loop autoPlay></video>
-                            : <img draggable={false} src={encodeChar(picture.url)} alt='' style={imgStyle} />
-                    }
-                </div>
-
-            </LazyLoad>
+            <div className={style.imgBox} style={imgBoxStyle}>
+                {
+                    isVideo(picture.url) ?
+                        <video src={encodeChar(picture.url)} muted loop autoPlay></video>
+                        : <img draggable={false} src={encodeChar(picture.url)} alt='' style={imgStyle} />
+                }
+            </div>
         );
 
         return <div
@@ -265,7 +275,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
             onMouseDown={(e: React.MouseEvent) => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
-            id={`scrollListContainer`}>
+        >
             <div className={style.scaleContainer} ref={this.scaleContainerRef}>
                 <div className={style.scrollListViewer} style={viewerStyle}>
                     {Album}
