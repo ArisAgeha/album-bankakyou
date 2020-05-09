@@ -4,7 +4,7 @@ import { page } from '../../mainView';
 import { picture } from '../pictureView';
 import LazyLoad from '@arisageha/react-lazyload-fixed';
 import * as ReactDOM from 'react-dom';
-import { encodeChar } from '@/common/utils/businessTools';
+import { encodeChar, isVideo } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { openNotification } from '@/renderer/utils/tools';
@@ -27,17 +27,22 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     private readonly scaleContainerRef: React.RefObject<HTMLDivElement>;
     private lastDirection: scrollModeDirection = 'LR';
 
+    zoomLevel: number;
     mouseLeft: number;
     mouseTop: number;
-    zoomLevel: number;
+    x: number;
+    y: number;
 
     constructor(props: IScrollListProps) {
         super(props);
         this.scrollListRef = React.createRef();
         this.scaleContainerRef = React.createRef();
+
         this.mouseLeft = 0;
         this.mouseTop = 0;
-        this.zoomLevel = 100;
+        this.zoomLevel = 1;
+        this.x = 0;
+        this.y = 0;
 
         this.state = {
             scrollModeDirection: 'LR',
@@ -93,7 +98,6 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     handleKeydown = (e: KeyboardEvent) => {
         if (!this.props.isShow) return;
         let scrollModeDirection: scrollModeDirection = this.state.scrollModeDirection;
-        let zoomLevel = this.zoomLevel;
 
         if (['2', '4', '6', '8'].includes(e.key)) {
             if (e.key === '2') {
@@ -119,35 +123,32 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
                 { upsert: true }
             );
         }
-        else if (e.key === '+') zoomLevel *= Math.sqrt(2);
-        else if (e.key === '-') zoomLevel /= Math.sqrt(2);
+        else if (e.key === '+') this.zoomIn();
+        else if (e.key === '-') this.zoomOut();
 
-        this.zoomLevel = zoomLevel;
+        if (this.state.scrollModeDirection !== scrollModeDirection) {
+            this.resetSize();
+        }
+
         this.setState({ scrollModeDirection });
+    }
+
+    resetSize = () => {
+        this.x = 0;
+        this.y = 0;
+        this.zoomLevel = 1;
+        const el = this.scaleContainerRef.current;
+        el.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.zoomLevel})`;
     }
 
     handleWheel = (e: WheelEvent) => {
         e.preventDefault();
 
-        let zoomLevel = this.zoomLevel;
-        const prevZoomLevel = this.zoomLevel;
+        this.getMousePosition(e);
 
         if (e.ctrlKey || e.buttons === 2) {
-            if (e.deltaY < 0) zoomLevel *= Math.sqrt(2);
-            else if (e.deltaY > 0) zoomLevel /= Math.sqrt(2);
-            this.zoomLevel = zoomLevel;
-
-            const scaleRatio = zoomLevel / prevZoomLevel;
-
-            const scrollEl = this.scrollListRef.current;
-            const processHorizontal = scrollEl.scrollLeft / scrollEl.scrollWidth;
-            const processVertical = scrollEl.scrollTop / scrollEl.scrollHeight;
-
-            const scaleEl = this.scaleContainerRef.current;
-            scaleEl.style.transform = `scale(${zoomLevel / 100})`;
-
-            scrollEl.scrollLeft = (processHorizontal * scrollEl.scrollWidth);
-            scrollEl.scrollTop = (processVertical * scrollEl.scrollHeight);
+            if (e.deltaY < 0) this.zoomIn();
+            else if (e.deltaY > 0) this.zoomOut();
         }
         else {
             if (this.isHorizontal()) {
@@ -163,24 +164,62 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
         }
     }
 
+    zoomIn = () => {
+        const newZoomLevel = this.zoomLevel * Math.sqrt(2);
+        this.zoom(newZoomLevel);
+    }
+
+    zoomOut = () => {
+        const newZoomLevel = this.zoomLevel / Math.sqrt(2);
+        this.zoom(newZoomLevel);
+    }
+
+    zoom = (newZoomLevel: number) => {
+        const el = this.scaleContainerRef.current;
+        const elRect = this.scaleContainerRef.current.getBoundingClientRect();
+        const elHeight = elRect.height;
+        const elWidth = elRect.width;
+
+        // get scale ratio
+        const xScale = (this.mouseLeft - this.x) / elWidth;
+        const yScale = (this.mouseTop - this.y) / elHeight;
+
+        // the init width/height of scaleContainer
+        const initWidth = elWidth / this.zoomLevel;
+        const initHeight = elHeight / this.zoomLevel;
+
+        // the width/height of scaleContainer after zoomIn/zoomOut
+        const ampWidth = initWidth * newZoomLevel;
+        const ampHeight = initHeight * newZoomLevel;
+
+        // compute translate distance
+        const x = xScale * (ampWidth - elWidth);
+        const y = yScale * (ampHeight - elHeight);
+
+        el.style.transform = `translate(${this.x - x}px, ${this.y - y}px) scale(${newZoomLevel})`;
+
+        this.x -= x;
+        this.y -= y;
+        this.zoomLevel = newZoomLevel;
+    }
+
     handleMouseMove = (e: React.MouseEvent) => {
         if (this.state.isDragging) {
             this.scrollListRef.current.scrollTop -= e.movementY * 5;
             this.scrollListRef.current.scrollLeft -= e.movementX * 5;
         }
+        this.getMousePosition(e);
+    }
 
-        // const tabsWrapper = document.querySelector('#tabsWrapper');
-        // const tabsWrapperHeight = !this.props.isFullscreen ?
-        //     tabsWrapper?.getBoundingClientRect()?.height || 0
-        //     : 0;
-        // this.mouseTop = e.clientY - tabsWrapperHeight;
+    getMousePosition = (e: React.MouseEvent | WheelEvent) => {
+        // get the mouse position relative to scaleContainer's parent element
+        const pEl = this.scaleContainerRef.current.parentElement;
+        const pElRect = pEl.getBoundingClientRect();
+        const pElTop = pElRect.y || 0;
+        const pElLeft = pElRect.x || 0;
 
-        // const layoutLeft = document.querySelector('#layoutLeft');
-        // const layoutLeftWidth = !this.props.isFullscreen ?
-        //     layoutLeft?.getBoundingClientRect()?.width || 0
-        //     : 0;
-
-        // this.mouseLeft = e.clientX - layoutLeftWidth;
+        this.mouseLeft = e.clientX + pEl.scrollLeft - pElLeft;
+        this.mouseTop = e.clientY + pEl.scrollTop - pElTop;
     }
 
     getViewerStyle(): React.CSSProperties {
@@ -192,19 +231,31 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     }
 
     getImgStyle(): React.CSSProperties {
-        return this.isVertical() ? { maxWidth: '100%', alignSelf: 'center' } : { maxHeight: '100%', alignSelf: 'flex-end' };
+        return this.isVertical() ? { maxWidth: '100%', alignSelf: 'center' } : { maxHeight: '100%' };
+    }
+
+    getImgBoxStyle(): React.CSSProperties {
+        return this.isVertical() ? { display: 'block' } : { display: 'inline-block', height: '100%' };
     }
 
     render(): JSX.Element {
         const album = this.props.page.data as picture[];
-        const placeholder = <span style={{ display: 'inline-block', minWidth: '120px', minHeight: '120px' }}></span>;
+        const placeholder = <span style={{ display: this.isVertical ? 'block' : 'inline-block', minWidth: '120px', minHeight: '120px' }}></span>;
 
         const viewerStyle = this.getViewerStyle();
         const imgStyle = this.getImgStyle();
+        const imgBoxStyle = this.getImgBoxStyle();
 
         const Album = album.map(picture =>
-            <LazyLoad scrollContainer={`#scrollListContainer`} overflow offset={150} placeholder={placeholder} once key={picture.id}>
-                <img draggable={false} src={encodeChar(picture.url)} alt='' style={imgStyle} />
+            <LazyLoad scrollContainer={`#scrollListContainer`} overflow offset={150} placeholder={placeholder} once key={picture.id} throttle={300}>
+                <div className={style.imgBox} style={imgBoxStyle}>
+                    {
+                        isVideo(picture.url) ?
+                            <video src={encodeChar(picture.url)} muted loop autoPlay></video>
+                            : <img draggable={false} src={encodeChar(picture.url)} alt='' style={imgStyle} />
+                    }
+                </div>
+
             </LazyLoad>
         );
 

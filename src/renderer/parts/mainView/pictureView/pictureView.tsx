@@ -271,7 +271,7 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
                 break;
 
             case 'double_page':
-                Album = <DoublePage curPage={this.state.singlePageShowIndex} page={this.props.page} isShow={this.props.isShow} />;
+                Album = <DoublePage isFullscreen={this.state.fullScreen} curPage={this.state.singlePageShowIndex} page={this.props.page} isShow={this.props.isShow} />;
         }
 
         return Album;

@@ -6,6 +6,15 @@
     align-items: center;
     overflow: hidden;
 
+    .scaleContainer {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform-origin: 0 0;
+    }
+
     img,
     video {
         max-width: 100%;

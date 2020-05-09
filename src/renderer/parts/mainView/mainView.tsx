@@ -298,6 +298,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
         return (
             <div className={`${style.mainView}`} onDrop={this.handleDrop} onDragOver={this.handleDragOver}>
                 <div
+                    id={'tabsWrapper'}
                     className={`${style.tabsWrapper} no-scrollbar`}
                     ref={this.tabRef}
                     style={{ display: this.state.pages.length > 0 ? 'flex' : 'none' }}>

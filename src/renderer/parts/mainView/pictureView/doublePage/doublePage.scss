@@ -10,6 +10,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        transform-origin: 0 0;
 
         .imgContainer {
             height: 100%;
@@ -62,4 +63,8 @@
 
     .rightContainer {
     }
+}
+
+.doublePageWrapper.dragging {
+    cursor: grabbing;
 }

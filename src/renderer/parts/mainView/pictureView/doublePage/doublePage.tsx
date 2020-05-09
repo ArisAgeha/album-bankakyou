@@ -6,6 +6,7 @@ import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { openNotification } from '@/renderer/utils/tools';
+import { throttle } from '@/common/decorator/decorator';
 const sizeOf = require('image-size');
 
 type dimension = {
@@ -20,27 +21,31 @@ type DoublePicture = string[];
 export type readingDirection = 'LR' | 'RL';
 
 export interface IDoublePageState {
-    zoomLevel: number;
     doublePageAlbum: DoublePicture[];
     currentShowIndex: number;
     isDragging: boolean;
-    x: number;
-    y: number;
 }
 
 export interface IDoublePageProps extends WithTranslation {
     page: page;
     curPage: number;
     isShow: boolean;
+    isFullscreen: boolean;
 }
 
 class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation, IDoublePageState> {
+    private readonly scaleContainerRef: React.RefObject<HTMLUListElement>;
     pageReAlign: boolean;
     readingDirection: 'LR' | 'RL';
     curPage: number;
     hasBeenLoadIndex: {
         [key: number]: boolean;
     };
+    zoomLevel: number;
+    mouseLeft: number;
+    mouseTop: number;
+    x: number;
+    y: number;
 
     constructor(props: IDoublePageProps) {
         super(props);
@@ -49,14 +54,17 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         this.readingDirection = 'LR';
         this.hasBeenLoadIndex = [];
         this.curPage = this.props.curPage;
+        this.scaleContainerRef = React.createRef();
+        this.zoomLevel = 1;
+        this.x = 0;
+        this.y = 0;
+        this.mouseLeft = 0;
+        this.mouseTop = 0;
 
         this.state = {
             doublePageAlbum: [],
-            zoomLevel: -1,
             currentShowIndex: 0,
-            isDragging: false,
-            x: 0,
-            y: 0
+            isDragging: false
         };
     }
 
@@ -173,11 +181,12 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
     }
 
     resetSize = () => {
-        this.setState({
-            zoomLevel: -1,
-            x: 0,
-            y: 0
-        });
+        this.zoomLevel = 1;
+        this.x = 0;
+        this.y = 0;
+
+        const el = this.scaleContainerRef.current;
+        el.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.zoomLevel})`;
     }
 
     handleKeydown = (e: KeyboardEvent) => {
@@ -220,6 +229,7 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
     }
 
     handleWheel = (e: React.WheelEvent) => {
+        this.getMousePosition(e);
         if (e.deltaY > 0) {
             if (e.ctrlKey || e.buttons === 2) this.zoomOut();
             else this.readingDirection === 'LR' ? this.gotoRightPage() : this.gotoLeftPage();
@@ -247,17 +257,42 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
     }
 
     zoomIn = () => {
-        const zoomLevel = this.state.zoomLevel + 1;
-        this.setState({
-            zoomLevel
-        });
+        const newZoomLevel = this.zoomLevel * Math.sqrt(2);
+        this.zoom(newZoomLevel);
     }
 
     zoomOut = () => {
-        const zoomLevel = this.state.zoomLevel - 1;
-        this.setState({
-            zoomLevel
-        });
+        const newZoomLevel = this.zoomLevel / Math.sqrt(2);
+        this.zoom(newZoomLevel);
+    }
+
+    zoom = (newZoomLevel: number) => {
+        const el = this.scaleContainerRef.current;
+        const elRect = this.scaleContainerRef.current.getBoundingClientRect();
+        const elHeight = elRect.height;
+        const elWidth = elRect.width;
+
+        // get scale ratio
+        const xScale = (this.mouseLeft - this.x) / elWidth;
+        const yScale = (this.mouseTop - this.y) / elHeight;
+
+        // the init width/height of scaleContainer
+        const initWidth = elWidth / this.zoomLevel;
+        const initHeight = elHeight / this.zoomLevel;
+
+        // the width/height of scaleContainer after zoomIn/zoomOut
+        const ampWidth = initWidth * newZoomLevel;
+        const ampHeight = initHeight * newZoomLevel;
+
+        // compute translate distance
+        const x = xScale * (ampWidth - elWidth);
+        const y = yScale * (ampHeight - elHeight);
+
+        el.style.transform = `translate(${this.x - x}px, ${this.y - y}px) scale(${newZoomLevel})`;
+
+        this.x -= x;
+        this.y -= y;
+        this.zoomLevel = newZoomLevel;
     }
 
     handleMouseDown = (e: React.MouseEvent) => {
@@ -266,14 +301,26 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
 
     handleMouseMove = (e: React.MouseEvent) => {
         if (this.state.isDragging) {
-            const newX = this.state.x + e.movementX;
-            const newY = this.state.y + e.movementY;
+            const newX = this.x + e.movementX;
+            const newY = this.y + e.movementY;
+            this.x = newX;
+            this.y = newY;
 
-            this.setState({
-                x: newX,
-                y: newY
-            });
+            const el = this.scaleContainerRef.current;
+            el.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.zoomLevel})`;
         }
+        this.getMousePosition(e);
+    }
+
+    getMousePosition = (e: React.MouseEvent | React.WheelEvent) => {
+        // get the mouse position relative to scaleContainer's parent element
+        const pEl = this.scaleContainerRef.current.parentElement;
+        const pElRect = pEl.getBoundingClientRect();
+        const pElTop = pElRect.y || 0;
+        const pElLeft = pElRect.x || 0;
+
+        this.mouseLeft = e.clientX - pElLeft;
+        this.mouseTop = e.clientY - pElTop;
     }
 
     singlePageContainer = (props: { url: string }): JSX.Element => (
@@ -308,18 +355,15 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
 
     render(): JSX.Element {
         // get scale ratio
-        const zoomLevel = this.state.zoomLevel;
-        let imgZoom = Math.sqrt(2 ** (zoomLevel - 1)) * 2;
-        imgZoom = imgZoom <= 0 ? 0 : imgZoom;
         const album = this.state.doublePageAlbum;
 
         return (
             <div
                 onMouseMove={this.handleMouseMove}
-                className={style.doublePageWrapper}
+                className={`${style.doublePageWrapper} ${this.state.isDragging ? style.dragging : ''}`}
                 onMouseDown={this.handleMouseDown}
                 onWheel={this.handleWheel}>
-                <ul className={style.scaleContainer} style={{ transform: `translate(${this.state.x}px, ${this.state.y}px) scale(${imgZoom})` }}>
+                <ul className={style.scaleContainer} ref={this.scaleContainerRef}>
                     {album.map((dbpic, index) => {
                         const SinglePageContainer = this.singlePageContainer;
                         const DoublePageContainer = this.doublePageContainer;

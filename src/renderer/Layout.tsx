@@ -281,7 +281,7 @@ class Layout extends React.PureComponent<any, ILayoutState> {
                 onMouseDown={this.startDrag.bind(this)}
             >
                 <div className={style.body}>
-                    <div className={style.left}>
+                    <div className={style.left} id={`layoutLeft`}>
                         <div className={style.toolsBar} style={{ width: this.state.toolsBarWidth }}>
                             <ToolsBar toolsBarWidth={this.state.toolsBarWidth} changeFilebarView={this.changeFilebarView}></ToolsBar>
                         </div>
