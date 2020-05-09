@@ -1,4 +1,4 @@
-## 题外
+> ## 题外
 
 如果有愿意跟我共同维护、迭代的朋友，欢迎联系我，我可以大致讲解一下代码结构和思路，然后一起优化它！
 
@@ -8,9 +8,36 @@
 1. 有Web前端经历即可，最好写过electron
 2. 🙌没有人👐比我👌更懂☝用户体验
 
-## 简介
+<br>
 
-[点此下载](https://github.com/ArisAgeha/picture-manager-viewer/releases/download/beta-1.0.2/album-bankakyou.exe)
+> ## 5.9 更新 版本 v1.1.0
+
+下载地址：
+
+[安装包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.exe)
+
+[压缩包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.zip)
+
+链接：https://pan.baidu.com/s/1iYaeR0__BTsJ0enhD5tWVQ 
+提取码：gfwe 
+
+1. 添加了各种场景下的气泡提示
+2. 任意阅读模式下，现在缩放行为是以鼠标为中心缩放了
+3. 滚动阅读模式下，修复了一个懒加载失效导致同时加载所有图片，以致卡顿的BUG
+4. 其他小BUG修复
+
+不算大改动，如果对之前的缩放行为感到厌烦的可以下载最新的
+如果用着没啥问题的就可以忽略这个版本了
+
+注意网盘内.exe文件是安装包并不是软件本体
+会默认安装到 C:\Users\(你的用户名)\AppData\Local\album-bankakyou
+并且在桌面新增一个快捷方式，请用快捷方式打开
+请不要每次打开软件都执行这个.exe文件
+（之前有人反映说打开慢…原来是把这个exe当作了软件本体…其实他只是自动安装完之后帮你打开软件而已。。        ）
+
+<br>
+
+> ## 简介
 
 一款用于`windows`下的看图软件，支持`图墙`、`滚动阅读`、`对页阅读`、`单页阅读`等多种阅读模式。
 
@@ -36,7 +63,7 @@
 
 <br>
 
-## 使用手册
+> ## 使用手册
 
 - ### 导入目录
 
