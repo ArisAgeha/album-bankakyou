@@ -8,17 +8,14 @@
 1. 有Web前端经历即可，最好写过electron
 2. 🙌没有人👐比我👌更懂☝用户体验
 
-## 简介
+
+> ### 5.9 更新 版本 v1.1.0
 
 下载地址：
 
 [安装包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.exe)
 
 [压缩包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.zip)
-
-----------------------------------------------------------------------
-
-> ### 5.9 更新 版本 v1.1.0
 
 链接：https://pan.baidu.com/s/1iYaeR0__BTsJ0enhD5tWVQ 
 提取码：gfwe 
@@ -38,6 +35,8 @@
 （之前有人反映说打开慢…原来是把这个exe当作了软件本体…其实他只是自动安装完之后帮你打开软件而已。。        ）
 
 --------------------------------------------------
+
+> ## 简介
 
 一款用于`windows`下的看图软件，支持`图墙`、`滚动阅读`、`对页阅读`、`单页阅读`等多种阅读模式。
 
@@ -63,7 +62,7 @@
 
 <br>
 
-## 使用手册
+> ## 使用手册
 
 - ### 导入目录
 
