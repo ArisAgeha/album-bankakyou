@@ -8,12 +8,14 @@ import { encodeChar, isVideo } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { openNotification } from '@/renderer/utils/tools';
+import { throttle } from '@/common/decorator/decorator';
 
 export type scrollModeDirection = 'TB' | 'BT' | 'LR' | 'RL';
 
 export interface IScrollListState {
     scrollModeDirection: scrollModeDirection;
     isDragging: boolean;
+    album: picture[];
 }
 
 export interface IScrollListProps extends WithTranslation {
@@ -32,6 +34,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     mouseTop: number;
     x: number;
     y: number;
+    lastScrollDistance: number;
 
     constructor(props: IScrollListProps) {
         super(props);
@@ -43,19 +46,24 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
         this.zoomLevel = 1;
         this.x = 0;
         this.y = 0;
+        this.lastScrollDistance = 0;
 
         this.state = {
             scrollModeDirection: 'LR',
-            isDragging: false
+            isDragging: false,
+            album: []
         };
     }
 
     async componentDidMount() {
         this.initEvent();
+        const album = this.props.page.data.slice(0, 10);
+
         const urlData: any = await db.directory.findOne({ url: this.props.page.id });
         const scrollModeDirection = urlData?.scrollModeDirection || 'LR';
 
         this.setState({
+            album,
             scrollModeDirection,
             isDragging: false
         });
@@ -66,7 +74,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
         this.abortRequestPicture();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps: any, prevState: IScrollListState) {
         const el = this.scrollListRef.current;
         if (this.state.scrollModeDirection !== this.lastDirection) {
             if (this.state.scrollModeDirection === 'RL') el.scrollLeft = el.scrollWidth;
@@ -75,6 +83,21 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
             else if (this.state.scrollModeDirection === 'BT') el.scrollTop = el.scrollHeight;
 
             this.lastDirection = this.state.scrollModeDirection;
+        }
+
+        if (this.state.album.length > prevState.album.length && prevState.album.length !== 0) {
+            this.fixScrollPosition();
+        }
+    }
+
+    @throttle(300)
+    fixScrollPosition() {
+        const el = this.scrollListRef.current;
+        if (this.state.scrollModeDirection === 'RL') {
+            el.scrollLeft = el.scrollWidth - this.lastScrollDistance;
+        }
+        if (this.state.scrollModeDirection === 'BT') {
+            el.scrollTop = el.scrollHeight - this.lastScrollDistance;
         }
     }
 
@@ -236,6 +259,44 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
         this.mouseTop = e.clientY + pEl.scrollTop - pElTop;
     }
 
+    handleScroll = (e: React.UIEvent) => {
+        if (this.state.album.length >= this.props.page.data.length) return;
+
+        const el = this.scrollListRef.current;
+
+        let checkShouldLoad = false;
+        switch (this.state.scrollModeDirection) {
+            case 'LR':
+                if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 400) {
+                    checkShouldLoad = true;
+                }
+                break;
+            case 'RL':
+                if (el.scrollLeft < 400) {
+                    checkShouldLoad = true;
+                    this.lastScrollDistance = el.scrollWidth - el.scrollLeft;
+                }
+                break;
+            case 'TB':
+                if (el.scrollTop >= el.scrollHeight - el.clientHeight - 400) {
+                    checkShouldLoad = true;
+                }
+                break;
+            case 'BT':
+                if (el.scrollTop < 400) {
+                    checkShouldLoad = true;
+                    this.lastScrollDistance = el.scrollHeight - el.scrollTop;
+                }
+        }
+        if (checkShouldLoad) {
+            const album = this.props.page.data.slice(0, this.state.album.length + 5);
+
+            this.setState({
+                album
+            });
+        }
+    }
+
     getViewerStyle(): React.CSSProperties {
         const scrollModeDirection = this.state.scrollModeDirection;
         const flexDirection = scrollModeDirection === 'TB' ? 'column' : scrollModeDirection === 'BT' ? 'column-reverse' : scrollModeDirection === 'LR' ? 'row' : 'row-reverse';
@@ -253,14 +314,15 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     }
 
     render(): JSX.Element {
-        const album = this.props.page.data as picture[];
+        const album = this.state.album;
+        if (this.isReverse()) album.reverse();
 
         const viewerStyle = this.getViewerStyle();
         const imgStyle = this.getImgStyle();
         const imgBoxStyle = this.getImgBoxStyle();
 
         const Album = album.map(picture =>
-            <div className={style.imgBox} style={imgBoxStyle}>
+            <div className={style.imgBox} style={imgBoxStyle} key={picture.id}>
                 {
                     isVideo(picture.url) ?
                         <video src={encodeChar(picture.url)} muted loop autoPlay></video>
@@ -275,6 +337,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
             onMouseDown={(e: React.MouseEvent) => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
+            onScroll={this.handleScroll}
         >
             <div className={style.scaleContainer} ref={this.scaleContainerRef}>
                 <div className={style.scrollListViewer} style={viewerStyle}>
