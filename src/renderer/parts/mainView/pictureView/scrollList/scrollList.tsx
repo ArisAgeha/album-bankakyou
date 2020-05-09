@@ -240,7 +240,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
 
     render(): JSX.Element {
         const album = this.props.page.data as picture[];
-        const placeholder = <span style={{ display: this.isVertical ? 'block' : 'inline-block', minWidth: '120px', minHeight: '120px' }}></span>;
+        const placeholder = <span style={{ display: this.isVertical() ? 'block' : 'inline-block', minWidth: '120px', minHeight: '120px' }}></span>;
 
         const viewerStyle = this.getViewerStyle();
         const imgStyle = this.getImgStyle();
