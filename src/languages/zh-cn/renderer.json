@@ -39,5 +39,7 @@
     "%orderByTime%": "按时间排序",
     "%authorFilter%": "过滤作者",
     "%tagFilter%": "过滤标签",
-    "%importingDir%": "正在导入文件夹..."
+    "%importingDir%": "正在导入文件夹...",
+    "%openingDoublePage%": "进入对页模式",
+    "%openingDoublePageHint%": "正在拼接图片中，图片越多，耗时会越长"
 }

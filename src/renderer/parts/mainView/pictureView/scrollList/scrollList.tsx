@@ -325,7 +325,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
             <div className={style.imgBox} style={imgBoxStyle} key={picture.id}>
                 {
                     isVideo(picture.url) ?
-                        <video src={encodeChar(picture.url)} muted loop autoPlay></video>
+                        <video src={encodeChar(picture.url)} muted loop autoPlay style={imgStyle}></video>
                         : <img draggable={false} src={encodeChar(picture.url)} alt='' style={imgStyle} />
                 }
             </div>

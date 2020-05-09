@@ -8,7 +8,7 @@ import { DoublePage } from './doublePage/doublePage';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { page } from '../mainView';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, WithTranslation, withTranslation } from 'react-i18next';
 import { db } from '@/common/nedb';
 import { IDirectoryData } from '../../fileBar/directoryView/directoryView';
 import { Button } from 'antd';
@@ -18,6 +18,7 @@ import bgimg from '@/renderer/static/image/background02.jpg';
 import { isVideo, encodeChar, extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { ipcRenderer } from 'electron';
 import { command } from '@/common/constant/command.constant';
+import { openNotification } from '@/renderer/utils/tools';
 
 export interface ISwitchPageEvent {
     delta?: number;
@@ -42,13 +43,13 @@ export interface IPictureViewState {
     fullScreen: boolean;
 }
 
-export interface IPictureViewProps {
+export interface IPictureViewProps extends WithTranslation {
     page: page;
     isShow: boolean;
     index: number;
 }
 
-export class PictureView extends React.PureComponent<IPictureViewProps, IPictureViewState> {
+class PictureView extends React.PureComponent<IPictureViewProps & WithTranslation, IPictureViewState> {
     defaultReadingMode: 'double_page' | 'scroll' | 'single_page' = 'double_page';
     previewRef: React.RefObject<Preview>;
     scrollRef: React.RefObject<HTMLDivElement>;
@@ -108,17 +109,41 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
     }
 
     switchPictureMode = (mode: IPictureViewState['viewMode']) => {
-        this.setState({
-            viewMode: mode
-        });
+        if (mode === 'double_page' && this.props.page.data.length > 100) {
+            const t = this.props.t;
+            openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4500, closeOtherNotification: true });
+            setTimeout(() => {
+                this.setState({
+                    viewMode: mode
+                });
+            }, 200);
+        }
+        else {
+            this.setState({
+                viewMode: mode
+            });
+        }
     }
 
     handleClickPage(e: React.MouseEvent, data: { targetIndex: number }) {
         const { targetIndex } = data;
-        this.setState({
-            singlePageShowIndex: targetIndex,
-            viewMode: this.defaultReadingMode
-        });
+
+        if (this.defaultReadingMode === 'double_page' && this.props.page.data.length > 100) {
+            const t = this.props.t;
+            openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4500, closeOtherNotification: true });
+            setTimeout(() => {
+                this.setState({
+                    singlePageShowIndex: targetIndex,
+                    viewMode: this.defaultReadingMode
+                });
+            }, 200);
+        }
+        else {
+            this.setState({
+                singlePageShowIndex: targetIndex,
+                viewMode: this.defaultReadingMode
+            });
+        }
     }
 
     setDefaultReadingMode = (val: 'scroll' | 'double_page' | 'single_page') => {
@@ -343,3 +368,6 @@ export class PictureView extends React.PureComponent<IPictureViewProps, IPicture
         );
     }
 }
+
+const pictureView = withTranslation()(PictureView);
+export { pictureView as PictureView };
