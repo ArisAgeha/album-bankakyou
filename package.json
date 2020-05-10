@@ -4,6 +4,10 @@
   "version": "1.2.0",
   "description": "A simple and convinient picture manager/viewer",
   "main": ".webpack/main",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArisAgeha/gallery-bankakyou.git"
+  },
   "scripts": {
     "test": "electron .webpack/main/index.js",
     "start": "chcp 65001 && cross-env NODE_ENV=production electron-forge start",
@@ -62,6 +66,18 @@
             }
           }
         ]
+      ],
+      "publishers": [
+        {
+          "name": "@electron-forge/publisher-github",
+          "config": {
+            "repository": {
+              "owner": "ArisAgeha",
+              "name": "album-bankakyou"
+            },
+            "prerelease": true
+          }
+        }
       ]
     }
   },
@@ -123,6 +139,7 @@
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "reflect-metadata": "^0.1.13",
-    "sass-resources-loader": "^2.0.1"
+    "sass-resources-loader": "^2.0.1",
+    "update-electron-app": "^1.5.0"
   }
 }
