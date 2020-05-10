@@ -8,5 +8,7 @@ export const eventConstant = {
     SELECT_TAGS: 'select-tags',
     SELECT_AUTHORS: 'select-authors',
     UPDATE_TAGS: 'update-tags',
-    UPDATE_AUTHORS: 'update-authors'
+    UPDATE_AUTHORS: 'update-authors',
+    HINT_TEXT: 'hint-text',
+    HINT_MAIN_TEXT: 'hint-main-text'
 };

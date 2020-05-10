@@ -7,6 +7,7 @@ import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { Gesture } from '@/renderer/utils/gesture';
 import { emptyCall } from '@/common/utils/functionTools';
+import { hintMainText } from '@/renderer/utils/tools';
 
 export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
     test: any = {};
@@ -216,6 +217,7 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
                 onDragEnd={this.handleDragNodeEnd}
                 draggable>
                 <div
+                    onMouseEnter={() => { hintMainText(node.title); }}
                     className={`${style.nodeRootTitleWrapper} ${isSelected ? style.selected : ''}`}
                     onClick={(e: React.MouseEvent) => {
                         this.handleClickNode(e, node);

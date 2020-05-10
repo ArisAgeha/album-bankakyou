@@ -101,20 +101,20 @@
         z-index: 1;
     }
 
-    .ant-btn-primary {
+    .ant-btn-primary.theme {
         color: #fff;
         background-color: #1890ff00;
         border: 2px solid #fff;
     }
 
-    .ant-btn-primary:focus {
+    .ant-btn-primary.theme:focus {
         color: #fff;
         background-color: #1890ff00;
         border: 2px solid #fff;
     }
 
-    .ant-btn-primary.active,
-    .ant-btn-primary:hover {
+    .ant-btn-primary.theme.active,
+    .ant-btn-primary.theme:hover {
         transition: 0s;
         color: $fontColorActive;
         background-color: #fff;

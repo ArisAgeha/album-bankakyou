@@ -207,7 +207,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
         const Buttons = (
             <div className={style.buttons}>
                 <Button
-                    className={style.button}
+                    className={`${style.button} theme`}
                     type='primary'
                     icon={<ProfileOutlined />}
                     tabIndex={-1}
@@ -219,7 +219,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
                     {t('%scrollMode%')}
                 </Button>
                 <Button
-                    className={style.button}
+                    className={`${style.button} theme`}
                     type='primary'
                     icon={<BookOutlined />}
                     tabIndex={-1}
@@ -231,7 +231,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
                     {t('%singlePageMode%')}
                 </Button>
                 <Button
-                    className={style.button}
+                    className={`${style.button} theme`}
                     type='primary'
                     icon={<ReadOutlined />}
                     tabIndex={-1}

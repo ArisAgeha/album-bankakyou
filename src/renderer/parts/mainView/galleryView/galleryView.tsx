@@ -261,6 +261,7 @@ export class GalleryView extends React.PureComponent<IGalleryViewProps, IGallery
         return (
             <div className={style.filterWrapper}>
                 <Button
+                    className={`theme`}
                     type='primary'
                     icon={this.state.sortMode.toLowerCase().includes('desc') ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
                     tabIndex={-1}

@@ -7,6 +7,7 @@ import { naturalCompare, toggleArrayItem } from '@/common/utils/functionTools';
 import { isArray, isString } from '@/common/utils/types';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
+import { hintMainText } from '@/renderer/utils/tools';
 
 type SortMode = 'count' | 'countDesc' | 'name' | 'nameDesc';
 
@@ -199,6 +200,7 @@ export class AuthorView extends PureComponent<IAuthorViewProps, IAuthorViewState
                     const authorCount = authorItem[1];
 
                     return <div
+                        onMouseEnter={() => { hintMainText(authorName); }}
                         onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, authorName); }}
                         draggable
                         className={`${style.authorItem} ${this.state.selectedAuthors.includes(authorName) ? style.selected : ''}`}

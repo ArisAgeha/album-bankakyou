@@ -2,4 +2,18 @@
     height: 100%;
     width: 100%;
     border-top: 1px solid $borderColor;
+    padding: 0 12px;
+    display: flex;
+    justify-content: space-between;
+
+    .left {
+        color: #fff;
+    }
+
+    .right {
+        .text {
+            margin-right: 12px;
+            color: #fff;
+        }
+    }
 }

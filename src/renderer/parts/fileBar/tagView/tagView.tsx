@@ -7,6 +7,7 @@ import { naturalCompare, toggleArrayItem } from '@/common/utils/functionTools';
 import { isArray, isString } from '@/common/utils/types';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
+import { hintMainText } from '@/renderer/utils/tools';
 
 type SortMode = 'count' | 'countDesc' | 'name' | 'nameDesc';
 
@@ -199,6 +200,7 @@ export class TagView extends PureComponent<ITagViewProps, ITagViewState> {
                     const tagCount = tagItem[1];
 
                     return <div
+                        onMouseEnter={() => { hintMainText(tagName); }}
                         onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, tagName); }}
                         draggable
                         className={`${style.tagItem} ${this.state.selectedTags.includes(tagName) ? style.selected : ''}`}

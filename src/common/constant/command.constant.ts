@@ -13,6 +13,8 @@ export const command = {
 
     TOGGLE_FULLSCREEN: 'toggle-fullscreen',
 
+    SAVE_UPDATE_FILE: 'save-update-file',
+
     // worker renderer ipc commands
     WORKER_COMPRESS_IMAGE: 'worker_compress_image',
     WORKER_RETURN_COMPRESSED_IMAGE: 'worker_return_compressed_image'

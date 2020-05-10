@@ -19,6 +19,7 @@ import { extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { AuthorSelector } from '@/renderer/components/tagSelector/authorSelector';
 import { scrollModeDirection } from '../mainView/pictureView/scrollList/scrollList';
 import { readingDirection } from '../mainView/pictureView/doublePage/doublePage';
+import { hintMainText } from '@/renderer/utils/tools';
 const { Option } = Select;
 
 export type readingMode = 'scroll' | 'double_page' | 'single_page' | '_different';
@@ -306,7 +307,8 @@ export class ManageBar extends React.PureComponent<{}, IManageBarState> {
                     </h2>
                 }
                 <Button
-                    className={this.state.deepMode ? 'active' : ''}
+                    onMouseEnter={() => { hintMainText(t('%deepModeDesc%')); }}
+                    className={`${this.state.deepMode ? 'active' : ''} theme`}
                     type='primary'
                     icon={< ApartmentOutlined />}
                     tabIndex={-1}
