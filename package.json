@@ -6,7 +6,7 @@
   "main": ".webpack/main",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ArisAgeha/gallery-bankakyou.git"
+    "url": "git+https://github.com/ArisAgeha/album-bankakyou.git"
   },
   "scripts": {
     "test": "electron .webpack/main/index.js",

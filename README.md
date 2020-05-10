@@ -14,9 +14,9 @@
 
 下载地址：
 
-[安装包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.exe)
+[安装包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.exe)
 
-[压缩包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.zip)
+[压缩包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.zip)
 
 链接：https://pan.baidu.com/s/15cHHpmJBCv1WDXaqowtIBg 
 提取码：5eoz 
@@ -34,7 +34,7 @@
 - 修复滚动模式下部分情况下出现图片偏位的BUG
 <br>
 注意网盘内.exe文件是安装包并不是软件本体
-会默认安装到 C:\Users\(你的用户名)\AppData\Local\album-bankakyou
+会默认安装到 C:\Users\(你的用户名)\AppData\Local\gallery-bankakyou
 并且在桌面新增一个快捷方式，请用快捷方式打开
 请不要每次打开软件都执行这个.exe文件
 （之前有人反映说打开慢…原来是把这个exe当作了软件本体…其实他只是自动安装完之后帮你打开软件而已。。        ）
@@ -175,9 +175,9 @@
 
 下载地址：
 
-[安装包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.exe)
+[安装包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.exe)
 
-[压缩包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/album-bankakyou.zip)
+[压缩包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.zip)
 
 1. 添加了各种场景下的气泡提示
 2. 任意阅读模式下，现在缩放行为是以鼠标为中心缩放了
