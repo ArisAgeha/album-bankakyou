@@ -1,12 +1,12 @@
 {
   "name": "album-bankakyou",
   "productName": "album-bankakyou",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "A simple and convinient picture manager/viewer",
   "main": ".webpack/main",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ArisAgeha/album-bankakyou.git"
+    "url": "https://github.com/ArisAgeha/album-bankakyou.git"
   },
   "scripts": {
     "test": "electron .webpack/main/index.js",
