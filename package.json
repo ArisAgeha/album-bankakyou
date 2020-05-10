@@ -1,7 +1,7 @@
 {
   "name": "album-bankakyou",
   "productName": "album-bankakyou",
-  "version": "1.2.2",
+  "version": "1.2.10",
   "description": "A simple and convinient picture manager/viewer",
   "main": ".webpack/main",
   "repository": {
@@ -75,7 +75,8 @@
               "owner": "ArisAgeha",
               "name": "album-bankakyou"
             },
-            "prerelease": true
+            "prerelease": false,
+            "draft": false
           }
         }
       ]
@@ -119,6 +120,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.0.2",
     "@arisageha/react-lazyload-fixed": "^2.6.10",
+    "@electron-forge/publisher-github": "^6.0.0-beta.51",
     "@types/nedb": "^1.8.9",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",

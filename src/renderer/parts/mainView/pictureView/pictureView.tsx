@@ -111,7 +111,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
     switchPictureMode = (mode: IPictureViewState['viewMode']) => {
         if (mode === 'double_page' && this.props.page.data.length > 100) {
             const t = this.props.t;
-            openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4500, closeOtherNotification: true });
+            openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4.5, closeOtherNotification: true });
             setTimeout(() => {
                 this.setState({
                     viewMode: mode
@@ -130,7 +130,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
 
         if (this.defaultReadingMode === 'double_page' && this.props.page.data.length > 100) {
             const t = this.props.t;
-            openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4500, closeOtherNotification: true });
+            openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4.5, closeOtherNotification: true });
             setTimeout(() => {
                 this.setState({
                     singlePageShowIndex: targetIndex,
