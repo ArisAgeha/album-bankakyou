@@ -12,7 +12,6 @@ import { ChokidarService } from '../services/chokidar.service';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { IpcService } from '../services/ipc.services';
 // import { IpcService } from '../services/ipc.services';
-console.log('test');
 
 export class CodeMain {
     main(): void {

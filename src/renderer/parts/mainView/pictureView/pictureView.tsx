@@ -109,7 +109,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
     }
 
     switchPictureMode = (mode: IPictureViewState['viewMode']) => {
-        if (mode === 'double_page' && this.props.page.data.length > 100) {
+        if (mode === 'double_page' && this.props.page.data.length > 200) {
             const t = this.props.t;
             openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4.5, closeOtherNotification: true });
             setTimeout(() => {
@@ -128,7 +128,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
     handleClickPage(e: React.MouseEvent, data: { targetIndex: number }) {
         const { targetIndex } = data;
 
-        if (this.defaultReadingMode === 'double_page' && this.props.page.data.length > 100) {
+        if (this.defaultReadingMode === 'double_page' && this.props.page.data.length > 200) {
             const t = this.props.t;
             openNotification(t('%openingDoublePage%'), t('%openingDoublePageHint%'), { duration: 4.5, closeOtherNotification: true });
             setTimeout(() => {
