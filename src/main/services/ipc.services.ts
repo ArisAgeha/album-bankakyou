@@ -6,9 +6,12 @@ import { ConfigurationService } from './configuration.service';
 import { windowsConfig } from '@/common/constant/config.constant';
 import { isUndefinedOrNull, isBoolean } from '@/common/utils/types';
 import path from 'path';
-import fs, { mkdirSync } from 'fs';
+import fs, { mkdirSync, createWriteStream } from 'fs';
 import childProcess from 'child_process';
 import { writeFile } from '@/common/utils/fsHelper';
+import axios from 'axios';
+import { throttle } from '@/common/decorator/decorator';
+import { extractDirNameFromUrl } from '@/common/utils/businessTools';
 const exec = childProcess.exec;
 
 @injectable
@@ -17,64 +20,99 @@ export class IpcService {
     }
 
     initial(): void {
-        ipcMain.on(command.TOGGLE_FULLSCREEN, (event: Electron.IpcMainEvent, setToFullscreen?: boolean) => {
-            const window = BrowserWindow.getAllWindows()[0];
-            const setVal = isBoolean(setToFullscreen) ? setToFullscreen : !window.isFullScreen();
-            window.setFullScreen(setVal);
-        });
+        ipcMain.on(command.TOGGLE_FULLSCREEN, this.toggleFullscreen);
 
-        ipcMain.on(command.SAVE_UPDATE_FILE, async (
-            event: any,
-            data: { file: any; filename: string }
-        ) => {
-            const { file, filename } = data;
-            console.log(data);
-            const saveDirPath = path.resolve('./update');
-            const savePath = path.resolve('./update', filename);
-            if (!fs.existsSync(saveDirPath)) mkdirSync(saveDirPath);
-            // TODO
-            if (fs.existsSync(savePath)) return;
+        ipcMain.on(command.DOWNLOAD_UPDATE, this.downloadUpdate);
+    }
 
-            await writeFile(savePath, file);
+    saveFileToFsAndInstall = async (file: any, filename: string) => {
+        const saveDirPath = path.resolve('./update');
+        const savePath = path.resolve('./update', filename);
+        if (!fs.existsSync(saveDirPath)) mkdirSync(saveDirPath);
+        // TODO
+        if (fs.existsSync(savePath)) return;
 
-            file.pipe(fs.createWriteStream(savePath));
+        await writeFile(savePath, file);
 
-            console.log('---');
-            this.installNewVersion(filename);
-        });
+        file.pipe(fs.createWriteStream(savePath));
+
+        this.installNewVersion(filename);
+
     }
 
     installNewVersion(programName: string) {
-        console.log('====');
-        console.log(programName);
-        console.log(fs.existsSync(path.resolve('./update', programName)));
-        if (!programName || fs.existsSync(path.resolve('./update', programName))) return;
+        if (!programName || !fs.existsSync(path.resolve('./update', programName))) return;
 
         const cmdStr = `start ${programName}`;
         const cmdPath = path.resolve('./update');
         let workerProcess;
 
-        // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
         workerProcess = exec(cmdStr, { cwd: cmdPath });
-        // 不受child_process默认的缓冲区大小的使用方法，没参数也要写上{}：workerProcess = exec(cmdStr, {})
 
-        // 打印正常的后台可执行程序输出
+        workerProcess.stdout.on('readable', function(data: any) {
+            app.quit();
+        });
+
         workerProcess.stdout.on('data', function(data) {
-            console.log('stdout: ' + data);
+            app.quit();
         });
 
-        // 打印错误的后台可执行程序输出
-        workerProcess.stderr.on('data', function(data) {
-            console.log('stderr: ' + data);
-        });
-
-        // 退出之后的输出
         workerProcess.on('close', function(code) {
-            console.log('out code：' + code);
+            app.quit();
         });
 
-        app.quit();
-
+        setTimeout(() => {
+            app.quit();
+        }, 3000);
     }
 
+    downloadUpdate = async (event: Electron.IpcMainEvent, url: string) => {
+        const filename = extractDirNameFromUrl(url);
+        const outputLocationPath = path.resolve('./update', filename);
+        const writer = createWriteStream(outputLocationPath);
+
+        const response = await axios({
+            method: 'get',
+            url,
+            responseType: 'stream'
+        });
+
+        let curLength = 0;
+        const { data, headers } = response;
+        const totalLength = headers['content-length'];
+
+        data.on('data', (chunk: any) => {
+            curLength += chunk.length;
+            const percentage = Math.floor(curLength / totalLength * 10000) / 100;
+            this.handleProgress(event, percentage);
+        });
+
+        data.pipe(writer);
+
+        let error: Error = null;
+        writer.on('error', err => {
+            error = err;
+            writer.close();
+        });
+        writer.on('close', () => {
+            if (!error) {
+                event.reply(command.DOWNLOAD_SUCCESS);
+                this.installNewVersion(filename);
+            }
+            else {
+                event.reply(command.DOWNLOAD_FAIL);
+            }
+        });
+    }
+
+    @throttle(500)
+    handleProgress(event: any, percentage: number) {
+        event.reply(command.DOWNLOAD_PROGRESS, percentage);
+    }
+
+    toggleFullscreen = (event: any, setToFullscreen?: boolean) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        const setVal = isBoolean(setToFullscreen) ? setToFullscreen : !window.isFullScreen();
+        window.setFullScreen(setVal);
+    }
 }

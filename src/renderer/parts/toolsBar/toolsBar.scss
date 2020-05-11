@@ -30,3 +30,24 @@
         }
     }
 }
+
+.updateButton {
+    color: #fff;
+    background-color: rgb(255, 0, 200);
+    border: none;
+    font-size: 12px;
+}
+
+.updateButton:focus {
+    color: #fff;
+    background-color: rgb(255, 0, 200);
+    border: none;
+}
+
+.updateButton.active,
+.updateButton:hover {
+    color: #fff;
+    transition: 0s;
+    background-color: rgba(255, 0, 200, 0.7);
+    border: none;
+}

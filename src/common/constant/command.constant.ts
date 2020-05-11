@@ -13,6 +13,11 @@ export const command = {
 
     TOGGLE_FULLSCREEN: 'toggle-fullscreen',
 
+    DOWNLOAD_UPDATE: 'download-update',
+    DOWNLOAD_PROGRESS: 'download-progress',
+    DOWNLOAD_FAIL: 'download-faile',
+    DOWNLOAD_SUCCESS: 'download-success',
+
     SAVE_UPDATE_FILE: 'save-update-file',
 
     // worker renderer ipc commands

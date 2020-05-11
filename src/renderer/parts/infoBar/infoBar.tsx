@@ -50,8 +50,10 @@ class InfoBar extends PureComponent<IInfoBarProps & WithTranslation, IInfoBarSta
 
     copyByKeydown = (e: KeyboardEvent) => {
         const t = this.props.t;
-        if (e.ctrlKey && e.key.toLowerCase() === 'c') navigator.clipboard.writeText(this.state.mainText);
-        openNotification(t('%copySuccessfully%'), this.state.mainText);
+        if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+            navigator.clipboard.writeText(this.state.mainText);
+            openNotification(t('%copySuccessfully%'), this.state.mainText);
+        }
     }
 
     copyByButton = () => {

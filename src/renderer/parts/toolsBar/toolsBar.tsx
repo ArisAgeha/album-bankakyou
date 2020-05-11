@@ -9,17 +9,26 @@ import {
     ToolOutlined,
     DeleteOutlined,
     SwapOutlined,
-    TeamOutlined
+    TeamOutlined,
+    SyncOutlined
 } from '@ant-design/icons';
 import 'reflect-metadata';
-import { remote } from 'electron';
+import { remote, app, ipcRenderer } from 'electron';
 import { FileService } from '@/main/services/file.service';
 import { ServiceCollection } from '@/common/serviceCollection';
 import { db } from '@/common/nedb';
 import { serviceConstant } from '@/common/constant/service.constant';
 import { isDev } from '@/common/utils/functionTools';
-import { openNotification } from '@/renderer/utils/tools';
+import { openNotification, hintText, hintMainText } from '@/renderer/utils/tools';
 import { WithTranslation, withTranslation } from 'react-i18next';
+import axios from 'axios';
+import { isArray } from '@/common/utils/types';
+import { checkHasNewVersion, extractVersionFromString, extractDirNameFromUrl } from '@/common/utils/businessTools';
+import { Button, notification, Progress } from 'antd';
+import { eventConstant } from '@/common/constant/event.constant';
+import { command } from '@/common/constant/command.constant';
+import { throttle } from '@/common/decorator/decorator';
+const { shell } = require('electron');
 
 export interface IToolsBarProps extends WithTranslation {
     toolsBarWidth: number;
@@ -28,6 +37,7 @@ export interface IToolsBarProps extends WithTranslation {
 
 export interface IToolsBarState {
     activeIndex: number;
+    updating: boolean;
 }
 
 class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBarState> {
@@ -35,8 +45,34 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
         super(props);
 
         this.state = {
-            activeIndex: 0
+            activeIndex: 0,
+            updating: false
         };
+    }
+
+    componentDidMount() {
+        const t = this.props.t;
+
+        ipcRenderer.on(command.DOWNLOAD_PROGRESS, (event: any, progress: number) => {
+            hintText([
+                { text: `${t('%downloadProgress%')}` },
+                { text: `${String(progress)} %`, color: 'rgb(255, 0, 200)' }
+            ]);
+        });
+
+        ipcRenderer.on(command.DOWNLOAD_FAIL, (event: any) => {
+            openNotification(t('%downloadHint%'), t('%downloadFail%'));
+            this.setState({
+                updating: false
+            });
+        });
+
+        ipcRenderer.on(command.DOWNLOAD_SUCCESS, (event: any) => {
+            openNotification(t('%downloadHint%'), t('%downloadSuccess%'));
+            this.setState({
+                updating: false
+            });
+        });
     }
 
     handleOpenMultipleDir(dirs: string[]) {
@@ -66,48 +102,124 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
 
     topButton = (): JSX.Element => {
         const ButtonBox = this.buttonBox;
+        const t = this.props.t;
 
         const icons = [
             {
                 jsx: <ProfileOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-                view: 'directory'
+                view: 'directory',
+                hintMainText: t('%directoryTreeDesc%')
             },
-            // {
-            //     jsx: <BarsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-            //     view: 'collection'
-            // },
             {
                 jsx: <TagsOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-                view: 'tag'
+                view: 'tag',
+                hintMainText: t('%tagDesc%')
             },
             {
                 jsx: <TeamOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
-                view: 'author'
+                view: 'author',
+                hintMainText: t('%authorDesc%')
             }
         ];
 
         return (
             <div className={style.top}>
                 {icons.map((buttonObj, index) => (
-                    <ButtonBox
-                        icon={buttonObj.jsx}
-                        index={index}
-                        key={index}
-                        shouldActive={true}
-                        onClick={() => {
-                            this.props.changeFilebarView(buttonObj.view);
-                            this.setState({
-                                activeIndex: index
-                            });
-                        }}
-                    ></ButtonBox>
+                    <div key={index} onMouseEnter={() => { hintMainText(buttonObj.hintMainText); }}>
+                        <ButtonBox
+                            icon={buttonObj.jsx}
+                            index={index}
+
+                            shouldActive={true}
+                            onClick={() => {
+                                this.props.changeFilebarView(buttonObj.view);
+                                this.setState({
+                                    activeIndex: index
+                                });
+                            }}
+                        ></ButtonBox>
+                    </div>
                 ))}
             </div>
         );
     }
 
+    update = async (url: string) => {
+        const t = this.props.t;
+        notification.destroy();
+
+        this.setState({
+            updating: true
+        });
+
+        // notify the download status and provide a external download link
+        openNotification(
+            t('%downloadingLatestVersion%'),
+            t('%manuallyDownloadHint%'),
+            {
+                duration: 1500,
+                closeOtherNotification: true,
+                btn: (
+                    <Button type='primary' size='small' onClick={() => { shell.openExternal('https://github.com/ArisAgeha/album-bankakyou/releases'); }} className={style.updateButton}>
+                        {t('%openLink%')}
+                    </Button>
+                )
+            }
+        );
+
+        // download the file, meanwhile, get the download progress
+        ipcRenderer.send(command.DOWNLOAD_UPDATE, url);
+    }
+
+    checkUpdate = async () => {
+        const t = this.props.t;
+
+        if (this.state.updating) return;
+
+        openNotification(t('%checkingNewVersion%'), t('%pleaseWait%'), { duration: 4.5, closeOtherNotification: false });
+        try {
+            const releaseListData = await axios.get('https://api.github.com/repos/ArisAgeha/album-bankakyou/releases?per_page=100');
+            const releaseList = releaseListData?.data;
+            const exeFileUrl = isArray(releaseList) && releaseList[0]?.assets?.find((item: any) => item.name.endsWith('.exe')).browser_download_url;
+
+            // if there is no `.exe` file found in remote, return
+            if (!exeFileUrl) {
+                openNotification(t('%updateTips%'), t('%isLatestVersion%'), { duration: 3, closeOtherNotification: true });
+                return;
+            }
+
+            const remoteVersion = extractVersionFromString(releaseList[0].tag_name);
+            const localVersion = remote.app.getVersion();
+            const hasNewVersion = checkHasNewVersion(remoteVersion, localVersion);
+
+            // if there is latest version in remote, ask if user needs to update
+            if (hasNewVersion) {
+                openNotification(
+                    t('%updateTips%'),
+                    t('%hasNewVersion%'),
+                    {
+                        duration: 1500,
+                        closeOtherNotification: true,
+                        btn: (
+                            <Button type='primary' size='small' onClick={() => { this.update(exeFileUrl); }} className={style.updateButton}>
+                                {t('%ok%')}
+                            </Button>
+                        )
+                    });
+            }
+            else {
+                openNotification(t('%updateTips%'), t('%isLatestVersion%'), { duration: 3, closeOtherNotification: true });
+            }
+        }
+        // Network error
+        catch (err) {
+            openNotification(t('%updateTips%'), t('%checkFail%'), { duration: 3, closeOtherNotification: true });
+        }
+    }
+
     bottomButton = (props: any): JSX.Element => {
         const ButtonBox = this.buttonBox;
+        const t = this.props.t;
 
         const buttons = [
             // dev
@@ -129,12 +241,21 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
             },
             // import directory button
             {
+                jsx: <SyncOutlined
+                    style={{ fontSize: this.props.toolsBarWidth * 0.5, color: this.state.updating ? 'rgb(255, 0 200)' : '#fff' }}
+                    spin={this.state.updating ? true : false}
+                />,
+                onClick: this.checkUpdate,
+                hintMainText: t('%updateDesc%')
+            },
+            {
                 jsx: <ImportOutlined style={{ fontSize: this.props.toolsBarWidth * 0.5 }} />,
                 onClick: () => {
                     const dialog = remote.dialog;
                     const dirs = dialog.showOpenDialogSync({ properties: ['openDirectory', 'multiSelections', 'showHiddenFiles'] });
                     this.handleOpenMultipleDir(dirs);
-                }
+                },
+                hintMainText: t('%importDesc%')
             }
             // setting button
             // {
@@ -146,7 +267,13 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
         const buttonsJSX = buttons
             .filter(buttonObj => (isDev() && buttonObj.isDev) || !buttonObj.isDev)
             .map((buttonObj, index) => (
-                <ButtonBox icon={buttonObj.jsx} index={index} key={index} shouldActive={false} onClick={buttonObj.onClick}></ButtonBox>
+                <div key={index} onMouseEnter={() => { hintMainText(buttonObj.hintMainText); }}>
+                    <ButtonBox
+                        icon={buttonObj.jsx}
+                        index={index}
+                        shouldActive={false}
+                        onClick={buttonObj.onClick}></ButtonBox>
+                </div>
             ));
 
         return <div className={style.top}>{buttonsJSX}</div>;

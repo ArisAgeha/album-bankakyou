@@ -7,7 +7,7 @@ import * as ReactDOM from 'react-dom';
 import { encodeChar, isVideo } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { openNotification } from '@/renderer/utils/tools';
+import { openNotification, hintMainText } from '@/renderer/utils/tools';
 import { throttle } from '@/common/decorator/decorator';
 
 export type scrollModeDirection = 'TB' | 'BT' | 'LR' | 'RL';
@@ -316,6 +316,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     render(): JSX.Element {
         const album = this.state.album;
         if (this.isReverse()) album.reverse();
+        const t = this.props.t;
 
         const viewerStyle = this.getViewerStyle();
         const imgStyle = this.getImgStyle();
@@ -336,6 +337,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
             className={`${style.scrollListWrapper} large-scrollbar`}
             onMouseDown={(e: React.MouseEvent) => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
+            onMouseEnter={() => { hintMainText(t('%scrollListDesc%')); }}
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
             onScroll={this.handleScroll}
         >

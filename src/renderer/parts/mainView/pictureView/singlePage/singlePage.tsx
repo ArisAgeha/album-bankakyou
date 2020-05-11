@@ -4,19 +4,21 @@ import { page } from '../../mainView';
 import { picture, ISwitchPageEvent } from '../pictureView';
 import { isNumber } from '@/common/utils/types';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
+import { hintMainText } from '@/renderer/utils/tools';
+import { WithTranslation, withTranslation } from 'react-i18next';
 
 export interface ISinglePageState {
     isDragging: boolean;
 }
 
-export interface ISinglePageProps {
+export interface ISinglePageProps extends WithTranslation {
     page: page;
     currentShowIndex: number;
     onSwitchPage(e: ISwitchPageEvent): void;
     isShow: boolean;
 }
 
-export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePageState> {
+class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation, ISinglePageState> {
     private readonly scaleContainerRef: React.RefObject<HTMLDivElement>;
     input: string;
 
@@ -181,6 +183,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
 
     render(): JSX.Element {
         const imgSrc = (this.props.page.data as picture[])[this.props.currentShowIndex].url;
+        const t = this.props.t;
 
         return (
             <div
@@ -188,6 +191,7 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
                 style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
                 onMouseDown={this.handleMouseDown}
                 onMouseMove={this.handleMouseMove}
+                onMouseEnter={() => { hintMainText(t('%singlePageDesc%')); }}
                 onWheel={this.handleWheel}
             >
                 <div className={style.scaleContainer} ref={this.scaleContainerRef}>
@@ -205,3 +209,6 @@ export class SinglePage extends React.PureComponent<ISinglePageProps, ISinglePag
         );
     }
 }
+
+const singlePage = withTranslation()(SinglePage);
+export { singlePage as SinglePage };

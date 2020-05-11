@@ -52,6 +52,9 @@
     "%update%": "更新",
     "%downloadingLatestVersion%": "正在下载最新版本",
     "%downloadProgress%": "下载进度",
+    "%downloadHint%": "更新提示",
+    "%downloadFail%": "下载新版本失败，请重新尝试，或手动下载",
+    "%downloadSuccess%": "下载成功，即将自动安装",
     "%manuallyDownloadHint%": "下载完成后将自动安装，您也可以选择手动下载",
     "%openLink%": "打开链接",
     "%directoryTreeDesc%": "目录树：已导入的文件目录，可从左下方按钮导入",
@@ -62,5 +65,9 @@
     "%tips%": "提示",
     "%copySuccessfully%": "复制到剪切板成功",
     "%copyDesc%": "直接按下ctrl + c复制亦可",
-    "%deepModeDesc%": "深层模式：打开后，任意设置将同时更改【所有选择的文件夹】及其【所有子文件夹】的配置"
+    "%deepModeDesc%": "深层模式：打开后，任意设置将同时更改【所有选择的文件夹】及其【所有子文件夹】的配置",
+    "%previewDesc%": "预览模式：【ctrl/右键 + 滚轮】缩放",
+    "%scrollListDesc%": "滚动模式：【ctrl/右键 + 滚轮】缩放 | 【ctrl + +/-】缩放 | 【数字键2/4/6/8】切换阅读方向",
+    "%doublePageDesc%": "对页模式：【ctrl/右键 + 滚轮】缩放 | 【ctrl + +/-】缩放 | 【数字键5】切换阅读方向 | 【数字键0】对页拼接重新对齐",
+    "%singlePageDesc%": "对页模式：【ctrl/右键 + 滚轮】缩放 | 【任意数字键 + 回车键】跳转页"
 }

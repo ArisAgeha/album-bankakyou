@@ -5,7 +5,7 @@ import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { openNotification } from '@/renderer/utils/tools';
+import { openNotification, hintMainText } from '@/renderer/utils/tools';
 import { throttle } from '@/common/decorator/decorator';
 const sizeOf = require('image-size');
 
@@ -356,12 +356,14 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
     render(): JSX.Element {
         // get scale ratio
         const album = this.state.doublePageAlbum;
+        const t = this.props.t;
 
         return (
             <div
                 onMouseMove={this.handleMouseMove}
                 className={`${style.doublePageWrapper} ${this.state.isDragging ? style.dragging : ''}`}
                 onMouseDown={this.handleMouseDown}
+                onMouseEnter={() => { hintMainText(t('%doublePageDesc%')); }}
                 onWheel={this.handleWheel}>
                 <ul className={style.scaleContainer} ref={this.scaleContainerRef}>
                     {album.map((dbpic, index) => {
