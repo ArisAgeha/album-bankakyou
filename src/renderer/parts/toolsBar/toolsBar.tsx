@@ -167,6 +167,20 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
             }
         );
 
+        openNotification(
+            t('%downloadingLatestVersion%'),
+            t('%installPostitionDesc%'),
+            {
+                duration: 1500,
+                closeOtherNotification: false,
+                btn: (
+                    <Button type='primary' size='small' onClick={() => { shell.openExternal('https://github.com/ArisAgeha/album-bankakyou/releases'); }} className={style.updateButton}>
+                        {t('%openLink%')}
+                    </Button>
+                )
+            }
+        );
+
         // download the file, meanwhile, get the download progress
         ipcRenderer.send(command.DOWNLOAD_UPDATE, url);
     }
@@ -193,7 +207,7 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
             const hasNewVersion = checkHasNewVersion(remoteVersion, localVersion);
 
             // if there is latest version in remote, ask if user needs to update
-            if (hasNewVersion) {
+            if (!hasNewVersion) {
                 openNotification(
                     t('%updateTips%'),
                     t('%hasNewVersion%'),
