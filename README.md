@@ -10,29 +10,43 @@
 
 <br>
 
-> ## 5.10 更新 版本 v1.2.0
+> ### 5.11 更新 版本 v1.4.0
 
-下载地址：
+百度网盘：https://pan.baidu.com/s/1z0KKZ6ICGSKmy78J1pLb-g 
+提取码：y0md
 
-[安装包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.exe)
+[安装包v1.4.0](https://github.com/ArisAgeha/album-bankakyou/releases/download/v1.4.0/album-bankakyou-1.4.0.Setup.exe)
 
-[压缩包v1.2.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.zip)
+[压缩包v1.4.0](https://github.com/ArisAgeha/album-bankakyou/releases/download/v1.4.0/album-bankakyou-1.4.0.zip)
 
-链接：https://pan.baidu.com/s/15cHHpmJBCv1WDXaqowtIBg 
-提取码：5eoz 
+<br>
 
 【新功能/特性】
 
-- 大幅度优化同时加载大量图片到【预览区 / 滚动模式】时的性能，现在可以无压力地丢任意数量图片到预览区了
-- 现在滚动模式也会显示部分视频格式的文件了
-- 现在退出滚动模式时，会自动取消正在加载的图片
-- 添加了进入对页模式的提示
+1. 添加了检查更新按钮，并且内置了软件自动更新功能，现在不需要到各个发布点寻找更新了
+2. 添加了大量hover提示，显示在下方的信息栏，包括但不限于快捷键提示、选中的文件名、按钮的功能说明等
+3. 现在在任意位置直接按下【ctrl + c】都可以直接复制信息栏左侧的文字（主要设计用于相册名字）
+4. 标签/作者对应的相册阅览模式，现在可以跟图片阅览模式一样使用缩放功能了。
+5. 相册阅览模式使用【ctrl / shift】键的多选功能，多选后按下回车键可以将所有选中的相册所包含的图片打开到同一个标签页中，方便阅览（与从目录树拖拽多个文件夹到阅览区的效果一致）
+
 <br>
+ps: 
+
+1. 软件内置更新由于用的是github源，而github在国内处于限速访问状态，所以非海外用户请酌情使用。
+2. 软件内置更新暂时是试验性功能，不确保稳定性。
+
+因此，请酌情使用【检查更新】+【打开外部下载链接手动下载 / 内置自动更新】的组合。
+使用了内置自动更新功能的用户，可以的话请向我反馈一下效果体验，非常感谢。
+
+<br>
+
 【BUG修复】
 
-- 修复滚动模式无法翻转阅读的BUG（从下到上、从右到左失效）
-- 修复滚动模式下部分情况下出现图片偏位的BUG
+1. 修复滚动模式在翻转阅读状态下可能出现的翻转失效
+2. 各种地方的小BUG修复
+
 <br>
+
 注意网盘内.exe文件是安装包并不是软件本体
 会默认安装到 C:\Users\(你的用户名)\AppData\Local\gallery-bankakyou
 并且在桌面新增一个快捷方式，请用快捷方式打开
@@ -171,13 +185,24 @@
 
 > ## 历史版本更新日志
 
+> ### 5.10 更新 版本 v1.2.0
+
+【新功能/特性】
+
+- 大幅度优化同时加载大量图片到【预览区 / 滚动模式】时的性能，现在可以无压力地丢任意数量图片到预览区了
+- 现在滚动模式也会显示部分视频格式的文件了
+- 现在退出滚动模式时，会自动取消正在加载的图片
+- 添加了进入对页模式的提示
+<br>
+【BUG修复】
+
+- 修复滚动模式无法翻转阅读的BUG（从下到上、从右到左失效）
+- 修复滚动模式下部分情况下出现图片偏位的BUG
+
+<br>
+<br>
+
 > ### 5.9 更新 版本 v1.1.0
-
-下载地址：
-
-[安装包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.exe)
-
-[压缩包v1.1.0](https://github.com/ArisAgeha/gallery-bankakyou/releases/download/beta-1.1.0/gallery-bankakyou.zip)
 
 1. 添加了各种场景下的气泡提示
 2. 任意阅读模式下，现在缩放行为是以鼠标为中心缩放了
