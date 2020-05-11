@@ -7,6 +7,7 @@ import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { openNotification, hintMainText, hintText } from '@/renderer/utils/tools';
 import { throttle } from '@/common/decorator/decorator';
+import { SyncOutlined } from '@ant-design/icons';
 const sizeOf = require('image-size');
 
 type dimension = {
@@ -94,6 +95,21 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeydown);
         document.removeEventListener('mouseup', this.stopDrag);
+    }
+
+    componentDidUpdate(prevProps: any, prevState: IDoublePageState) {
+        const t = this.props.t;
+
+        this.hintText();
+        const pageNum = this.state.doublePageAlbum.length;
+        const curPage = this.state.currentShowIndex;
+
+        if (prevState.currentShowIndex === pageNum - 1 && curPage === 0) {
+            openNotification(t('%isLastPage%'));
+        }
+        else if (prevState.currentShowIndex === 0 && curPage === pageNum - 1) {
+            openNotification(t('%isFirstPage%'));
+        }
     }
 
     stopDrag = () => {
@@ -228,7 +244,12 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         }
     }
 
+    isLastPage = () => this.state.currentShowIndex === this.state.doublePageAlbum.length - 1;
+
+    isFirstPage = () => this.state.currentShowIndex === 0;
+
     handleWheel = (e: React.WheelEvent) => {
+        const t = this.props.t;
         this.getMousePosition(e);
         if (e.deltaY > 0) {
             if (e.ctrlKey || e.buttons === 2) this.zoomOut();
@@ -324,9 +345,15 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
     }
 
     hintText = () => {
-        const t = this.props.t;
+        hintText(this.getHintText());
+    }
 
-        hintText([
+    getHintText = () => {
+        const t = this.props.t;
+        const curPage = this.state.currentShowIndex + 1;
+        const totalPage = this.state.doublePageAlbum.length;
+
+        return [
             {
                 text: t('%zoomKey%'),
                 color: 'rgb(255, 0, 200)',
@@ -353,8 +380,11 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
             {
                 text: t('%reAlign%'),
                 margin: 24
+            },
+            {
+                text: `${curPage} / ${totalPage}`
             }
-        ]);
+        ];
     }
 
     singlePageContainer = (props: { url: string }): JSX.Element => (

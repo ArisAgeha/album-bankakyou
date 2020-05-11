@@ -70,6 +70,8 @@
     "%previewDesc%": "预览模式：【ctrl/右键 + 滚轮】缩放",
     "%doublePageDesc%": "对页模式：【ctrl/右键 + 滚轮】缩放 | 【ctrl + +/-】缩放 | 【数字键5】切换阅读方向 | 【数字键0】对页拼接重新对齐",
     "%singlePageDesc%": "对页模式：【ctrl/右键 + 滚轮】缩放 | 【任意数字键 + 回车键】跳转页",
+    "%isFirstPage%": "已前往最后一页",
+    "%isLastPage%": "已回到第一页",
 
     "%numberKey%": "数字键",
     "%zoomKey%": "【ctrl / 右键 + 滚轮】或【键盘+ / -】",

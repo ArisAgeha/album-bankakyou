@@ -4,7 +4,7 @@ import { page } from '../../mainView';
 import { picture, ISwitchPageEvent } from '../pictureView';
 import { isNumber } from '@/common/utils/types';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
-import { hintMainText, hintText } from '@/renderer/utils/tools';
+import { hintMainText, hintText, openNotification } from '@/renderer/utils/tools';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
 export interface ISinglePageState {
@@ -44,6 +44,21 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
         this.input = '';
     }
 
+    componentDidUpdate(prevProps: ISinglePageProps, prevState: ISinglePageState) {
+        this.hintText();
+        const t = this.props.t;
+
+        const pageNum = this.props.page.data.length;
+        const curPage = this.props.currentShowIndex;
+
+        if (prevProps.currentShowIndex === pageNum - 1 && curPage === 0) {
+            openNotification(t('%isLastPage%'));
+        }
+        else if (prevProps.currentShowIndex === 0 && curPage === pageNum - 1) {
+            openNotification(t('%isFirstPage%'));
+        }
+    }
+
     componentDidMount() {
         this.initEvent();
     }
@@ -74,6 +89,8 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
     }
 
     handleWheel = (e: React.WheelEvent) => {
+        const t = this.props.t;
+
         this.getMousePosition(e);
         if (e.deltaY > 0) {
             if (e.ctrlKey || e.buttons === 2) this.zoomOut();
@@ -182,8 +199,15 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
     }
 
     hintText = () => {
+        hintText(this.getHintText());
+    }
+
+    getHintText = () => {
         const t = this.props.t;
-        hintText([
+        const curPage = this.props.currentShowIndex + 1;
+        const totalPage = this.props.page.data.length;
+
+        return [
             {
                 text: t('%zoomKey%'),
                 color: 'rgb(255, 0, 200)',
@@ -201,8 +225,11 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
             {
                 text: t('%jumpToPage%'),
                 margin: 24
+            },
+            {
+                text: `${curPage} / ${totalPage}`
             }
-        ]);
+        ];
     }
 
     render(): JSX.Element {

@@ -11,7 +11,7 @@ type NotificationOptions = {
     btn?: React.ReactNode;
 };
 
-export const openNotification = (title: string, description: string | React.ReactNode, options?: NotificationOptions) => {
+export const openNotification = (title: string, description?: string | React.ReactNode, options?: NotificationOptions) => {
     const closeOtherNotification = isUndefinedOrNull(options?.closeOtherNotification) ? true : options.closeOtherNotification;
     const duration = isUndefinedOrNull(options?.duration) ? 1.2 : options.duration;
     const btn = isUndefinedOrNull(options?.btn) ? null : options.btn;
