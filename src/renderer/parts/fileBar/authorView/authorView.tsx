@@ -200,7 +200,7 @@ export class AuthorView extends PureComponent<IAuthorViewProps, IAuthorViewState
                     const authorCount = authorItem[1];
 
                     return <div
-                        onMouseEnter={() => { hintMainText(authorName); }}
+                        onMouseEnter={(e: React.MouseEvent) => { hintMainText(authorName); }}
                         onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, authorName); }}
                         draggable
                         className={`${style.authorItem} ${this.state.selectedAuthors.includes(authorName) ? style.selected : ''}`}

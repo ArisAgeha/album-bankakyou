@@ -242,7 +242,7 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
             // import directory button
             {
                 jsx: <SyncOutlined
-                    style={{ fontSize: this.props.toolsBarWidth * 0.5, color: this.state.updating ? 'rgb(255, 0 200)' : '#fff' }}
+                    style={{ fontSize: this.props.toolsBarWidth * 0.5 }}
                     spin={this.state.updating ? true : false}
                 />,
                 onClick: this.checkUpdate,

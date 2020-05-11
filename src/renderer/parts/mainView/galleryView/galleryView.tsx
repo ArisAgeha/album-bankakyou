@@ -9,12 +9,14 @@ import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { naturalCompare, isSubArray } from '@/common/utils/functionTools';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, WithTranslation, withTranslation } from 'react-i18next';
 import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { throttle } from '@/common/decorator/decorator';
 import 'reflect-metadata';
 import { Select } from '@/renderer/components/select/select';
+import { hintMainText } from '@/renderer/utils/tools';
+import { zoomEvent } from '../pictureView/preview/preview';
 const { Option } = Select;
 
 export type album = {
@@ -32,9 +34,13 @@ export interface IGalleryViewState {
     sortMode: SortMode;
     filterAuthor: string[];
     filterTag: string[];
+    zoomLevel: number;
+    selectedIndexs: number[];
+    lastSelectedIndex: number;
+    lastSelectedIndexs: number[];
 }
 
-export interface IGalleryViewProps {
+export interface IGalleryViewProps extends WithTranslation {
     page: page;
     isShow: boolean;
     index: number;
@@ -42,7 +48,7 @@ export interface IGalleryViewProps {
 
 type SortMode = 'time' | 'timeDesc' | 'name' | 'nameDesc';
 
-export class GalleryView extends React.PureComponent<IGalleryViewProps, IGalleryViewState> {
+class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslation, IGalleryViewState> {
 
     private readonly galleryRef: React.RefObject<HTMLDivElement>;
     private readonly fileService: FileService;
@@ -70,7 +76,11 @@ export class GalleryView extends React.PureComponent<IGalleryViewProps, IGallery
             searchWord: '',
             sortMode: 'timeDesc',
             filterAuthor: [],
-            filterTag: []
+            filterTag: [],
+            zoomLevel: 6,
+            selectedIndexs: [],
+            lastSelectedIndex: 0,
+            lastSelectedIndexs: []
         };
     }
 
@@ -189,6 +199,25 @@ export class GalleryView extends React.PureComponent<IGalleryViewProps, IGallery
 
     handleWheel = (e: React.WheelEvent) => {
         this.checkShouldLoadAlbum();
+
+        if (e.ctrlKey || e.buttons === 2) {
+            let zoom: zoomEvent = null;
+            if (e.deltaY < 0) zoom = 'ZOOM_IN';
+            else if (e.deltaY > 0) zoom = 'ZOOM_OUT';
+            if (zoom) this.handleZoom(zoom);
+        }
+    }
+
+    handleZoom = (zoom: zoomEvent) => {
+        let zoomLevel = this.state.zoomLevel;
+        if (zoom === 'ZOOM_OUT') zoomLevel = zoomLevel >= 11 ? 11 : zoomLevel + 1;
+        else zoomLevel = zoomLevel <= 1 ? 1 : zoomLevel - 1;
+
+        zoomLevel = zoomLevel === 11 ? 10 : zoomLevel;
+
+        this.setState({
+            zoomLevel
+        });
     }
 
     handleScroll = () => {
@@ -300,35 +329,42 @@ export class GalleryView extends React.PureComponent<IGalleryViewProps, IGallery
         );
     }
 
-    renderGallery = () => (
-        <div className={style.gallery}>
-            {
-                this.state.gallery.map((album, index) => {
-                    const cover = album.cover;
-                    let content: JSX.Element = null;
-                    if (isVideo(cover)) {
-                        content = <video src={encodeChar(cover)} autoPlay muted loop></video>;
-                    } else {
-                        content = <img draggable={false} src={encodeChar(cover)} />;
-                    }
+    renderGallery = () => {
+        const zoomLevel = this.state.zoomLevel;
+        const boxWidth: string = String(100 / this.state.zoomLevel) + '%';
 
-                    return (<div
-                        className={style.pictureBox}
-                        key={album.id}
-                    >
-                        <div className={style.innerBox} onClick={(e: React.MouseEvent) => { this.handleClick(e, album, index); }}>
-                            <div className={style.imgBox}>
-                                {content}
+        return (
+            <div className={style.gallery}>
+                {
+                    this.state.gallery.map((album, index) => {
+                        const cover = album.cover;
+                        let content: JSX.Element = null;
+                        if (isVideo(cover)) {
+                            content = <video src={encodeChar(cover)} autoPlay muted loop></video>;
+                        } else {
+                            content = <img draggable={false} src={encodeChar(cover)} />;
+                        }
+
+                        return (<div
+                            className={style.pictureBox}
+                            style={{ width: boxWidth, maxHeight: `${(11 - zoomLevel) * 150}px` }}
+                            key={album.id}
+                            onMouseEnter={(e: React.MouseEvent) => { e.stopPropagation(); hintMainText(album.title); }}
+                        >
+                            <div className={style.innerBox} onClick={(e: React.MouseEvent) => { this.handleClick(e, album, index); }}>
+                                <div className={style.imgBox}>
+                                    {content}
+                                </div>
+                                <div className={`${style.title} text-ellipsis-2`}>
+                                    {album.title}
+                                </div>
                             </div>
-                            <div className={`${style.title} text-ellipsis-2`}>
-                                {album.title}
-                            </div>
-                        </div>
-                    </div>);
-                })
-            }
-        </div>
-    )
+                        </div>);
+                    })
+                }
+            </div>
+        );
+    }
 
     render(): JSX.Element {
         const SearchBar = this.renderSearchBar;
@@ -349,3 +385,7 @@ export class GalleryView extends React.PureComponent<IGalleryViewProps, IGallery
         );
     }
 }
+
+const galleryView = withTranslation()(GalleryView);
+
+export { galleryView as GalleryView };
