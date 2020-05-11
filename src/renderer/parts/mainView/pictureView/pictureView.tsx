@@ -359,11 +359,12 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
     render(): JSX.Element {
         const PageDetail = this.renderPageDetail;
         const Content = this.renderContent;
+        const t = this.props.t;
 
         return (
             <div
                 onMouseEnter={this.hintText}
-                onMouseLeave={() => { hintText([]); }}
+                onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
                 id={`pictureViewScrollWrapper${this.props.index}`}
                 className={`${style.pictureViewWrapper} medium-scrollbar`}
                 style={{ display: this.props.isShow ? 'block' : 'none' }}

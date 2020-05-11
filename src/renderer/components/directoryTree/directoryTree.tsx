@@ -275,9 +275,12 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
 
     render() {
         const treeData = this.props.treeData;
+        const t = this.props.t;
+
         const res = (
             <div
                 onMouseEnter={this.hintText}
+                onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
                 className={style.treeRootWrapper}
                 onClick={this.handleClickBackground}
                 onDragOver={this.handleDragOver} >

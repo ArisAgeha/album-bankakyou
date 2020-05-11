@@ -82,5 +82,7 @@
     "%reAlign%": "重新调整左右页拼接",
     "%dragToPreview%": "拖拽到右侧阅览区",
     "%singleClick%": "单击",
-    "%openSingleAlbum%": "打开单个相册"
+    "%openSingleAlbum%": "打开单个相册",
+    "%openSettingDesc%": "按住左右键 + 向上/向下拖动鼠标",
+    "%openSetting%": "设置/关闭设置目录树中已选择的文件"
 }

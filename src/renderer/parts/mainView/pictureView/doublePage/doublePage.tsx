@@ -398,7 +398,7 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
                 className={`${style.doublePageWrapper} ${this.state.isDragging ? style.dragging : ''}`}
                 onMouseDown={this.handleMouseDown}
                 onMouseEnter={this.hintText}
-                onMouseLeave={() => { hintText([]); }}
+                onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
                 onWheel={this.handleWheel}>
 
                 <ul className={style.scaleContainer} ref={this.scaleContainerRef}>

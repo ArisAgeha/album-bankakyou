@@ -340,6 +340,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     }
 
     render(): JSX.Element {
+        const t = this.props.t;
         const album = this.state.album;
         if (this.isReverse()) album.reverse();
 
@@ -363,7 +364,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
             onMouseDown={(e: React.MouseEvent) => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
             onMouseEnter={this.hintText}
-            onMouseLeave={() => { hintText([]); }}
+            onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
             onScroll={this.handleScroll}
         >

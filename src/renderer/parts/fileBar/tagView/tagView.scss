@@ -27,7 +27,7 @@
     .orderController {
         display: flex;
         align-items: center;
-        transition: 0s;
+        transition: 0.2s;
         cursor: pointer;
         padding: 2px 4px;
         border-radius: 4px;
@@ -45,7 +45,7 @@
     }
 
     .orderController:hover {
-        transition: 0.2s;
+        transition: 0s;
         background-color: #fff;
         color: $fontColorActive;
     }

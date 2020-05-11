@@ -207,6 +207,7 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
 
     render(): JSX.Element {
         const imgSrc = (this.props.page.data as picture[])[this.props.currentShowIndex].url;
+        const t = this.props.t;
 
         return (
             <div
@@ -215,7 +216,7 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
                 onMouseDown={this.handleMouseDown}
                 onMouseMove={this.handleMouseMove}
                 onMouseEnter={this.hintText}
-                onMouseLeave={() => { hintText([]); }}
+                onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
                 onWheel={this.handleWheel}
             >
                 <div className={style.scaleContainer} ref={this.scaleContainerRef}>

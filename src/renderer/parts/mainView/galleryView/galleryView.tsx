@@ -441,7 +441,7 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
                 onWheel={this.handleWheel}
                 ref={this.galleryRef}
                 onClick={() => { this.setState({ selectedIndexs: [] }); }}
-                onMouseLeave={() => { hintText([]); }}
+                onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
                 onMouseEnter={() => {
                     hintText(
                         [
