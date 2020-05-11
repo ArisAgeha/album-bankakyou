@@ -12,9 +12,7 @@
 
 > ### 5.11 更新 版本 v1.4.0
 
-- 下载地址：
-<br>
-链接：https://pan.baidu.com/s/1z0KKZ6ICGSKmy78J1pLb-g 
+百度网盘：https://pan.baidu.com/s/1z0KKZ6ICGSKmy78J1pLb-g 
 提取码：y0md
 
 [安装包v1.4.0](https://github.com/ArisAgeha/album-bankakyou/releases/download/v1.4.0/album-bankakyou-1.4.0.Setup.exe)
