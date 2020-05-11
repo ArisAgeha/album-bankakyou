@@ -7,9 +7,10 @@ import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { Gesture } from '@/renderer/utils/gesture';
 import { emptyCall } from '@/common/utils/functionTools';
-import { hintMainText } from '@/renderer/utils/tools';
+import { hintMainText, hintText } from '@/renderer/utils/tools';
+import { WithTranslation, withTranslation } from 'react-i18next';
 
-export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectoryTreeState> {
+class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation, IDirectoryTreeState> {
     test: any = {};
     cloneEl: Node[] = [];
 
@@ -237,10 +238,49 @@ export class DirectoryTree extends PureComponent<IDirectoryTreeProps, IDirectory
         return res;
     }
 
+    hintText = () => {
+        const t = this.props.t;
+
+        hintText(
+            [
+                {
+                    text: `【ctrl / shift + ${t('%leftClick%')}】`,
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%multipleSelect%'),
+                    margin: 24
+                },
+                {
+                    text: t('%singleClick%'),
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%openSingleAlbum%'),
+                    margin: 24
+                },
+                {
+                    text: t('%dragToPreview%'),
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%openAllSelected%')
+                }
+            ]
+        );
+    }
+
     render() {
         const treeData = this.props.treeData;
         const res = (
-            <div className={style.treeRootWrapper} onClick={this.handleClickBackground} onDragOver={this.handleDragOver}>
+            <div
+                onMouseEnter={this.hintText}
+                className={style.treeRootWrapper}
+                onClick={this.handleClickBackground}
+                onDragOver={this.handleDragOver} >
                 <div className={style.treeRoot}>
                     {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
                 </div>
@@ -259,7 +299,7 @@ export interface IDirectoryTreeState {
     draggingNodes: ITreeDataNode[];
 }
 
-export interface IDirectoryTreeProps {
+export interface IDirectoryTreeProps extends WithTranslation {
     className: any;
     treeData: ITreeDataNode[];
     onSelect?(
@@ -285,3 +325,6 @@ export interface ITreeDataNode {
     children?: ITreeDataNode[];
     isLeaf?: boolean;
 }
+
+const directoryTree = withTranslation()(DirectoryTree);
+export { directoryTree as DirectoryTree };

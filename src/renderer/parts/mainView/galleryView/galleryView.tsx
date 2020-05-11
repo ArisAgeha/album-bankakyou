@@ -8,14 +8,14 @@ import { serviceConstant } from '@/common/constant/service.constant';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
-import { naturalCompare, isSubArray } from '@/common/utils/functionTools';
+import { naturalCompare, isSubArray, toggleArrayItem } from '@/common/utils/functionTools';
 import { useTranslation, WithTranslation, withTranslation } from 'react-i18next';
 import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { throttle } from '@/common/decorator/decorator';
 import 'reflect-metadata';
 import { Select } from '@/renderer/components/select/select';
-import { hintMainText } from '@/renderer/utils/tools';
+import { hintMainText, hintText } from '@/renderer/utils/tools';
 import { zoomEvent } from '../pictureView/preview/preview';
 const { Option } = Select;
 
@@ -184,11 +184,20 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
         });
     }
 
-    initEvent() { }
+    initEvent() {
+        window.addEventListener('keydown', this.handleKeydown);
+    }
 
-    removeEvent() { }
+    removeEvent() {
+        window.removeEventListener('keydown', this.handleKeydown);
+    }
 
     handleClick = (e: React.MouseEvent, album: album, index: number) => {
+        if (e.ctrlKey || e.shiftKey) {
+            this.handleSelectAlbum(e, index);
+            return;
+        }
+
         const url = album.url;
 
         EventHub.emit(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, {
@@ -201,6 +210,7 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
         this.checkShouldLoadAlbum();
 
         if (e.ctrlKey || e.buttons === 2) {
+            e.preventDefault();
             let zoom: zoomEvent = null;
             if (e.deltaY < 0) zoom = 'ZOOM_IN';
             else if (e.deltaY > 0) zoom = 'ZOOM_OUT';
@@ -222,6 +232,57 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
 
     handleScroll = () => {
         this.checkShouldLoadAlbum();
+    }
+
+    handleSelectAlbum = (e: React.MouseEvent, index: number) => {
+        e.stopPropagation();
+
+        if (e.buttons === 0) {
+            if (e.ctrlKey) {
+                const selectedIndexs = toggleArrayItem(this.state.selectedIndexs, index);
+
+                this.setState({
+                    selectedIndexs,
+                    lastSelectedIndex: index,
+                    lastSelectedIndexs: selectedIndexs
+                });
+            }
+            else if (e.shiftKey) {
+                const { lastSelectedIndex, lastSelectedIndexs } = this.state;
+                const curSelectedIndex = index;
+
+                if (lastSelectedIndex === curSelectedIndex) {
+                    return;
+                }
+                else {
+                    const newSelectedIndexs = [];
+                    const startIndex = Math.min(curSelectedIndex, lastSelectedIndex);
+                    const endIndex = Math.max(curSelectedIndex, lastSelectedIndex);
+                    for (let i = startIndex; i <= endIndex; i++) {
+                        newSelectedIndexs.push(i);
+                    }
+
+                    this.setState({
+                        selectedIndexs: Array.from(new Set([...lastSelectedIndexs, ...newSelectedIndexs]))
+                    });
+                }
+            }
+        }
+    }
+
+    handleKeydown = (e: KeyboardEvent) => {
+        if (!this.props.isShow) return;
+
+        let zoom: zoomEvent = null;
+        if (e.key === '+') zoom = 'ZOOM_IN';
+        else if (e.key === '-') zoom = 'ZOOM_OUT';
+        if (zoom) this.handleZoom(zoom);
+
+        if (e.key === 'Enter') {
+            const urls = this.state.selectedIndexs.map(index => this.state.gallery[index].url);
+            if (urls.length === 0) return;
+            EventHub.emit(eventConstant.LOAD_PICTURE_BY_SELECT_MULTIPLE_DIR, urls);
+        }
     }
 
     checkShouldLoadAlbum = () => {
@@ -346,7 +407,7 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
                         }
 
                         return (<div
-                            className={style.pictureBox}
+                            className={`${style.pictureBox} ${this.state.selectedIndexs.includes(index) && style.selected}`}
                             style={{ width: boxWidth, maxHeight: `${(11 - zoomLevel) * 150}px` }}
                             key={album.id}
                             onMouseEnter={(e: React.MouseEvent) => { e.stopPropagation(); hintMainText(album.title); }}
@@ -369,6 +430,7 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
     render(): JSX.Element {
         const SearchBar = this.renderSearchBar;
         const Gallery = this.renderGallery;
+        const t = this.props.t;
 
         return (
             <div
@@ -378,6 +440,40 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
                 onScroll={this.handleScroll}
                 onWheel={this.handleWheel}
                 ref={this.galleryRef}
+                onClick={() => { this.setState({ selectedIndexs: [] }); }}
+                onMouseLeave={() => { hintText([]); }}
+                onMouseEnter={() => {
+                    hintText(
+                        [
+                            {
+                                text: t('%zoomKey%'),
+                                color: 'rgb(255, 0, 200)',
+                                margin: 4
+                            },
+                            {
+                                text: t('%zoom%'),
+                                margin: 24
+                            },
+                            {
+                                text: `【ctrl / shift + ${t('%leftClick%')}】`,
+                                color: 'rgb(255, 0, 200)',
+                                margin: 4
+                            },
+                            {
+                                text: t('%multipleSelect%'),
+                                margin: 24
+                            },
+                            {
+                                text: 'Enter',
+                                color: 'rgb(255, 0, 200)',
+                                margin: 4
+                            },
+                            {
+                                text: t('%openAllSelected%')
+                            }
+                        ]
+                    );
+                }}
             >
                 <SearchBar />
                 <Gallery />

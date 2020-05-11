@@ -7,7 +7,7 @@ import * as ReactDOM from 'react-dom';
 import { encodeChar, isVideo } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { openNotification, hintMainText } from '@/renderer/utils/tools';
+import { openNotification, hintMainText, hintText } from '@/renderer/utils/tools';
 import { throttle } from '@/common/decorator/decorator';
 
 export type scrollModeDirection = 'TB' | 'BT' | 'LR' | 'RL';
@@ -313,10 +313,35 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
         return this.isVertical() ? { display: 'block' } : { display: 'inline-block', height: '100%' };
     }
 
+    hintText = () => {
+        const t = this.props.t;
+
+        hintText(
+            [
+                {
+                    text: t('%zoomKey%'),
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%zoom%'),
+                    margin: 24
+                },
+                {
+                    text: t('%numberKey%') + ' 2/4/6/8',
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%switchReadingDirection%')
+                }
+            ]
+        );
+    }
+
     render(): JSX.Element {
         const album = this.state.album;
         if (this.isReverse()) album.reverse();
-        const t = this.props.t;
 
         const viewerStyle = this.getViewerStyle();
         const imgStyle = this.getImgStyle();
@@ -337,7 +362,8 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
             className={`${style.scrollListWrapper} large-scrollbar`}
             onMouseDown={(e: React.MouseEvent) => { this.setState({ isDragging: true }); }}
             onMouseMove={this.handleMouseMove}
-            onMouseEnter={() => { hintMainText(t('%scrollListDesc%')); }}
+            onMouseEnter={this.hintText}
+            onMouseLeave={() => { hintText([]); }}
             style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
             onScroll={this.handleScroll}
         >

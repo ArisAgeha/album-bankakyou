@@ -18,7 +18,7 @@ import bgimg from '@/renderer/static/image/background02.jpg';
 import { isVideo, encodeChar, extractDirUrlFromKey } from '@/common/utils/businessTools';
 import { ipcRenderer } from 'electron';
 import { command } from '@/common/constant/command.constant';
-import { openNotification } from '@/renderer/utils/tools';
+import { openNotification, hintText } from '@/renderer/utils/tools';
 
 export interface ISwitchPageEvent {
     delta?: number;
@@ -78,6 +78,12 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
 
     componentWillUnmount() {
         this.removeEvent();
+    }
+
+    componentDidUpdate(prevProps: IPictureViewProps, prevState: IPictureViewState) {
+        if (prevState.viewMode !== 'preview' && this.state.viewMode === 'preview') {
+            this.hintText();
+        }
     }
 
     fetchUserHabbit = async () => {
@@ -332,12 +338,32 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
         }
     }
 
+    hintText = () => {
+        const t = this.props.t;
+
+        hintText(
+            [
+                {
+                    text: t('%zoomKey%'),
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%zoom%'),
+                    margin: 24
+                }
+            ]
+        );
+    }
+
     render(): JSX.Element {
         const PageDetail = this.renderPageDetail;
         const Content = this.renderContent;
 
         return (
             <div
+                onMouseEnter={this.hintText}
+                onMouseLeave={() => { hintText([]); }}
                 id={`pictureViewScrollWrapper${this.props.index}`}
                 className={`${style.pictureViewWrapper} medium-scrollbar`}
                 style={{ display: this.props.isShow ? 'block' : 'none' }}

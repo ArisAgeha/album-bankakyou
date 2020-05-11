@@ -67,7 +67,20 @@
     "%copyDesc%": "直接按下ctrl + c复制亦可",
     "%deepModeDesc%": "深层模式：打开后，任意设置将同时更改【所有选择的文件夹】及其【所有子文件夹】的配置",
     "%previewDesc%": "预览模式：【ctrl/右键 + 滚轮】缩放",
-    "%scrollListDesc%": "滚动模式：【ctrl/右键 + 滚轮】缩放 | 【ctrl + +/-】缩放 | 【数字键2/4/6/8】切换阅读方向",
     "%doublePageDesc%": "对页模式：【ctrl/右键 + 滚轮】缩放 | 【ctrl + +/-】缩放 | 【数字键5】切换阅读方向 | 【数字键0】对页拼接重新对齐",
-    "%singlePageDesc%": "对页模式：【ctrl/右键 + 滚轮】缩放 | 【任意数字键 + 回车键】跳转页"
+    "%singlePageDesc%": "对页模式：【ctrl/右键 + 滚轮】缩放 | 【任意数字键 + 回车键】跳转页",
+
+    "%numberKey%": "数字键",
+    "%zoomKey%": "【ctrl / 右键 + 滚轮】或【键盘+ / -】",
+    "%zoom%": "缩放",
+    "%leftClick%": "左键",
+    "%multipleSelect%": "多选",
+    "%openAllSelected%": "打开所有已选择的相册",
+    "%switchReadingDirection%": "切换阅读方向",
+    "%inputAnyNumberAndEnter%": "输入任意数字 + 回车",
+    "%jumpToPage%": "跳转页面",
+    "%reAlign%": "重新调整左右页拼接",
+    "%dragToPreview%": "拖拽到右侧阅览区",
+    "%singleClick%": "单击",
+    "%openSingleAlbum%": "打开单个相册"
 }

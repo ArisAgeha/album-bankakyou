@@ -4,6 +4,7 @@ import { picture } from '../pictureView';
 import LazyLoad from '@arisageha/react-lazyload-fixed';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { emptyCall } from '@/common/utils/functionTools';
+import { hintText } from '@/renderer/utils/tools';
 
 export interface IPreviewState {
     zoomLevel: number;
@@ -151,7 +152,11 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         const showTitle: boolean = zoomLevel === 11;
 
         return (
-            <div className={style.preview} ref={this.previewRef} onWheel={this.handleWheel} style={{ opacity: this.props.isShow ? 1 : 0 }}>
+            <div
+                className={style.preview}
+                ref={this.previewRef}
+                onWheel={this.handleWheel}
+                style={{ opacity: this.props.isShow ? 1 : 0 }}>
                 {album.map((picture, index) => {
                     const resolution = 1200;
 

@@ -5,7 +5,7 @@ import { picture, ISwitchPageEvent, IPictureViewState } from '../pictureView';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { db } from '@/common/nedb';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { openNotification, hintMainText } from '@/renderer/utils/tools';
+import { openNotification, hintMainText, hintText } from '@/renderer/utils/tools';
 import { throttle } from '@/common/decorator/decorator';
 const sizeOf = require('image-size');
 
@@ -323,6 +323,40 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         this.mouseTop = e.clientY - pElTop;
     }
 
+    hintText = () => {
+        const t = this.props.t;
+
+        hintText([
+            {
+                text: t('%zoomKey%'),
+                color: 'rgb(255, 0, 200)',
+                margin: 4
+            },
+            {
+                text: t('%zoom%'),
+                margin: 24
+            },
+            {
+                text: t('%numberKey%') + ' 5',
+                color: 'rgb(255, 0, 200)',
+                margin: 4
+            },
+            {
+                text: t('%switchReadingDirection%'),
+                margin: 24
+            },
+            {
+                text: t('%numberKey%') + ' 0',
+                color: 'rgb(255, 0, 200)',
+                margin: 4
+            },
+            {
+                text: t('%reAlign%'),
+                margin: 24
+            }
+        ]);
+    }
+
     singlePageContainer = (props: { url: string }): JSX.Element => (
         <div className={style.mainContainer}>
             {isVideo(props.url) ? (
@@ -363,8 +397,10 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
                 onMouseMove={this.handleMouseMove}
                 className={`${style.doublePageWrapper} ${this.state.isDragging ? style.dragging : ''}`}
                 onMouseDown={this.handleMouseDown}
-                onMouseEnter={() => { hintMainText(t('%doublePageDesc%')); }}
+                onMouseEnter={this.hintText}
+                onMouseLeave={() => { hintText([]); }}
                 onWheel={this.handleWheel}>
+
                 <ul className={style.scaleContainer} ref={this.scaleContainerRef}>
                     {album.map((dbpic, index) => {
                         const SinglePageContainer = this.singlePageContainer;

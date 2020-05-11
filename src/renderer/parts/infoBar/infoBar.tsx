@@ -16,6 +16,7 @@ export interface IInfoBarState {
 export type textObj = {
     text: string;
     color?: React.CSSProperties['color'];
+    margin?: number;
 };
 
 class InfoBar extends PureComponent<IInfoBarProps & WithTranslation, IInfoBarState> {
@@ -86,7 +87,7 @@ class InfoBar extends PureComponent<IInfoBarProps & WithTranslation, IInfoBarSta
                 {
                     this.state.text.map((obj, index) => (<span
                         className={style.text}
-                        style={{ color: obj.color || '#fff' }}
+                        style={{ color: obj.color || '#fff', marginRight: obj.margin ? obj.margin + 'px' : '12px' }}
                         key={index}>{obj.text}
                     </span>))
                 }

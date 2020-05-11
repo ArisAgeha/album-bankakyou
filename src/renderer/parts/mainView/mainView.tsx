@@ -78,6 +78,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
 
     initEvent() {
         EventHub.on(eventConstant.LOAD_PICTURE_BY_SELECT_DIR, this.loadPictureBySelectSingleDir);
+        EventHub.on(eventConstant.LOAD_PICTURE_BY_SELECT_MULTIPLE_DIR, this.loadPictureBySelectMultipleDir);
         EventHub.on(eventConstant.SELECT_TAGS, this.loadTagsAlbum);
         EventHub.on(eventConstant.SELECT_AUTHORS, this.loadAuthorsAlbum);
         window.addEventListener('keydown', this.handleKeyDown);

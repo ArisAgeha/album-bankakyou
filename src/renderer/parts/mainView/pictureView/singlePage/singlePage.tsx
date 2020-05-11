@@ -4,7 +4,7 @@ import { page } from '../../mainView';
 import { picture, ISwitchPageEvent } from '../pictureView';
 import { isNumber } from '@/common/utils/types';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
-import { hintMainText } from '@/renderer/utils/tools';
+import { hintMainText, hintText } from '@/renderer/utils/tools';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
 export interface ISinglePageState {
@@ -181,9 +181,32 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
         if (e.button === 0) this.setState({ isDragging: true });
     }
 
+    hintText = () => {
+        const t = this.props.t;
+        hintText([
+            {
+                text: t('%zoomKey%'),
+                color: 'rgb(255, 0, 200)',
+                margin: 4
+            },
+            {
+                text: t('%zoom%'),
+                margin: 24
+            },
+            {
+                text: t('%inputAnyNumberAndEnter%'),
+                color: 'rgb(255, 0, 200)',
+                margin: 4
+            },
+            {
+                text: t('%jumpToPage%'),
+                margin: 24
+            }
+        ]);
+    }
+
     render(): JSX.Element {
         const imgSrc = (this.props.page.data as picture[])[this.props.currentShowIndex].url;
-        const t = this.props.t;
 
         return (
             <div
@@ -191,7 +214,8 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
                 style={{ cursor: this.state.isDragging ? 'grabbing' : 'default' }}
                 onMouseDown={this.handleMouseDown}
                 onMouseMove={this.handleMouseMove}
-                onMouseEnter={() => { hintMainText(t('%singlePageDesc%')); }}
+                onMouseEnter={this.hintText}
+                onMouseLeave={() => { hintText([]); }}
                 onWheel={this.handleWheel}
             >
                 <div className={style.scaleContainer} ref={this.scaleContainerRef}>
