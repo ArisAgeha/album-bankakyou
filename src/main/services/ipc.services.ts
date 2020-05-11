@@ -25,21 +25,6 @@ export class IpcService {
         ipcMain.on(command.DOWNLOAD_UPDATE, this.downloadUpdate);
     }
 
-    saveFileToFsAndInstall = async (file: any, filename: string) => {
-        const saveDirPath = path.resolve('./update');
-        const savePath = path.resolve('./update', filename);
-        if (!fs.existsSync(saveDirPath)) mkdirSync(saveDirPath);
-        // TODO
-        if (fs.existsSync(savePath)) return;
-
-        await writeFile(savePath, file);
-
-        file.pipe(fs.createWriteStream(savePath));
-
-        this.installNewVersion(filename);
-
-    }
-
     installNewVersion(programName: string) {
         if (!programName || !fs.existsSync(path.resolve('./update', programName))) return;
 
@@ -67,6 +52,9 @@ export class IpcService {
     }
 
     downloadUpdate = async (event: Electron.IpcMainEvent, url: string) => {
+        const saveDirPath = path.resolve('./update');
+        if (!fs.existsSync(saveDirPath)) mkdirSync(saveDirPath);
+
         const filename = extractDirNameFromUrl(url);
         const outputLocationPath = path.resolve('./update', filename);
         const writer = createWriteStream(outputLocationPath);
