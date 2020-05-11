@@ -1,8 +1,6 @@
 > ## 支持通道
 
- <img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/aliqrcode.png" height=225 alt="图片名称" />
-
-  <img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/wxqrcode.png" height=225 alt="图片名称" />
+ <img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/aliqrcode.png" height=225 alt="图片名称" /><img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/wxqrcode.png" height=225 alt="图片名称" />
 
 > ## 题外
 
