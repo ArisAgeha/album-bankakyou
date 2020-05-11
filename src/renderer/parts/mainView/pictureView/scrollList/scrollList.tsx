@@ -341,7 +341,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
 
     render(): JSX.Element {
         const t = this.props.t;
-        const album = this.state.album;
+        const album = [...this.state.album];
         if (this.isReverse()) album.reverse();
 
         const viewerStyle = this.getViewerStyle();
