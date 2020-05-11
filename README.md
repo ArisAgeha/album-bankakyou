@@ -1,3 +1,9 @@
+> ## 支持通道
+
+ <img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/aliqrcode.png" height=225 alt="图片名称" />
+
+  <img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/wxqrcode.png" height=225 alt="图片名称" />
+
 > ## 题外
 
 如果有愿意跟我共同维护、迭代的朋友，欢迎联系我，我可以大致讲解一下代码结构和思路，然后一起优化它！
