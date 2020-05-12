@@ -14,14 +14,14 @@
 
 <br>
 
-> ### 5.11 更新 版本 v1.4.0
+> ### 5.12 更新 版本 v1.4.2
 
-百度网盘：https://pan.baidu.com/s/1z0KKZ6ICGSKmy78J1pLb-g 
-提取码：y0md
+压缩包 & 安装包分流：
 
-[安装包v1.4.0](https://github.com/ArisAgeha/album-bankakyou/releases/download/v1.4.0/album-bankakyou-1.4.0.Setup.exe)
+百度网盘：https://pan.baidu.com/s/1iYSQehbjTonvL6qAnlLglg
+提取码：lj68
 
-[压缩包v1.4.0](https://github.com/ArisAgeha/album-bankakyou/releases/download/v1.4.0/album-bankakyou-1.4.0.zip)
+[安装包v1.4.0](https://github.com/ArisAgeha/album-bankakyou/releases/download/v1.4.2/album-bankakyou-1.4.2.Setup.exe)
 
 <br>
 
