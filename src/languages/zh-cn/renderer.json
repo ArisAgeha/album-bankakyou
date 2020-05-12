@@ -7,6 +7,7 @@
     "%yes%": "是",
     "%ok%": "好的",
     "%no%": "否",
+    "%or%": "或",
     "%readingSettings%": "阅读设置",
     "%totallyAuthorCount%": "等 共 %{totallyAuthorCount} 位作者",
     "%totallyTagCount%": "等 共 %{totallyTagCount} 个标签",
@@ -73,8 +74,8 @@
     "%isFirstPage%": "已前往最后一页",
     "%isLastPage%": "已回到第一页",
 
-    "%numberKey%": "数字键",
-    "%zoomKey%": "【ctrl / 右键 + 滚轮】或【键盘+ / -】",
+    "%numberKey%": "数字",
+    "%zoomKey%": "【ctrl / 右键 + 滚轮】或【+ / -】",
     "%zoom%": "缩放",
     "%leftClick%": "左键",
     "%multipleSelect%": "多选",
@@ -87,5 +88,12 @@
     "%singleClick%": "单击",
     "%openSingleAlbum%": "打开单个相册",
     "%openSettingDesc%": "按住左右键 + 向上/向下拖动鼠标",
-    "%openSetting%": "设置/关闭设置目录树中已选择的文件"
+    "%openSetting%": "设置/关闭设置目录树中已选择的文件",
+    "%wheelClick%": "鼠标中键",
+    "%fullscreenAndSwitchUI%": "切换全屏和UI",
+
+    "%positionIsLock%": "图片位置已锁定",
+    "%positionIsRelease%": "图片位置已解锁",
+    "%scaleRatioIsLock%": "缩放比例已锁定",
+    "%scaleRatioIsRelease%": "缩放比例已解锁"
 }

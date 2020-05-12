@@ -9,6 +9,8 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 
 export interface ISinglePageState {
     isDragging: boolean;
+    lockRatio: boolean;
+    lockPosition: boolean;
 }
 
 export interface ISinglePageProps extends WithTranslation {
@@ -39,7 +41,9 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
         this.mouseTop = 0;
 
         this.state = {
-            isDragging: false
+            isDragging: false,
+            lockRatio: false,
+            lockPosition: false
         };
         this.input = '';
     }
@@ -56,6 +60,14 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
         }
         else if (prevProps.currentShowIndex === 0 && curPage === pageNum - 1) {
             openNotification(t('%isFirstPage%'));
+        }
+
+        if (prevState.lockRatio !== this.state.lockRatio) {
+            openNotification(this.state.lockRatio ? t('%scaleRatioIsLock%') : t('%scaleRatioIsRelease%'), '', { closeOtherNotification: false });
+        }
+
+        if (prevState.lockPosition !== this.state.lockPosition) {
+            openNotification(this.state.lockPosition ? t('%positionIsLock%') : t('%positionIsRelease%'), '', { closeOtherNotification: false });
         }
     }
 
@@ -80,9 +92,12 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
     }
 
     resetSize = () => {
-        this.zoomLevel = 1;
-        this.x = 0;
-        this.y = 0;
+        if (!this.state.lockRatio) this.zoomLevel = 1;
+
+        if (!this.state.lockPosition) {
+            this.x = 0;
+            this.y = 0;
+        }
 
         const el = this.scaleContainerRef.current;
         el.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.zoomLevel})`;
@@ -124,11 +139,11 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
             this.input = '';
             this.props.onSwitchPage({ goto: nextPage });
             this.resetSize();
-        } else if (e.key === '+') {
-            this.zoomIn();
-        } else if (e.key === '-') {
-            this.zoomOut();
         }
+        else if (e.key === '+') this.zoomIn();
+        else if (e.key === '-') this.zoomOut();
+        else if (e.key === '*') this.setState({ lockRatio: !this.state.lockRatio });
+        else if (e.key === '/') this.setState({ lockPosition: !this.state.lockPosition });
     }
 
     zoomIn = () => {
@@ -208,6 +223,24 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
         const totalPage = this.props.page.data.length;
 
         return [
+            {
+                text: `/ ${t('%or%')} *`,
+                color: 'rgb(255, 0, 200)',
+                margin: 4
+            },
+            {
+                text: t('锁定图片位置或缩放比例'),
+                margin: 24
+            },
+            {
+                text: t('%wheelClick%'),
+                color: 'rgb(255, 0, 200)',
+                margin: 4
+            },
+            {
+                text: t('%fullscreenAndSwitchUI%'),
+                margin: 24
+            },
             {
                 text: t('%zoomKey%'),
                 color: 'rgb(255, 0, 200)',

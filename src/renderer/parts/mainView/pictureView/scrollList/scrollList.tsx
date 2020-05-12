@@ -319,6 +319,15 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
         hintText(
             [
                 {
+                    text: t('%wheelClick%'),
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%fullscreenAndSwitchUI%'),
+                    margin: 24
+                },
+                {
                     text: t('%zoomKey%'),
                     color: 'rgb(255, 0, 200)',
                     margin: 4

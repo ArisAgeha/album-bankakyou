@@ -11,7 +11,12 @@
     }
 
     .right {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+
         .text {
+            
             margin-right: 12px;
             color: #fff;
         }
