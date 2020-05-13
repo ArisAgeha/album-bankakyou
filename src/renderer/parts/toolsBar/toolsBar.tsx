@@ -209,7 +209,7 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
             // if there is latest version in remote, ask if user needs to update
             if (hasNewVersion) {
                 openNotification(
-                    t('%newVersion%') + ' v' + remoteVersion + ', ' + t('%currentVersion%') + 'v' + localVersion,
+                    `${t('%newVersion%')} v${remoteVersion}, ${t('%currentVersion%')}v${localVersion}`,
                     t('%hasNewVersion%'),
                     {
                         duration: 1500,
@@ -222,7 +222,10 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
                     });
             }
             else {
-                openNotification(t('%updateTips%'), t('%isLatestVersion%'), { duration: 3, closeOtherNotification: true });
+                openNotification(
+                    `${t('%newVersion%')} v${remoteVersion}, ${t('%currentVersion%')}v${localVersion}`,
+                    t('%isLatestVersion%'),
+                    { duration: 3, closeOtherNotification: true });
             }
         }
         // Network error

@@ -47,7 +47,7 @@
     "%checkingNewVersion%": "正在检查新版本",
     "%pleaseWait%": "请等待",
     "%updateTips%": "更新提示",
-    "%newVersion%": "新版本",
+    "%newVersion%": "最新版本",
     "%currentVersion%": "当前版本",
     "%isLatestVersion%": "已经是最新版本了",
     "%checkFail%": "检查版本失败，请确认您的网络连接状态",
