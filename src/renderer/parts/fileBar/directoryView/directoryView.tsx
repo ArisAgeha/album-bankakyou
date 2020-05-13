@@ -14,7 +14,8 @@ import { readingMode, pageReAlign } from '../../manageBar/manageBar';
 import { scrollModeDirection } from '../../mainView/pictureView/scrollList/scrollList';
 import { readingDirection } from '../../mainView/pictureView/doublePage/doublePage';
 import { WithTranslation, withTranslation } from 'react-i18next';
-import { openNotification } from '@/renderer/utils/tools';
+import { openNotification, hintMainText } from '@/renderer/utils/tools';
+import { SyncOutlined } from '@ant-design/icons';
 
 export interface IDirectoryData {
     url: string;
@@ -147,10 +148,22 @@ class DirectoryView extends PureComponent<IDirectoryViewProps & WithTranslation,
         await db.directory.update({ url }, { $set: { auto: false } });
     }
 
+    syncDirTree = () => {
+        this.setState({
+            treeData: []
+        });
+        setTimeout(() => {
+            this.autoImportDir();
+        });
+    }
+
     render(): JSX.Element {
+        const t = this.props.t;
+
         return (
             <div className={`${style.dirTreeWrapper} medium-scrollbar`}>
                 <DirectoryTree
+                    onSyncData={this.syncDirTree}
                     className={style.dirTree}
                     onSelect={this.handleSelect}
                     treeData={this.state.treeData}

@@ -1,6 +1,33 @@
-.treeRootWrapper {
+.tree {
     height: 100%;
     width: 100%;
+
+    .controlBar {
+        height: 24px;
+        width: 100%;
+
+        border-bottom: 1px solid $borderColor;
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+
+        .button {
+            cursor: pointer;
+            transition: 0.2s;
+            margin-right: 12px;
+        }
+
+        .button:hover {
+            cursor: pointer;
+            transition: 0s;
+            color: $fontColorActive;
+        }
+    }
+
+    .treeRootWrapper {
+        height: calc(100% - 24px);
+        width: 100%;
+    }
 }
 
 .treeRoot {

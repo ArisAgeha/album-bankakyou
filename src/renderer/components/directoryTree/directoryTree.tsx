@@ -1,5 +1,5 @@
 import React, { Component, PureComponent, cloneElement } from 'react';
-import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined, NodeExpandOutlined, CloseOutlined } from '@ant-design/icons';
+import { FileImageOutlined, RightOutlined, DownOutlined, LoadingOutlined, NodeExpandOutlined, CloseOutlined, SyncOutlined, FolderOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { isUndefinedOrNull, isArray } from '@/common/utils/types';
 import style from './directoryTree.scss';
 import { extractDirUrlFromKey } from '@/common/utils/businessTools';
@@ -188,6 +188,45 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
         this.props.onDeleteUrl ? this.props.onDeleteUrl(key) : emptyCall();
     }
 
+    hintText = () => {
+        const t = this.props.t;
+
+        hintText(
+            [
+                {
+                    text: `【ctrl / shift + ${t('%leftClick%')}】`,
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%multipleSelect%'),
+                    margin: 24
+                },
+                {
+                    text: t('%singleClick%'),
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%openSingleAlbum%'),
+                    margin: 24
+                },
+                {
+                    text: t('%dragToPreview%'),
+                    color: 'rgb(255, 0, 200)',
+                    margin: 4
+                },
+                {
+                    text: t('%openAllSelected%')
+                }
+            ]
+        );
+    }
+
+    syncDirTree = () => {
+        this.props.onSyncData ? this.props.onSyncData() : emptyCall();
+    }
+
     renderLeaf(node: ITreeDataNode) {
         const res = (
             <div className={style.nodeLeaf} key={node.key}>
@@ -238,58 +277,64 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
         return res;
     }
 
-    hintText = () => {
+    foldAll = () => {
+        this.setState({
+            expandedKeys: []
+        });
+    }
+
+    renderControlBar = () => {
         const t = this.props.t;
 
-        hintText(
-            [
-                {
-                    text: `【ctrl / shift + ${t('%leftClick%')}】`,
-                    color: 'rgb(255, 0, 200)',
-                    margin: 4
-                },
-                {
-                    text: t('%multipleSelect%'),
-                    margin: 24
-                },
-                {
-                    text: t('%singleClick%'),
-                    color: 'rgb(255, 0, 200)',
-                    margin: 4
-                },
-                {
-                    text: t('%openSingleAlbum%'),
-                    margin: 24
-                },
-                {
-                    text: t('%dragToPreview%'),
-                    color: 'rgb(255, 0, 200)',
-                    margin: 4
-                },
-                {
-                    text: t('%openAllSelected%')
-                }
-            ]
-        );
+        return (<div className={style.controlBar}>
+            <div
+                className={style.button}
+                onClick={this.syncDirTree}
+                onMouseEnter={() => {
+                    hintMainText(t('%syncDirTree%'));
+                }}
+                onMouseLeave={() => {
+                    hintMainText('');
+                }}>
+                <SyncOutlined />
+            </div>
+            <div
+                className={style.button}
+                onClick={this.foldAll}
+                onMouseEnter={() => {
+                    hintMainText(t('%foldAll%'));
+                }}
+                onMouseLeave={() => {
+                    hintMainText('');
+                }}>
+                <MenuFoldOutlined />
+            </div>
+        </div>);
     }
 
     render() {
-        const treeData = this.props.treeData;
         const t = this.props.t;
+        const treeData = this.props.treeData;
+        const className = this.props.className;
+        const ControlBar = this.renderControlBar;
 
-        const res = (
-            <div
-                onMouseEnter={this.hintText}
-                onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
-                className={style.treeRootWrapper}
-                onClick={this.handleClickBackground}
-                onDragOver={this.handleDragOver} >
-                <div className={style.treeRoot}>
-                    {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
+        return (
+            <div className={style.tree}>
+                <ControlBar />
+
+                <div
+                    onMouseEnter={this.hintText}
+                    onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
+                    className={`${style.treeRootWrapper} ${className}`}
+                    onClick={this.handleClickBackground}
+                    onDragOver={this.handleDragOver} >
+                    <div className={style.treeRoot}>
+                        {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
+                    </div>
                 </div>
             </div>
+
         );
-        return res;
     }
 }
 
@@ -319,6 +364,7 @@ export interface IDirectoryTreeProps extends WithTranslation {
     onFold?(treeNode: ITreeDataNode): void;
     selectAwaitLoad?: boolean;
     onDeleteUrl?(key: string): void;
+    onSyncData?(): void;
 }
 
 export interface ITreeDataNode {

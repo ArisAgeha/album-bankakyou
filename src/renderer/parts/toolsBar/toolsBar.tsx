@@ -207,9 +207,9 @@ class ToolsBar extends PureComponent<IToolsBarProps & WithTranslation, IToolsBar
             const hasNewVersion = checkHasNewVersion(remoteVersion, localVersion);
 
             // if there is latest version in remote, ask if user needs to update
-            if (!hasNewVersion) {
+            if (hasNewVersion) {
                 openNotification(
-                    t('%updateTips%'),
+                    t('%newVersion%') + ' v' + remoteVersion + ', ' + t('%currentVersion%') + 'v' + localVersion,
                     t('%hasNewVersion%'),
                     {
                         duration: 1500,
