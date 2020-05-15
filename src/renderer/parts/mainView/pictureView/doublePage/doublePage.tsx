@@ -109,10 +109,12 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         const curPage = this.state.currentShowIndex;
 
         if (prevState.currentShowIndex === pageNum - 1 && curPage === 0) {
-            openNotification(t('%isLastPage%'));
+            if (this.readingDirection === 'LR') openNotification(t('%isLastPage%'));
+            else openNotification(t('%isFirstPage%'));
         }
         else if (prevState.currentShowIndex === 0 && curPage === pageNum - 1) {
-            openNotification(t('%isFirstPage%'));
+            if (this.readingDirection === 'LR') openNotification(t('%isFirstPage%'));
+            else openNotification(t('%isLastPage%'));
         }
 
         if (prevState.lockRatio !== this.state.lockRatio) {
