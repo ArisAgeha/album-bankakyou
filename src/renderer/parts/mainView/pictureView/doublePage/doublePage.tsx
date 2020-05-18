@@ -118,11 +118,11 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         }
 
         if (prevState.lockRatio !== this.state.lockRatio) {
-            openNotification(this.state.lockRatio ? t('%scaleRatioIsLock%') : t('%scaleRatioIsRelease%'), '', {closeOtherNotification: false});
+            openNotification(this.state.lockRatio ? t('%scaleRatioIsLock%') : t('%scaleRatioIsRelease%'), '', { closeOtherNotification: false });
         }
 
         if (prevState.lockPosition !== this.state.lockPosition) {
-            openNotification(this.state.lockPosition ? t('%positionIsLock%') : t('%positionIsRelease%'), '', {closeOtherNotification: false});
+            openNotification(this.state.lockPosition ? t('%positionIsLock%') : t('%positionIsRelease%'), '', { closeOtherNotification: false });
         }
     }
 
@@ -424,15 +424,32 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         ];
     }
 
+    preloadPage = () => {
+        const album = this.state.doublePageAlbum;
+        const curIndex = this.state.currentShowIndex;
+        const prevIndex = curIndex === 0 ? album.length - 1 : (curIndex - 1) % album.length;
+        const nextIndex = (curIndex + 1) % album.length;
+        const nextPage = album[nextIndex];
+        const prevPage = album[prevIndex];
+
+        nextPage.forEach(page => { this.preloadImg(page); });
+        prevPage.forEach(page => { this.preloadImg(page); });
+    }
+
+    preloadImg = (url: string) => {
+        const img = new Image();
+        img.src = encodeChar(url);
+    }
+
     singlePageContainer = (props: { url: string }): JSX.Element => (
         <div className={style.mainContainer}>
             {isVideo(props.url) ? (
                 <div className={style.mainContainer}>
-                    <video src={encodeChar(props.url)} autoPlay loop muted> </video>
+                    <video onLoad={this.preloadPage} src={encodeChar(props.url)} autoPlay loop muted> </video>
                 </div>
             ) : (
                     <div className={style.mainContainer}>
-                        <img draggable={false} src={encodeChar(props.url)} alt='' />
+                        <img onLoad={this.preloadPage} draggable={false} src={encodeChar(props.url)} alt='' />
                     </div>
                 )}
         </div>
@@ -445,10 +462,14 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         return (
             <React.Fragment>
                 <div className={style.leftContainer}>
-                    {isVideo(urlLeft) ? <video src={encodeChar(urlLeft)} autoPlay loop muted></video> : <img src={encodeChar(urlLeft)} alt='' draggable={false} />}
+                    {isVideo(urlLeft)
+                        ? <video onLoad={this.preloadPage} src={encodeChar(urlLeft)} autoPlay loop muted></video>
+                        : <img onLoad={this.preloadPage} src={encodeChar(urlLeft)} alt='' draggable={false} />}
                 </div>
                 <div className={style.rightContainer}>
-                    {isVideo(urlRight) ? <video src={encodeChar(urlRight)} autoPlay loop muted></video> : <img src={encodeChar(urlRight)} alt='' draggable={false} />}
+                    {isVideo(urlRight)
+                        ? <video onLoad={this.preloadPage} src={encodeChar(urlRight)} autoPlay loop muted></video>
+                        : <img onLoad={this.preloadPage} src={encodeChar(urlRight)} alt='' draggable={false} />}
                 </div>
             </React.Fragment>
         );
@@ -476,7 +497,8 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
                         const currentShowIndex = this.state.currentShowIndex;
                         const nextIndex = (currentShowIndex + 1) % album.length;
                         const prevIndex = currentShowIndex - 1 < 0 ? album.length - 1 : currentShowIndex - 1;
-                        const shouldLoad = [currentShowIndex, nextIndex, prevIndex].includes(index) || this.hasBeenLoadIndex[index];
+                        // const shouldLoad = [currentShowIndex, nextIndex, prevIndex].includes(index) || this.hasBeenLoadIndex[index];
+                        const shouldLoad = [currentShowIndex].includes(index) || this.hasBeenLoadIndex[index];
                         if (shouldLoad) this.hasBeenLoadIndex[index] = true;
                         const shouldShow = index === currentShowIndex;
 

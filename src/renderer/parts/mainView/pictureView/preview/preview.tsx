@@ -43,7 +43,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.imageMap = {};
 
         this.state = {
-            album: this.props.album.slice(0, 40),
+            album: this.props.album.slice(0, 20),
             zoomLevel: 6,
             loadedIndex: 0
         };
