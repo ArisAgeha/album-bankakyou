@@ -80,6 +80,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     }
 
     goToPrevTab = () => {
+        if (!this.state.currentPage) return;
         const currentPageIndex = this.state.pages.findIndex(page => page.id === this.state.currentPage);
         const prevIndex = currentPageIndex === 0 ? this.state.pages.length - 1 : currentPageIndex - 1;
         const prevPageId = this.state.pages[prevIndex].id;
@@ -87,6 +88,7 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     }
 
     goToNextTab = () => {
+        if (!this.state.currentPage) return;
         const currentPageIndex = this.state.pages.findIndex(page => page.id === this.state.currentPage);
         const nextPageIndex = currentPageIndex >= this.state.pages.length - 1 ? 0 : currentPageIndex + 1;
         const nextPageId = this.state.pages[nextPageIndex].id;
