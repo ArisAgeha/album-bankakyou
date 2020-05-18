@@ -186,7 +186,7 @@ class SinglePage extends React.PureComponent<ISinglePageProps & WithTranslation,
     }
 
     handleMouseMove = (e: React.MouseEvent) => {
-        if (this.state.isDragging) {
+        if (this.state.isDragging && e.buttons === 1) {
             const newX = this.x + e.movementX;
             const newY = this.y + e.movementY;
             this.x = newX;

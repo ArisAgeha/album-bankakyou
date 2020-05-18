@@ -241,7 +241,7 @@ class ScrollList extends React.PureComponent<IScrollListProps & WithTranslation,
     }
 
     handleMouseMove = (e: React.MouseEvent) => {
-        if (this.state.isDragging) {
+        if (this.state.isDragging && e.buttons === 1) {
             this.scrollListRef.current.scrollTop -= e.movementY * 5;
             this.scrollListRef.current.scrollLeft -= e.movementX * 5;
         }

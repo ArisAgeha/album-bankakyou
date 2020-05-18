@@ -15,6 +15,7 @@ import { isUndefinedOrNull, isObject } from '@/common/utils/types';
 import { useTranslation } from 'react-i18next';
 import { db, Directory } from '@/common/nedb';
 import Item from 'antd/lib/list/Item';
+import { Gesture } from '@/renderer/utils/gesture';
 
 export interface IMainViewProps { }
 
@@ -53,6 +54,43 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     componentDidMount() {
         this.initIpc();
         this.initEvent();
+        this.initGesture();
+    }
+
+    initGesture = () => {
+        Gesture.registry(
+            {
+                mouseType: 'LR'
+            },
+            [{
+                direction: 'L'
+            }],
+            this.goToPrevTab
+        );
+
+        Gesture.registry(
+            {
+                mouseType: 'LR'
+            },
+            [{
+                direction: 'R'
+            }],
+            this.goToNextTab
+        );
+    }
+
+    goToPrevTab = () => {
+        const currentPageIndex = this.state.pages.findIndex(page => page.id === this.state.currentPage);
+        const prevIndex = currentPageIndex === 0 ? this.state.pages.length - 1 : currentPageIndex - 1;
+        const prevPageId = this.state.pages[prevIndex].id;
+        this.switchToTab(prevPageId);
+    }
+
+    goToNextTab = () => {
+        const currentPageIndex = this.state.pages.findIndex(page => page.id === this.state.currentPage);
+        const nextPageIndex = currentPageIndex >= this.state.pages.length - 1 ? 0 : currentPageIndex + 1;
+        const nextPageId = this.state.pages[nextPageIndex].id;
+        this.switchToTab(nextPageId);
     }
 
     initIpc() {
@@ -192,10 +230,11 @@ export class MainView extends React.PureComponent<IMainViewProps, IMainViewState
     handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Tab' && e.ctrlKey) {
             if (!this.state.currentPage) return;
-            const currentPageIndex = this.state.pages.findIndex(page => page.id === this.state.currentPage);
-            const nextPageIndex = currentPageIndex >= this.state.pages.length - 1 ? 0 : currentPageIndex + 1;
-            const nextPageId = this.state.pages[nextPageIndex].id;
-            this.switchToTab(nextPageId);
+            this.goToNextTab();
+        }
+        else if (e.key === 'Tab' && e.shiftKey) {
+            if (!this.state.currentPage) return;
+            this.goToPrevTab();
         }
 
         if (e.ctrlKey && e.key.toLowerCase() === 'w') {
