@@ -193,7 +193,8 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
     }
 
     handleClick = (e: React.MouseEvent, album: album, index: number) => {
-        if (e.ctrlKey || e.shiftKey) {
+        console.log(e.buttons);
+        if (e.ctrlKey || e.shiftKey || e.buttons === 2) {
             this.handleSelectAlbum(e, index);
             return;
         }
@@ -237,8 +238,8 @@ class GalleryView extends React.PureComponent<IGalleryViewProps & WithTranslatio
     handleSelectAlbum = (e: React.MouseEvent, index: number) => {
         e.stopPropagation();
 
-        if (e.buttons === 0) {
-            if (e.ctrlKey) {
+        if ([0, 2].includes(e.buttons)) {
+            if (e.ctrlKey || e.buttons === 2) {
                 const selectedIndexs = toggleArrayItem(this.state.selectedIndexs, index);
 
                 this.setState({

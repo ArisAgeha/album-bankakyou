@@ -40,7 +40,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.imageMap = {};
 
         this.state = {
-            album: this.props.album.slice(0, 300),
+            album: this.props.album.slice(0, 100),
             zoomLevel: 6,
             loadedIndex: -1
         };
@@ -161,7 +161,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         if (this.loadLock) return;
         const curLength = this.state.album.length;
         if (this.state.album.length < this.props.album.length) {
-            const album = this.props.album.slice(0, curLength + 300);
+            const album = this.props.album.slice(0, curLength + 100);
             this.setState({ album });
             setTimeout(() => {
                 this.startLoad();
