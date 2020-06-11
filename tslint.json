@@ -112,7 +112,8 @@
         "prefer-for-of": false,
         "no-bitwise": false,
         "interface-name": false,
-        "cyclomatic-complexity": false
+        "cyclomatic-complexity": false,
+        "forin": false
     },
     "rulesDirectory": [
         "tslint-plugin-prettier"

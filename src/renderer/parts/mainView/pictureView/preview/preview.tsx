@@ -57,7 +57,6 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
         const url = this.state.album[nextIndex]?.url;
         const image = new Image();
-        console.log(nextIndex);
         const onloadFunc = () => {
             if (!this.abortLoad) this.setState({
                 loadedIndex: nextIndex
@@ -69,7 +68,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         };
         image.onload = onloadFunc;
         image.onerror = onloadFunc;
-        image.src = url;
+        image.src = encodeChar(url);
     }
 
     componentDidMount() {

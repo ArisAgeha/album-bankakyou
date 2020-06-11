@@ -49,6 +49,7 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
     mouseTop: number;
     x: number;
     y: number;
+    buffer: any[];
 
     constructor(props: IDoublePageProps) {
         super(props);
@@ -123,6 +124,10 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
 
         if (prevState.lockPosition !== this.state.lockPosition) {
             openNotification(this.state.lockPosition ? t('%positionIsLock%') : t('%positionIsRelease%'), '', { closeOtherNotification: false });
+        }
+
+        if (prevState.currentShowIndex !== this.state.currentShowIndex) {
+            this.startPreLoad();
         }
     }
 
@@ -424,32 +429,57 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
         ];
     }
 
-    preloadPage = () => {
+    startPreLoad = async () => {
         const album = this.state.doublePageAlbum;
+        if (album.length <= 0) return;
+
+        const preloadLength = 3;
+
+        const pictureUrls: string[] = [];
+
         const curIndex = this.state.currentShowIndex;
-        const prevIndex = curIndex === 0 ? album.length - 1 : (curIndex - 1) % album.length;
-        const nextIndex = (curIndex + 1) % album.length;
-        const nextPage = album[nextIndex];
-        const prevPage = album[prevIndex];
+        const curPage = album[curIndex];
+        pictureUrls.push(...curPage);
 
-        nextPage.forEach(page => { this.preloadImg(page); });
-        prevPage.forEach(page => { this.preloadImg(page); });
+        let prevIndex = curIndex === 0 ? album.length - 1 : (curIndex - 1) % album.length;
+        let nextIndex = (curIndex + 1) % album.length;
+
+        for (let i = 0; i < preloadLength - 1; i++) {
+            const nextPage = album[nextIndex];
+            const prevPage = album[prevIndex];
+            pictureUrls.push(...nextPage);
+            pictureUrls.push(...prevPage);
+
+            prevIndex = prevIndex === 0 ? album.length - 1 : (prevIndex - 1) % album.length;
+            nextIndex = (nextIndex + 1) % album.length;
+        }
+        const buffer: any[] = [];
+        for (const url of pictureUrls) {
+            buffer.push(await this.preloadImg(url));
+        }
+        this.buffer = buffer;
     }
 
-    preloadImg = (url: string) => {
-        const img = new Image();
-        img.src = encodeChar(url);
-    }
+    preloadImg = (url: string) =>
+        new Promise((res) => {
+            const img = new Image();
+            img.src = encodeChar(url);
+            const onloadFunc = () => {
+                res(img);
+            };
+            img.onload = onloadFunc;
+            img.onerror = onloadFunc;
+        })
 
     singlePageContainer = (props: { url: string }): JSX.Element => (
         <div className={style.mainContainer}>
             {isVideo(props.url) ? (
                 <div className={style.mainContainer}>
-                    <video onLoad={this.preloadPage} src={encodeChar(props.url)} autoPlay loop muted> </video>
+                    <video src={encodeChar(props.url)} autoPlay loop muted> </video>
                 </div>
             ) : (
                     <div className={style.mainContainer}>
-                        <img onLoad={this.preloadPage} draggable={false} src={encodeChar(props.url)} alt='' />
+                        <img draggable={false} src={encodeChar(props.url)} alt='' />
                     </div>
                 )}
         </div>
@@ -463,13 +493,13 @@ class DoublePage extends React.PureComponent<IDoublePageProps & WithTranslation,
             <React.Fragment>
                 <div className={style.leftContainer}>
                     {isVideo(urlLeft)
-                        ? <video onLoad={this.preloadPage} src={encodeChar(urlLeft)} autoPlay loop muted></video>
-                        : <img onLoad={this.preloadPage} src={encodeChar(urlLeft)} alt='' draggable={false} />}
+                        ? <video src={encodeChar(urlLeft)} autoPlay loop muted></video>
+                        : <img src={encodeChar(urlLeft)} alt='' draggable={false} />}
                 </div>
                 <div className={style.rightContainer}>
                     {isVideo(urlRight)
-                        ? <video onLoad={this.preloadPage} src={encodeChar(urlRight)} autoPlay loop muted></video>
-                        : <img onLoad={this.preloadPage} src={encodeChar(urlRight)} alt='' draggable={false} />}
+                        ? <video src={encodeChar(urlRight)} autoPlay loop muted></video>
+                        : <img src={encodeChar(urlRight)} alt='' draggable={false} />}
                 </div>
             </React.Fragment>
         );
