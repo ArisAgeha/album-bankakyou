@@ -25,6 +25,7 @@ export interface IPreviewProps {
 export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     private readonly previewRef: React.RefObject<HTMLDivElement>;
     loadLock: boolean = false;
+    abortLoad: boolean = false;
 
     imageMap: {
         [key: string]: JSX.Element;
@@ -43,7 +44,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.imageMap = {};
 
         this.state = {
-            album: this.props.album.slice(0, 20),
+            album: this.props.album.slice(0, 300),
             zoomLevel: 6,
             loadedIndex: -1
         };
@@ -56,16 +57,15 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
         const album = this.state.album;
         const nextIndex = this.state.loadedIndex + 1;
-        console.log(nextIndex);
-        console.log(this.state.album[nextIndex]);
         const url = this.state.album[nextIndex].url;
         const image = new Image();
+        console.log(nextIndex);
         const onloadFunc = () => {
-            this.setState({
+            if (!this.abortLoad) this.setState({
                 loadedIndex: nextIndex
             });
             setTimeout(() => {
-                if (album.length > nextIndex + 1) this.startLoad();
+                if (album.length > nextIndex + 1 && !this.abortLoad) this.startLoad();
                 else this.loadLock = false;
             }, 0);
         };
@@ -100,6 +100,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     }
 
     abortRequestPicture = () => {
+        this.abortLoad = true;
         const imgs = this.previewRef.current.querySelectorAll('img');
         const videos = this.previewRef.current.querySelectorAll('video');
 
@@ -151,14 +152,10 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     }
 
     appendAlbum = () => {
-        this.appendAlbumWithThrottle.call(this);
-    }
-
-    appendAlbumWithThrottle() {
         if (this.loadLock) return;
         const curLength = this.state.album.length;
         if (this.state.album.length < this.props.album.length) {
-            const album = this.props.album.slice(0, curLength + 10);
+            const album = this.props.album.slice(0, curLength + 300);
             this.setState({ album });
             setTimeout(() => {
                 this.startLoad();
