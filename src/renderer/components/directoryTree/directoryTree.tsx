@@ -11,8 +11,8 @@ import { hintMainText, hintText } from '@/renderer/utils/tools';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
 class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation, IDirectoryTreeState> {
-    test: any = {};
     cloneEl: Node[] = [];
+    shouldShowTree: string[] = [];
 
     constructor(props: IDirectoryTreeProps) {
         super(props);
@@ -23,7 +23,8 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
             loadingKeys: [],
             draggingNodes: [],
             lastSelectedNode: null,
-            selectedNodesHistory: []
+            selectedNodesHistory: [],
+            searchKeyword: ''
         };
 
     }
@@ -84,9 +85,10 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
     buildTreeNodesMap = (nodes: ITreeDataNode[], nodesMap: ITreeDataNode[]) => {
         nodes.forEach(node => {
             const { children, ...newNode } = node;
-            nodesMap.push(newNode);
-            if (node.children && this.state.expandedKeys.includes(node.key)) this.buildTreeNodesMap(node.children, nodesMap);
-            // if (node.children) this.buildTreeNodesMap(node.children, nodesMap);
+            if (this.state.searchKeyword === '' || (this.state.searchKeyword !== '' && this.shouldShowTree.includes(node.title.toLowerCase()))) {
+                nodesMap.push(newNode);
+                if (node.children && this.state.expandedKeys.includes(node.key)) this.buildTreeNodesMap(node.children, nodesMap);
+            }
         });
         return nodesMap;
     }
@@ -227,24 +229,47 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
         this.props.onSyncData ? this.props.onSyncData() : emptyCall();
     }
 
-    renderLeaf(node: ITreeDataNode) {
-        const res = (
-            <div className={style.nodeLeaf} key={node.key}>
-                <div className={style.icon}>
-                    <FileImageOutlined />
-                </div>
-                <div className={`${style.title} text-ellipsis-1`}>{!isUndefinedOrNull(node.title) ? node.title : node.key}</div>
-            </div>
-        );
-        return res;
+    buildShouldShowTree = () => {
+        const treeData = this.props.treeData;
+        const shouldShowTree: string[] = [];
+
+        treeData.forEach(node => {
+            build.call(this, node);
+        });
+
+        this.shouldShowTree = shouldShowTree;
+
+        function build(node: ITreeDataNode) {
+            if (node.children && isArray(node.children)) {
+                node.children.forEach(node => {
+                    build.call(this, node);
+                });
+            }
+
+            const keyword = this.state.searchKeyword.toLowerCase();
+            if (node.title.toLowerCase().includes(keyword)) {
+                shouldShowTree.push(node.title.toLowerCase());
+
+                let cNode = node;
+                while (cNode.parent) {
+                    cNode = cNode.parent;
+                    shouldShowTree.push(cNode.title.toLowerCase());
+                }
+            }
+        }
     }
 
+    checkRootShouldShow = (node: ITreeDataNode) =>
+        this.shouldShowTree.includes(node.title.toLowerCase())
+
     renderRoot(node: ITreeDataNode, isChild?: boolean) {
-        const isExpanded: boolean = this.state.expandedKeys.includes(node.key);
+        if (node.title === '杂项 1') console.time('a');
+        const isExpanded: boolean = this.state.searchKeyword !== '' || this.state.expandedKeys.includes(node.key);
+        const shouldShow: boolean = this.checkRootShouldShow(node);
 
         const NodeChildren = (
             <div className={style.nodeRootChildren}>
-                {isArray(node.children) ? node.children.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node, true))) : ''}
+                {isArray(node.children) ? node.children.map(node => this.renderRoot(node, true)) : ''}
             </div>
         );
 
@@ -252,7 +277,8 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
 
         const res = (
             <div
-                className={style.nodeRoot} key={node.key}
+                className={`${style.nodeRoot} ${shouldShow ? '' : style.hidden}`}
+                key={node.key}
                 onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, node); }}
                 onDragEnd={this.handleDragNodeEnd}
                 draggable>
@@ -273,7 +299,8 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
                 {isExpanded ? NodeChildren : ''}
             </div>
         );
-        this.test[node.key] ? this.test[node.key]++ : this.test[node.key] = 1;
+        if (node.title === '杂项 1') console.timeEnd('a');
+
         return res;
     }
 
@@ -312,15 +339,33 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
         </div>);
     }
 
+    renderSearchBar = () => {
+        const t = this.props.t;
+
+        return (
+            <div className={style.searchInput}>
+                <input
+                    type='text'
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => { this.setState({ searchKeyword: e.target.value }); }}
+                    value={this.state.searchKeyword}
+                    placeholder={t('%searchContent%')}
+                />
+            </div>
+        );
+    }
+
     render() {
+        this.buildShouldShowTree();
         const t = this.props.t;
         const treeData = this.props.treeData;
         const className = this.props.className;
         const ControlBar = this.renderControlBar;
+        const SearchBar = this.renderSearchBar;
 
         return (
             <div className={style.tree}>
                 <ControlBar />
+                <SearchBar />
 
                 <div
                     onMouseEnter={this.hintText}
@@ -329,7 +374,7 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
                     onClick={this.handleClickBackground}
                     onDragOver={this.handleDragOver} >
                     <div className={style.treeRoot}>
-                        {treeData.map(node => (node.isLeaf ? this.renderLeaf(node) : this.renderRoot(node)))}
+                        {treeData.map(node => this.renderRoot(node))}
                     </div>
                 </div>
             </div>
@@ -345,6 +390,7 @@ export interface IDirectoryTreeState {
     lastSelectedNode: ITreeDataNode;
     selectedNodesHistory: ITreeDataNode[];
     draggingNodes: ITreeDataNode[];
+    searchKeyword: string;
 }
 
 export interface IDirectoryTreeProps extends WithTranslation {
@@ -369,10 +415,9 @@ export interface IDirectoryTreeProps extends WithTranslation {
 
 export interface ITreeDataNode {
     key: string;
-    title?: string;
-    data?: any;
+    title: string;
+    parent?: ITreeDataNode | null;
     children?: ITreeDataNode[];
-    isLeaf?: boolean;
 }
 
 const directoryTree = withTranslation()(DirectoryTree);

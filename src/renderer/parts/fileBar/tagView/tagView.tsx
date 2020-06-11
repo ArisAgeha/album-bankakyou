@@ -8,6 +8,10 @@ import { isArray, isString } from '@/common/utils/types';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { hintMainText } from '@/renderer/utils/tools';
+import { FileService } from '@/main/services/file.service';
+import { ServiceCollection } from '@/common/serviceCollection';
+import { remote } from 'electron';
+import { serviceConstant } from '@/common/constant/service.constant';
 
 type SortMode = 'count' | 'countDesc' | 'name' | 'nameDesc';
 
@@ -26,9 +30,13 @@ export interface ITagViewState {
 export class TagView extends PureComponent<ITagViewProps, ITagViewState> {
 
     tagsArray: Array<[string, number]> = [];
+    private readonly fileService: FileService;
 
     constructor(props: ITagViewProps) {
         super(props);
+
+        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+        this.fileService = serviceCollection.get(serviceConstant.FILE);
 
         this.state = {
             selectedTags: [],
@@ -54,8 +62,10 @@ export class TagView extends PureComponent<ITagViewProps, ITagViewState> {
     }
 
     fetchTags = async () => {
-        const directoryData: Directory[] = (await db.directory.find({}).exec()) as any[];
+        let directoryData: Directory[] = (await db.directory.find({}).exec()) as any[];
         const tagMap: { [key: string]: number } = {};
+        directoryData = this.fileService.getExistsDirs(directoryData);
+
         directoryData.forEach(item => {
             item?.tag?.forEach(tag => {
                 tagMap[tag] ? tagMap[tag]++ : tagMap[tag] = 1;

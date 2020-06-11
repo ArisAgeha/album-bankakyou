@@ -8,6 +8,10 @@ import { isArray, isString } from '@/common/utils/types';
 import { EventHub } from '@/common/eventHub';
 import { eventConstant } from '@/common/constant/event.constant';
 import { hintMainText } from '@/renderer/utils/tools';
+import { FileService } from '@/main/services/file.service';
+import { ServiceCollection } from '@/common/serviceCollection';
+import { remote } from 'electron';
+import { serviceConstant } from '@/common/constant/service.constant';
 
 type SortMode = 'count' | 'countDesc' | 'name' | 'nameDesc';
 
@@ -26,9 +30,13 @@ export interface IAuthorViewState {
 export class AuthorView extends PureComponent<IAuthorViewProps, IAuthorViewState> {
 
     authorsArray: Array<[string, number]> = [];
+    private readonly fileService: FileService;
 
     constructor(props: IAuthorViewProps) {
         super(props);
+
+        const serviceCollection: ServiceCollection = remote.getGlobal(serviceConstant.SERVICE_COLLECTION);
+        this.fileService = serviceCollection.get(serviceConstant.FILE);
 
         this.state = {
             selectedAuthors: [],
@@ -54,8 +62,10 @@ export class AuthorView extends PureComponent<IAuthorViewProps, IAuthorViewState
     }
 
     fetchAuthors = async () => {
-        const directoryData: Directory[] = (await db.directory.find({}).exec()) as any[];
+        let directoryData: Directory[] = (await db.directory.find({}).exec()) as any[];
         const authorMap: { [key: string]: number } = {};
+        directoryData = this.fileService.getExistsDirs(directoryData);
+
         directoryData.forEach(item => {
             item?.author?.forEach(author => {
                 authorMap[author] ? authorMap[author]++ : authorMap[author] = 1;

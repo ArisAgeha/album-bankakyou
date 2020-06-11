@@ -16,6 +16,7 @@ import { readingDirection } from '../../mainView/pictureView/doublePage/doublePa
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { openNotification, hintMainText } from '@/renderer/utils/tools';
 import { SyncOutlined } from '@ant-design/icons';
+import { isArray } from '@/common/utils/types';
 
 export interface IDirectoryData {
     url: string;
@@ -64,11 +65,24 @@ class DirectoryView extends PureComponent<IDirectoryViewProps & WithTranslation,
         ipcRenderer.on(
             command.OPEN_DIR_BY_IMPORT,
             (event: Electron.IpcRendererEvent, data: { tree: ITreeDataNode }) => {
-                this.addDirNodeToTree(data.tree);
+                const tree = data.tree;
+                this.linkTreeParent(tree, null);
+                this.addDirNodeToTree(tree);
             }
         );
 
         ipcRenderer.on(command.RESPONSE_EXPAND_DIR, this.handleLoadedData);
+    }
+
+    linkTreeParent(node: ITreeDataNode, parent: ITreeDataNode | null) {
+        node.parent = parent;
+        const children = node.children;
+
+        if (isArray(children)) {
+            children.forEach((childNode) => {
+                this.linkTreeParent(childNode, node);
+            });
+        }
     }
 
     async autoImportDir() {

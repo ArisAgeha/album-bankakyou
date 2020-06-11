@@ -25,7 +25,7 @@
     }
 
     .treeRootWrapper {
-        height: calc(100% - 24px);
+        height: calc(100% - 24px - 37px);
         width: 100%;
     }
 }
@@ -92,6 +92,10 @@
         }
     }
 
+    .nodeRoot.hidden {
+        display: none;
+    }
+
     .nodeLeaf {
         display: flex;
         align-items: center;
@@ -103,5 +107,24 @@
 
     .nodeLeaf:hover {
         background-color: rgb(34, 165, 241);
+    }
+}
+
+.searchInput {
+    width: 100%;
+    input {
+        width: 100%;
+        font-size: inherit;
+        border: none;
+        border-bottom: 1px solid $borderColor;
+        padding: 0 8px;
+        background-color: rgba(0, 0, 0, 0);
+        outline: none;
+        color: $tagFontColor;
+        margin: 7px 0px 7px 0;
+    }
+
+    input::-webkit-input-placeholder {
+        color: $tagFontColor;
     }
 }

@@ -12,6 +12,7 @@ import { page, LoadPictureRequest } from '@/renderer/parts/mainView/mainView';
 import { readdir, readdirWithFileTypes } from '@/common/utils/fsHelper';
 import { picture } from '@/renderer/parts/mainView/pictureView/pictureView';
 import { naturalCompare } from '@/common/utils/functionTools';
+import { Directory } from '@/common/nedb';
 
 @injectable
 export class FileService {
@@ -40,6 +41,8 @@ export class FileService {
             this.getSingleLevelDirInfo(event, data);
         });
     }
+
+    getExistsDirs = (dirs: Directory[]) => dirs.filter(dir => fs.existsSync(dir.url));
 
     getCovers = async (urls: string[]) => {
         const covers = [];
