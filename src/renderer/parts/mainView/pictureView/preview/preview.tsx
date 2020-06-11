@@ -5,6 +5,7 @@ import LazyLoad from '@arisageha/react-lazyload-fixed';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
 import { emptyCall } from '@/common/utils/functionTools';
 import { hintText } from '@/renderer/utils/tools';
+import { throttle } from '@/common/decorator/decorator';
 
 export interface IPreviewState {
     zoomLevel: number;
@@ -23,11 +24,10 @@ export interface IPreviewProps {
 
 export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     private readonly previewRef: React.RefObject<HTMLDivElement>;
+    loadLock: boolean = false;
 
     imageMap: {
-        [key: string]: {
-            [key: number]: JSX.Element;
-        };
+        [key: string]: JSX.Element;
     };
 
     private readonly pictureBoxRefs: {
@@ -45,8 +45,33 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.state = {
             album: this.props.album.slice(0, 20),
             zoomLevel: 6,
-            loadedIndex: 0
+            loadedIndex: -1
         };
+
+        this.startLoad();
+    }
+
+    startLoad() {
+        this.loadLock = true;
+
+        const album = this.state.album;
+        const nextIndex = this.state.loadedIndex + 1;
+        console.log(nextIndex);
+        console.log(this.state.album[nextIndex]);
+        const url = this.state.album[nextIndex].url;
+        const image = new Image();
+        const onloadFunc = () => {
+            this.setState({
+                loadedIndex: nextIndex
+            });
+            setTimeout(() => {
+                if (album.length > nextIndex + 1) this.startLoad();
+                else this.loadLock = false;
+            }, 0);
+        };
+        image.onload = onloadFunc;
+        image.onerror = onloadFunc;
+        image.src = url;
     }
 
     componentDidMount() {
@@ -125,29 +150,24 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         });
     }
 
-    getImage(dataUrl: string): Promise<HTMLImageElement> {
-        return new Promise((resolve, reject) => {
-            const image = new Image();
-            image.src = dataUrl;
-            image.onload = () => {
-                resolve(image);
-            };
-            image.onerror = (el: any, err: string) => {
-                reject(err);
-            };
-        });
+    appendAlbum = () => {
+        this.appendAlbumWithThrottle.call(this);
     }
 
-    appendAlbum = () => {
+    appendAlbumWithThrottle() {
+        if (this.loadLock) return;
         const curLength = this.state.album.length;
         if (this.state.album.length < this.props.album.length) {
             const album = this.props.album.slice(0, curLength + 10);
             this.setState({ album });
+            setTimeout(() => {
+                this.startLoad();
+            }, 0);
         }
     }
 
     render(): JSX.Element {
-        const album = this.state.album;
+        const album = this.state.album.slice(0, this.state.loadedIndex + 1);
         const zoomLevel = this.state.zoomLevel;
         const showTitle: boolean = zoomLevel === 11;
 
@@ -158,15 +178,12 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
                 onWheel={this.handleWheel}
                 style={{ opacity: this.props.isShow ? 1 : 0 }}>
                 {album.map((picture, index) => {
-                    const resolution = 1200;
-
                     let content: JSX.Element = null;
                     if (isVideo(picture.url)) {
                         content = <video src={encodeChar(picture.url)} autoPlay muted loop></video>;
                     } else {
-                        content = (this.imageMap[picture.id] && this.imageMap[picture.id][resolution]) || <img draggable={false} src={encodeChar(picture.url)} />;
-                        this.imageMap[picture.id] ? emptyCall() : (this.imageMap[picture.id] = {});
-                        this.imageMap[picture.id][resolution] = content;
+                        content = (this.imageMap[picture.id] && this.imageMap[picture.id]) || <img draggable={false} src={encodeChar(picture.url)} />;
+                        this.imageMap[picture.id] = content;
                     }
 
                     return (

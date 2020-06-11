@@ -329,7 +329,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
         });
     }
 
-    handleScroll = (e: React.UIEvent) => {
+    handleScroll = (e: React.WheelEvent) => {
         const el = this.scrollRef.current;
 
         if (el.scrollTop >= el.scrollHeight - el.clientHeight - 200) {
@@ -368,7 +368,7 @@ class PictureView extends React.PureComponent<IPictureViewProps & WithTranslatio
                 id={`pictureViewScrollWrapper${this.props.index}`}
                 className={`${style.pictureViewWrapper} medium-scrollbar`}
                 style={{ display: this.props.isShow ? 'block' : 'none' }}
-                onScroll={this.handleScroll}
+                onWheel={this.handleScroll}
                 ref={this.scrollRef}
             >
                 <PageDetail />
