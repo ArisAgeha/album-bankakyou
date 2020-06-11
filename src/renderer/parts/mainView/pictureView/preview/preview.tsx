@@ -1,11 +1,7 @@
 import * as React from 'react';
 import style from './preview.scss';
 import { picture } from '../pictureView';
-import LazyLoad from '@arisageha/react-lazyload-fixed';
 import { isVideo, encodeChar } from '@/common/utils/businessTools';
-import { emptyCall } from '@/common/utils/functionTools';
-import { hintText } from '@/renderer/utils/tools';
-import { throttle } from '@/common/decorator/decorator';
 
 export interface IPreviewState {
     zoomLevel: number;
@@ -57,7 +53,9 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
         const album = this.state.album;
         const nextIndex = this.state.loadedIndex + 1;
-        const url = this.state.album[nextIndex].url;
+        if (nextIndex >= this.state.album.length) return;
+
+        const url = this.state.album[nextIndex]?.url;
         const image = new Image();
         console.log(nextIndex);
         const onloadFunc = () => {
@@ -83,12 +81,21 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
         this.abortRequestPicture();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps: IPreviewProps) {
         const boxWidth: string = String(100 / this.state.zoomLevel) + '%';
 
         Object.values(this.pictureBoxRefs).forEach(ref => {
             ref.style.width = boxWidth;
         });
+
+        if (!this.props.isShow) {
+            this.abortLoad = true;
+            this.loadLock = false;
+        }
+        else if (this.props.isShow && !prevProps.isShow) {
+            this.abortLoad = false;
+            this.startLoad();
+        }
     }
 
     initEvent() {
