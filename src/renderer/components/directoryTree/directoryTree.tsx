@@ -263,7 +263,6 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
         this.shouldShowTree.includes(node.title.toLowerCase())
 
     renderRoot(node: ITreeDataNode, isChild?: boolean) {
-        if (node.title === '杂项 1') console.time('a');
         const isExpanded: boolean = this.state.searchKeyword !== '' || this.state.expandedKeys.includes(node.key);
         const shouldShow: boolean = this.checkRootShouldShow(node);
 
@@ -299,7 +298,6 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
                 {isExpanded ? NodeChildren : ''}
             </div>
         );
-        if (node.title === '杂项 1') console.timeEnd('a');
 
         return res;
     }

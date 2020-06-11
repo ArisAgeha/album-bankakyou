@@ -46,7 +46,7 @@ export function primitiveArrayDeepEqual(actual: any, expected: any) {
 }
 
 export function naturalCompare(a: any, b: any) {
-    return ('' + a).localeCompare(('' + b), 'en', { numeric: true });
+    return a.localeCompare(b, 'zh', { numeric: true });
 }
 
 export function deepEqual(actual: any, expected: any, strict: boolean) {
