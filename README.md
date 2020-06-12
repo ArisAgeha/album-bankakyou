@@ -1,6 +1,4 @@
-> ## 支持通道
 
- <img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/aliqrcode.png" height=225 alt="图片名称" /><img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/wxqrcode.png" height=225 alt="图片名称" />
 
 > ## 题外
 
@@ -121,26 +119,10 @@
 | `任意数字键组合` + `回车` | 跳转到第 n 页 |
 | `方向键`                  | 换页          |
 
-> ### 更新方向
-
-- 短期
-
-1. 添加`收藏/播放列表功能`
-2. 为各种载入状态添加更加圆滑的过渡效果或者“载入中”的提示，以优化在大量图片阅读下的用户体验（如现在对页模式处理图片量大于3000时(*hhd)会有明显的5~10多秒的卡顿，但无任何提示）
-3. 自动阅读（例如单页模式、对页模式下的可自定义播放间隔的幻灯片播放，滚动模式下自动滚动）
-
-- 近期
-
-1. 加入`图片/相册管理操作`，如对文件夹的移动、复制、删除、重命名等
-2. 优化目录树性能，替换为虚拟滚动
-3. 软件内添加快捷键 / 操作提示
-4. 相册/图片评分系统，可以自定义评分或根据用户浏览时长来自动打分
-
-- 后续
-
-1. 尝试将图片预览模式下的图片换为缩略图
-2. 更多内容`可配置化`，如所有快捷键的更改、默认窗口的大小比例、开机是否自启动等
-
 > ## 历史版本更新日志
 [前往Release查看](https://github.com/ArisAgeha/album-bankakyou/releases)
 <br>
+
+> ## 支持通道
+
+ <img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/aliqrcode.png" height=225 alt="图片名称" /><img src="https://raw.githubusercontent.com/ArisAgeha/qrcode/master/static/wxqrcode.png" height=225 alt="图片名称" />
