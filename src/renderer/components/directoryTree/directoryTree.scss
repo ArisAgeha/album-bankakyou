@@ -27,6 +27,7 @@
     .treeRootWrapper {
         height: calc(100% - 24px - 37px);
         width: 100%;
+        overflow: scroll;
     }
 }
 

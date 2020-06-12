@@ -175,17 +175,15 @@ class DirectoryView extends PureComponent<IDirectoryViewProps & WithTranslation,
         const t = this.props.t;
 
         return (
-            <div className={`${style.dirTreeWrapper} medium-scrollbar`}>
-                <DirectoryTree
-                    onSyncData={this.syncDirTree}
-                    className={style.dirTree}
-                    onSelect={this.handleSelect}
-                    treeData={this.state.treeData}
-                    loadData={this.onLoadData}
-                    onFold={this.handleFold}
-                    onDeleteUrl={this.handleDeleteUrl}
-                />
-            </div>
+            <DirectoryTree
+                onSyncData={this.syncDirTree}
+                className={style.dirTree}
+                onSelect={this.handleSelect}
+                treeData={this.state.treeData}
+                loadData={this.onLoadData}
+                onFold={this.handleFold}
+                onDeleteUrl={this.handleDeleteUrl}
+            />
         );
     }
 }

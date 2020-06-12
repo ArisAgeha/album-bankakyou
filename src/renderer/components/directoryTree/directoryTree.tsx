@@ -87,7 +87,12 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
             const { children, ...newNode } = node;
             if (this.state.searchKeyword === '' || (this.state.searchKeyword !== '' && this.shouldShowTree.includes(node.title.toLowerCase()))) {
                 nodesMap.push(newNode);
-                if (node.children && this.state.expandedKeys.includes(node.key)) this.buildTreeNodesMap(node.children, nodesMap);
+                if (this.state.searchKeyword === '') {
+                    if (node.children && this.state.expandedKeys.includes(node.key)) this.buildTreeNodesMap(node.children, nodesMap);
+                }
+                else {
+                    if (node.children) this.buildTreeNodesMap(node.children, nodesMap);
+                }
             }
         });
         return nodesMap;
@@ -265,6 +270,7 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
     renderRoot(node: ITreeDataNode, isChild?: boolean) {
         const isExpanded: boolean = this.state.searchKeyword !== '' || this.state.expandedKeys.includes(node.key);
         const shouldShow: boolean = this.checkRootShouldShow(node);
+        if (!shouldShow) return '';
 
         const NodeChildren = (
             <div className={style.nodeRootChildren}>
@@ -276,7 +282,7 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
 
         const res = (
             <div
-                className={`${style.nodeRoot} ${shouldShow ? '' : style.hidden}`}
+                className={`${style.nodeRoot}`}
                 key={node.key}
                 onDragStart={(e: React.DragEvent) => { this.handleDragNodeStart(e, node); }}
                 onDragEnd={this.handleDragNodeEnd}
@@ -361,14 +367,14 @@ class DirectoryTree extends PureComponent<IDirectoryTreeProps & WithTranslation,
         const SearchBar = this.renderSearchBar;
 
         return (
-            <div className={style.tree}>
+            <div className={`${style.tree}`} >
                 <ControlBar />
                 <SearchBar />
 
                 <div
                     onMouseEnter={this.hintText}
                     onMouseLeave={() => { hintText([{ text: t('%openSettingDesc%'), color: 'rgb(255, 0, 200)', margin: 4 }, { text: t('%openSetting%') }]); }}
-                    className={`${style.treeRootWrapper} ${className}`}
+                    className={`${style.treeRootWrapper} medium-scrollbar ${className}`}
                     onClick={this.handleClickBackground}
                     onDragOver={this.handleDragOver} >
                     <div className={style.treeRoot}>
