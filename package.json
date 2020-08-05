@@ -9,7 +9,7 @@
     "url": "https://github.com/ArisAgeha/album-bankakyou.git"
   },
   "scripts": {
-    "test": "electron .webpack/main/index.js",
+    "test": "electron .",
     "start": "chcp 65001 && cross-env NODE_ENV=production electron-forge start",
     "start:dev": "electron-forge start",
     "start:prod": "cross-env NODE_ENV=production npm run get-nls && npm run build-constant && electron-forge start",
@@ -142,6 +142,7 @@
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "reflect-metadata": "^0.1.13",
-    "sass-resources-loader": "^2.0.1"
+    "sass-resources-loader": "^2.0.1",
+    "tesseract.js": "^2.0.0"
   }
 }

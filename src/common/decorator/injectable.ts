@@ -27,7 +27,7 @@ export function createInstance<T>(_constructor: new (...args: any[]) => T): T {
         return new (v as any)();
     });
 
-    // store the instance, and make sure that only single instance will exsist of one service.
+    // store the instance, and make sure that only single instance will exsist for each service.
     let instance = Reflect.getMetadata('serviceInstance', _constructor);
     if (!instance) {
         instance = new _constructor(...paramInstances);

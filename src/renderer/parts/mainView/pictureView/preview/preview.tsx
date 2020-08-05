@@ -53,7 +53,10 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
 
         const album = this.state.album;
         const nextIndex = this.state.loadedIndex + 1;
-        if (nextIndex >= this.state.album.length) return;
+        console.log('-----');
+        console.log(nextIndex);
+        console.log(this.state.album.length);
+        if (nextIndex >= this.props.album.length) return;
 
         const url = this.state.album[nextIndex]?.url;
         const image = new Image();
@@ -158,6 +161,7 @@ export class Preview extends React.PureComponent<IPreviewProps, IPreviewState> {
     }
 
     appendAlbum = () => {
+        console.log(this.loadLock);
         if (this.loadLock) return;
         const curLength = this.state.album.length;
         if (this.state.album.length < this.props.album.length) {
